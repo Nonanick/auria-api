@@ -8,7 +8,7 @@ import { IProxiedApiRoute } from '../proxy/IProxiedApiRoute';
 
 export abstract class ApiContainer extends EventEmitter implements IApiContainer {
 
-  protected _cachedRoutes? : IProxiedApiRoute[];
+  protected _cachedRoutes?: IProxiedApiRoute[];
 
   protected _controllers: IApiController[] = [];
 
@@ -20,13 +20,13 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 
   abstract get baseURL(): string;
 
-  transformRoute(route : IProxiedApiRoute) : IProxiedApiRoute {
+  transformRoute(route: IProxiedApiRoute): IProxiedApiRoute {
 
-    let nRoute : IProxiedApiRoute = {
+    let nRoute: IProxiedApiRoute = {
       ...route,
-      url : path.join(this.baseURL, route.url),
-      requestProxies : [...this.requestProxies(), ...route.requestProxies],
-      responseProxies:[...this.responseProxies(), ...route.responseProxies]
+      url: path.join(this.baseURL, route.url),
+      requestProxies: [...this.requestProxies(), ...route.requestProxies],
+      responseProxies: [...this.responseProxies(), ...route.responseProxies]
     };
 
     return nRoute;
@@ -76,7 +76,7 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 
   addRequestProxy(proxy: IApiRequestProxy): IApiContainer {
     if (!this._requestProxies.includes(proxy)) {
-      this._responseProxies.push(proxy);
+      this._requestProxies.push(proxy);
     }
     return this;
   }
@@ -110,27 +110,33 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 
   allRoutes(): IProxiedApiRoute[] {
 
-    if(this._cachedRoutes != null) {
+    if (this._cachedRoutes != null) {
       return this._cachedRoutes;
     }
 
     let childContainerRoutes = this._containers.map(c => c.allRoutes());
     let controllerRoutes = this._controllers.map(c => c.allRoutes());
 
-    let allRoutes : IProxiedApiRoute[] = [];
+    let allRoutes: IProxiedApiRoute[] = [];
 
-    allRoutes.concat(...childContainerRoutes);
-    allRoutes.concat(...controllerRoutes);
+    allRoutes = allRoutes.concat(...controllerRoutes);
+    allRoutes = allRoutes.concat(...childContainerRoutes);
 
-    this._cachedRoutes = allRoutes.map(r => ({
-      ...this.transformRoute(r)
-    }));
+    this._cachedRoutes = allRoutes.map(r => {
+      return { ...this.transformRoute(r) };
+    });
 
     // Add Base URL to route URL's
     return [...this._cachedRoutes];
   }
 
   deleteCacheRoutes() {
+    this.childContainers().forEach(
+      (c) => {
+        if (c instanceof ApiContainer)
+          c.deleteCacheRoutes();
+      }
+    );
     delete this._cachedRoutes;
   }
 

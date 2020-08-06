@@ -43,10 +43,10 @@ export class ApiRouteRequest implements IApiRouteRequest {
   getParameter(name: string, origin = ApiRouteRequest.EMPTY_ORIGIN_NAME) {
     // Asking for a specific origin?
     if (origin != ApiRouteRequest.EMPTY_ORIGIN_NAME) {
-      if (this._parametersByOrigin[origin] != null) { 
+      if (this._parametersByOrigin[origin] != null) {
         return this._parametersByOrigin[origin][name] ?? undefined;
       }
-      else { 
+      else {
         return undefined;
       }
     }
@@ -57,10 +57,10 @@ export class ApiRouteRequest implements IApiRouteRequest {
   hasParameter(name: string, origin = ApiRouteRequest.EMPTY_ORIGIN_NAME): boolean {
     // Asking for a specific origin?
     if (origin != ApiRouteRequest.EMPTY_ORIGIN_NAME) {
-      if (this._parametersByOrigin[origin] != null) { 
+      if (this._parametersByOrigin[origin] != null) {
         return this._parametersByOrigin[origin][name] != null;
       }
-      else { 
+      else {
         return false;
       }
     }
@@ -73,7 +73,7 @@ export class ApiRouteRequest implements IApiRouteRequest {
   protected _parametersByOrigin: ParametersByOrigin = {};
 
   get parameters(): RequestParameters {
-    return {...this._allParameters};
+    return { ...this._allParameters };
   }
 
   addParameter(name: string, value: any, origin = ApiRouteRequest.EMPTY_ORIGIN_NAME) {
@@ -88,7 +88,7 @@ export class ApiRouteRequest implements IApiRouteRequest {
     this._allParameters[name] = value;
   }
 
-  removeParameter(name: string, value: any, origin = ApiRouteRequest.EMPTY_ORIGIN_NAME) {
+  removeParameter(name: string, origin = ApiRouteRequest.EMPTY_ORIGIN_NAME) {
     if (this._parametersByOrigin[origin] == null) {
       this._parametersByOrigin[origin] = {};
     }
@@ -107,9 +107,10 @@ export class ApiRouteRequest implements IApiRouteRequest {
           if (existingOrigins === origin) {
             continue;
           }
-          // If there were previous shadowed 
+          // If there were previous shadowed value, update!
           if (this._parametersByOrigin[existingOrigins][name] != null) {
-            this._allParameters[existingOrigins][name] = value;
+            let value = this._parametersByOrigin[existingOrigins][name];
+            this._allParameters[name] = value;
             break;
           }
         }
@@ -125,7 +126,7 @@ export class ApiRouteRequest implements IApiRouteRequest {
    * by accessing 'parameters'
    */
   get parametersByOrigin(): ParametersByOrigin {
-    let all = {...this._parametersByOrigin};
+    let all = { ...this._parametersByOrigin };
     delete all[ApiRouteRequest.EMPTY_ORIGIN_NAME];
     return all;
   }
