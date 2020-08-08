@@ -1,1 +1,0 @@
-export type ParameterSchemaPolicy = 'none' | 'enforce-required' | 'only-in-schema';

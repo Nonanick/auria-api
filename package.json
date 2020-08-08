@@ -8,6 +8,8 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.2",
+    "@types/express": "^4.17.7",
     "@types/jest": "^26.0.9",
     "@types/node": "^14.0.27",
     "jest": "^26.2.2",
@@ -15,8 +17,10 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "auria-data": "link:..\\data",
+    "auria-data": "link:../auria-data/",
+    "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
+    "express": "^4.17.1",
     "tslib": "^2.0.0"
   },
   "scripts": {

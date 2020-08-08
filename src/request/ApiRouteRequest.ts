@@ -17,9 +17,13 @@ export class ApiRouteRequest implements IApiRouteRequest {
 
   get originalURL(): string {
     return this._originalURL;
-  }
+  };
+
+  identification: string = "";
 
   url: string;
+
+  method? : string;
 
   constructor(adapter: string, url: string) {
     this._adapter = adapter;

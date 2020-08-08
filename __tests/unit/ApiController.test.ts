@@ -1,3 +1,4 @@
+import path from 'path';
 import { ApiController } from '../../src/controller/ApiController';
 import { IApiRouteRequest } from '../../src/request/IApiRouteRequest';
 import { RegisterApiRoute } from '../../src/controller/RegisterApiRoute';
@@ -25,9 +26,7 @@ describe('ApiController', () => {
       url: 'test',
       methods: ['get']
     })
-    public testRouteWithDecorators(req: IApiRouteRequest) {
-
-    }
+    public testRouteWithDecorators(req: IApiRouteRequest) {}
   }
 
   it('should empty object when not overriden', () => {
@@ -52,17 +51,13 @@ describe('ApiController', () => {
   });
 
   it('should understand decorated property as route', () => {
-
     let t = new TestController();
     expect(t.allRoutes().length).toBe(1);
-
   });
 
   it('should inherit default route config', () => {
-
     let t = new TestController();
     expect(t.allRoutes()[0].parameterSchemaPolicy).toBe("enforce-required");
-
   });
 
   it('should be able to add new routes dynamically', () => {
@@ -75,7 +70,7 @@ describe('ApiController', () => {
     });
 
     expect(t.allRoutes().length).toBe(2);
-    expect(t.allRoutes()[1].url).toBe('test\\dynamic');
+    expect(t.allRoutes()[1].url).toBe(path.join('test','dynamic'));
 
   });
 

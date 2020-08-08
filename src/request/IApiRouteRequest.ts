@@ -6,6 +6,10 @@ export interface IApiRouteRequest {
 
   readonly originalURL : string;
 
+  identification : string;
+
+  method?: string;
+
   url : string;
 
   appliedProxies?: IApiRequestProxy[];
