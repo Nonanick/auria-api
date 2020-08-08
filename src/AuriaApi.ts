@@ -36,6 +36,5 @@ export { ApiRouteResolver } from './route/ApiRouteResolver';
 export { HTTPMethod } from './route/HTTPMethod';
 export { IApiRoute } from './route/IApiRoute';
 export { IRouteParameterSpecification } from './route/IRouteParameterSpecification';
-export { OptionalParameterValidationPolicy } from './route/OptionalParameterValidationPolicy';
-export { ParameterSchemaPolicy } from './route/ParameterSchemaPolicy';
+export { ApiParameterSchemaPolicy } from './policies/ApiParameterSchemaPolicy';
 export { RouteParameter } from './route/RouteParameter';

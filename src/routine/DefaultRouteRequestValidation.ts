@@ -5,7 +5,7 @@ import { Maybe } from "../error/Maybe";
 export function DefaultRouteRequestValidation(
   route: IProxiedApiRoute,
   request: IApiRouteRequest
-): Maybe<true | string> {
+): Maybe<true> {
 
   switch (route.parameterSchemaPolicy) {
     case "none":

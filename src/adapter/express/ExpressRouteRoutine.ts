@@ -67,7 +67,7 @@ export async function ExpressRouteRoutine(
   let responseProxies: IApiResponseProxy[] = routine.responseProxies;
   // Handle response proxies
   let maybeResponse = await applyResponseProxies(response, responseProxies);
-  // Any errors during proxies ?
+  // Any errors during response proxies ?
   if (
     maybeResponse instanceof ApiException ||
     maybeResponse instanceof ApiError

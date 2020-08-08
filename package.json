@@ -17,7 +17,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "auria-data": "link:../auria-data/",
+    "auria-data": "link:..\\data",
     "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
