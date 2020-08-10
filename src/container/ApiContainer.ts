@@ -24,7 +24,7 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 
     let nRoute: IProxiedApiRoute = {
       ...route,
-      url: path.join(this.baseURL, route.url),
+      url: path.posix.join(this.baseURL, route.url),
       requestProxies: [...this.requestProxies(), ...route.requestProxies],
       responseProxies: [...this.responseProxies(), ...route.responseProxies]
     };

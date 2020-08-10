@@ -1,6 +1,7 @@
 import express, { Application, Request, Response, NextFunction, RequestHandler } from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
+
 import { IApiAdapter } from '../IApiAdapter';
 import { ApiContainer } from '../../container/ApiContainer';
 import { IProxiedApiRoute } from '../../proxy/IProxiedApiRoute';
@@ -13,6 +14,7 @@ import { ApiRequestHandler } from '../../maestro/ApiRequestHandler';
 import { EventEmitter } from 'events';
 import { RequestFlowNotDefined } from '../../error/exceptions/RequestFlowNotDefined';
 import { Server } from 'http';
+import { ExpressEvents } from './ExpressEvents';
 
 export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 
@@ -64,7 +66,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
    * ------
    * HTTP Server created when the adapter is started
    */
-  protected _server? : Server;
+  protected _server?: Server;
 
   /**
    * Loaded Routes
@@ -115,11 +117,15 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
   ) => {
 
     if (typeof this._apiHandler !== "function") {
+      let error = new RequestFlowNotDefined(
+        'Express adatper does not have an associated api request handler'
+      );
       this._errorHanlder(
         response,
         next,
-        new RequestFlowNotDefined('Express adatper does not have an associated api request handler')
+        error
       );
+      this.emit(ExpressEvents.REQUEST_ERROR, error, route, request);
     }
 
     // Create API Request
@@ -132,9 +138,11 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
       apiRequest,
       (routeResp) => {
         this._sendResponse(routeResp, response);
+        this.emit(ExpressEvents.REQUEST_RESPONSE, routeResp, route);
       },
       (error) => {
-        this._errorHanlder(response, next, error)
+        this._errorHanlder(response, next, error);
+        this.emit(ExpressEvents.REQUEST_ERROR, error, route, request);
       }
     );
 
@@ -243,8 +251,8 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
   }
 
   boot() {
-    
-    if(this._booted) return;
+
+    if (this._booted) return;
 
     // Add needed express capabilities
     this.use(bodyParser.json());
@@ -303,52 +311,70 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
    */
   protected addRouteToHttpMethod(method: HTTPMethod, route: IProxiedApiRoute) {
     switch (method) {
+      case 'all':
+        this.express.all(route.url, (req, res, next) => {
+          this._requestHandler(route, method, req, res, next);
+        });
+        this.emit(ExpressEvents.ALL_REQUEST, route);
+        break;
       case 'get':
         this.express.get(route.url, (req, res, next) => {
           this._requestHandler(route, method, req, res, next);
         });
-        return;
+        this.emit(ExpressEvents.GET_REQUEST, route);
+        break;
       case 'post':
         this.express.post(route.url, (req, res, next) => {
           this._requestHandler(route, method, req, res, next);
         });
-        return;
+        this.emit(ExpressEvents.POST_REQUEST, route);
+        break;
       case 'put':
         this.express.put(route.url, (req, res, next) => {
           this._requestHandler(route, method, req, res, next);
         });
-        return;
+        this.emit(ExpressEvents.PUT_REQUEST, route);
+        break;
       case 'patch':
         this.express.patch(route.url, (req, res, next) => {
           this._requestHandler(route, method, req, res, next);
         });
-        return;
+        this.emit(ExpressEvents.PATCH_REQUEST, route);
+        break;
       case 'delete':
         this.express.delete(route.url, (req, res, next) => {
           this._requestHandler(route, method, req, res, next);
         });
-        return;
+        this.emit(ExpressEvents.DELETE_REQUEST, route);
+        break;
       case 'head':
         this.express.head(route.url, (req, res, next) => {
           this._requestHandler(route, method, req, res, next);
         });
-        return;
+        this.emit(ExpressEvents.HEAD_REQUEST, route);
+        break;
       case 'options':
         this.express.options(route.url, (req, res, next) => {
           this._requestHandler(route, method, req, res, next);
         });
-        return;
+        this.emit(ExpressEvents.OPTIONS_REQUEST, route);
+        break;
       case 'connect':
         this.express.connect(route.url, (req, res, next) => {
           this._requestHandler(route, method, req, res, next);
         });
-        return;
+        this.emit(ExpressEvents.CONNECT_REQUEST, route);
+        break;
       case 'trace':
         this.express.trace(route.url, (req, res, next) => {
           this._requestHandler(route, method, req, res, next);
         });
-        return;
+        this.emit(ExpressEvents.TRACE_REQUEST, route);
+        break;
     }
+
+    this.emit(ExpressEvents.REQUEST, route, method);
+
   }
 
   /**
@@ -360,7 +386,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
    * @param port 
    */
   onPort(port: number) {
-    if(this._started) return;
+    if (this._started) return;
     this._port = port;
   }
 
@@ -371,10 +397,22 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
   }
 
   stop() {
-    if(this._started) { 
+    if (this._started) {
       this._server!.close();
       this._started = false;
     }
   }
 
+  loadedRoutes(): RoutesByURL {
+    let loaded: RoutesByURL = {};
+    for (let route of this._loadedRoutes) 
+      loaded[route.url] = route;
+
+    return loaded;
+  }
+
 }
+
+type RoutesByURL = {
+  [routeURL : string] : IProxiedApiRoute
+};

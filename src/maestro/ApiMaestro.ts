@@ -10,8 +10,6 @@ import { DefaultParameterValidator } from './default/DefaultParameterValidator';
 
 export class ApiMaestro implements IApiMaestro {
 
-  static ADAPTER_NAME = "ApiMaestro";
-
   public validateRequestParameters: ValidateApiCallFunction = DefaultParameterValidator;
 
   public validateRequestSchema?: ValidateApiCallFunction;
@@ -84,31 +82,13 @@ export class ApiMaestro implements IApiMaestro {
     }
 
     // Call API
-    let apiResponse = await this.callResolver(route, request);
+    let apiResponse = await this.callResolver(route, request, sendResponse, sendError);
     if (apiResponse instanceof ApiError || apiResponse instanceof ApiException) {
       sendError(apiResponse);
       return;
     }
 
     // Any commands for Maestro ? TODO -- what will be exposed to ApiMaestro Command?
-    if(apiResponse.commands != null) {
-      let commands = apiResponse.commands;
-      if(Array.isArray(commands)) {
-        for(let comm of commands) {
-          if(Array.isArray(comm.adapters)) {
-            if(comm.adapters.includes(ApiMaestro.ADAPTER_NAME)) {
-
-            }
-          } else {
-            if(comm.adapters === ApiMaestro.ADAPTER_NAME) {
-
-            }
-          }
-        }
-      } else {
-
-      }
-    }
 
     sendResponse(apiResponse);
   }

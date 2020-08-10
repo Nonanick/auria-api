@@ -8,4 +8,5 @@ export type HTTPMethod =
   | "connect" //stabilshes a tunnel
   | "trace" // Loop-Back request
   | "patch" // Partial mutation (update)
+  | "all" // Match all of the above
   ;

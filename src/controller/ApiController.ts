@@ -52,7 +52,7 @@ export abstract class ApiController implements IApiController {
 
   /**
    * ## Transform Route
-   * ----------------
+   * ------------------
    * 
    * Act as a proxy for all APIRoutes inside this controller
    * 
@@ -64,13 +64,14 @@ export abstract class ApiController implements IApiController {
    * defined inside this controller the best way to achieve it
    * is to override this method! 
    * 
-   * Remember to call *super.transformRoute* if you wish to preserve the default behaviour!
+   * Remember to call *super.transformRoute* if you wish to preserve 
+   * the default behaviour!
    * 
    * @param route Route that will be transformed
    */
   transformRoute(route: IApiRoute): IApiRoute {
     let transformedRoute = { ...route };
-    transformedRoute.url = path.join(this.baseURL, route.url);
+    transformedRoute.url = path.posix.join(this.baseURL, route.url);
     return transformedRoute;
   }
 
