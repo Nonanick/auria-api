@@ -6,13 +6,13 @@
  */
 export type ApiParameterSchemaPolicy = 
 /**
- * None
+ * Don't Validate
  * -----
- * Allow any parameter to be passed, parameters
- * the lack of parameters marked as required won't prevent 
- * the route to be called
+ * Allow any parameter to be passed to the route
+ * the lack of parameters marked as 'required' won't prevent 
+ * the route from being called
  */
-| "none" 
+| "dont-validate" 
 /**
  * Enforce Required
  * -----------------
@@ -21,9 +21,11 @@ export type ApiParameterSchemaPolicy =
  */
 | "enforce-required"
 /**
- * Only in Schema
+ * Strict Schema
  * ----------------
- * Only allows parameters that are described as
+ * [] Only allows parameters that are described as
  * required or optional to be passed in
+ * 
+ * [] Required parameters must be present!
  */
-| "only-in-schema";
+| "strict-schema";

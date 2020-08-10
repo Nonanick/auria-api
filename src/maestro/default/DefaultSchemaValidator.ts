@@ -1,29 +1,31 @@
-import { ApiParameterSchemaPolicy } from "./ApiParameterSchemaPolicy";
-import { Maybe } from "../error/Maybe";
-import { IApiRouteRequest } from "../request/IApiRouteRequest";
-import { IProxiedApiRoute } from "../proxy/IProxiedApiRoute";
-import { ApiException } from "../error/ApiException";
-import { UnkownParameterSchemaPolicy } from "../error/exceptions/UnknowmParameterSchemaPolicy";
-import { ApiError } from "../error/ApiError";
-import { assert } from "console";
-import { ParameterSchemaViolation } from "../error/error/ParameterSchemaViolation";
-import { isRouteParameterSpecification } from "../route/IRouteParameterSpecification";
-import { RouteParameter } from '../route/RouteParameter';
+import { ApiParameterSchemaPolicy } from "../../policies/ApiParameterSchemaPolicy";
+import { Maybe } from "../../error/Maybe";
+import { IApiRouteRequest } from "../../request/IApiRouteRequest";
+import { IProxiedApiRoute } from "../../proxy/IProxiedApiRoute";
+import { ApiException } from "../../error/ApiException";
+import { UnknownParameterSchemaPolicy } from "../../error/exceptions/UnknowmParameterSchemaPolicy";
+import { ApiError } from "../../error/ApiError";
+import { ParameterSchemaViolation } from "../../error/error/ParameterSchemaViolation";
+import { isRouteParameterSpecification } from "../../route/IRouteParameterSpecification";
 
 const DefaultSchemaPolicy: ApiParameterSchemaPolicy = "enforce-required";
 
+type ValidationPolicies = {
+  "dont-validate": ParameterSchemaEnforcerFunction;
+  "enforce-required": ParameterSchemaEnforcerFunction;
+  "strict-schema": ParameterSchemaEnforcerFunction;
+  [name: string]: ParameterSchemaEnforcerFunction;
+}
 /**
  * Schema Policy Enforcers
  * -----------------------
  * Hold all known Schema Policy Enforcers
  *
  */
-const SchemaPolicyEnforcers: {
-  [name: string]: ParameterSchemaEnforcerFunction;
-} = {
-  none: noSchemaPolicy,
-  "enforce-required": enforceRequired,
-  "only-in-schema": onlyInSchema,
+const SchemaValidationsPolicies: ValidationPolicies = {
+  "dont-validate": DontValidatePolicy,
+  "enforce-required": EnforceRequiredPolicy,
+  "strict-schema": OnlyInSchemaPolicy,
 };
 
 /**
@@ -35,15 +37,15 @@ const SchemaPolicyEnforcers: {
  * @param route
  * @param policy
  */
-export function applyParameterSchemaPolicy(
+export function DefaultSchemaValidator(
   request: IApiRouteRequest,
   route: IProxiedApiRoute
 ): Maybe<true> {
   let policy = route.parameterSchemaPolicy ?? DefaultSchemaPolicy;
 
-  if (typeof SchemaPolicyEnforcers[policy] === "function") {
+  if (typeof SchemaValidationsPolicies[policy] === "function") {
     try {
-      let ans = SchemaPolicyEnforcers[policy](request, route);
+      let ans = SchemaValidationsPolicies[policy](request, route);
       if (
         typeof ans === "boolean" ||
         ans instanceof ApiError ||
@@ -60,26 +62,26 @@ export function applyParameterSchemaPolicy(
     }
   }
 
-  return new UnkownParameterSchemaPolicy(
+  return new UnknownParameterSchemaPolicy(
     "Route requires an unkown schema policy!"
   );
 }
 
-export function setParameterSchemaEnforcer(
+export function SetSchemaPolicyValidation(
   policyName: string,
   enforcer: ParameterSchemaEnforcerFunction
 ): void {
-  SchemaPolicyEnforcers[policyName] = enforcer;
+  SchemaValidationsPolicies[policyName] = enforcer;
 }
 
-function noSchemaPolicy(
+function DontValidatePolicy(
   request: IApiRouteRequest,
   route: IProxiedApiRoute
 ): Maybe<true> {
   return true;
 }
 
-function enforceRequired(
+function EnforceRequiredPolicy(
   request: IApiRouteRequest,
   route: IProxiedApiRoute
 ): Maybe<true> {
@@ -92,7 +94,7 @@ function enforceRequired(
     for (let requiredParam of required) {
       if (typeof requiredParam === "string") {
         if (!request.hasParameter(requiredParam)) {
-         return new ParameterSchemaViolation(`Route requires parameter ${required} to be present!`);
+          return new ParameterSchemaViolation(`Route requires parameter ${required} to be present!`);
         }
       }
       if (isRouteParameterSpecification(requiredParam)) {
@@ -105,11 +107,11 @@ function enforceRequired(
   }
 
   if (typeof required === "string") {
-   return searchInRequest(request, required);
+    return searchInRequest(request, required);
   }
 
   if (isRouteParameterSpecification(required)) {
-   return searchInRequest(request, required.name, required.origin);
+    return searchInRequest(request, required.name, required.origin);
   }
 
   // Wierd --
@@ -135,17 +137,22 @@ function searchInRequest(
   }
 }
 
-function onlyInSchema(
+function OnlyInSchemaPolicy(
   request: IApiRouteRequest,
   route: IProxiedApiRoute
 ): Maybe<true> {
 
+  let knownRequiredParameters : string[] = [];
+  let knownOptionalParameters : string[] = [];
+
+  let allKnownParameters : string[] = [];
+
   let allParameters = request.parametersByOrigin ?? {};
 
-  for(let origin in allParameters) {
-    for(let param in allParameters[origin]) {
-      let ans = parameterExistsInRoute(route, origin, param);
-      if(ans != true) {
+  for (let origin in allParameters) {
+    for (let param in allParameters[origin]) {
+      let ans = parameterExistsInRouteSchema(route, origin, param);
+      if (ans != true) {
         return new ParameterSchemaViolation('Route only allow known parameters!')
       }
     }
@@ -154,11 +161,10 @@ function onlyInSchema(
   return true;
 }
 
-function parameterExistsInRoute(route : IProxiedApiRoute, origin : string, param : string) : Maybe<true> {
-  // TODO implement me!
-  if(Array.isArray(param)) {
+function parameterExistsInRouteSchema(route: IProxiedApiRoute, origin: string, param: string): Maybe<true> {
+  
+  // Search in required parameters
 
-  }
 
   return true;
 

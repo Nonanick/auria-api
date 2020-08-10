@@ -4,19 +4,17 @@ import cookieParser from 'cookie-parser';
 import { IApiAdapter } from '../IApiAdapter';
 import { ApiContainer } from '../../container/ApiContainer';
 import { IProxiedApiRoute } from '../../proxy/IProxiedApiRoute';
-import { ApiCallRoutine } from '../../routine/ApiCallRoutine';
-import { ExpressRouteRoutine } from './ExpressRouteRoutine';
 import { ExpressTransformRequest } from './ExpressTransformRequest';
 import { ExpressSendResponse } from './ExpressSendResponse';
-import { ValidateApiCallRoutine } from '../../routine/ValidateApiCallRoutine';
-import { DefaultRouteRequestValidation } from '../../routine/DefaultRouteRequestValidation';
 import { IApiContainer } from '../../container/IApiContainer';
 import { HTTPMethod } from '../../route/HTTPMethod';
-import { ApiError } from '../../error/ApiError';
-import { ApiException } from '../../error/ApiException';
 import { ExpressErrorHandler } from './ExpressErrorHandler';
+import { ApiRequestHandler } from '../../maestro/ApiRequestHandler';
+import { EventEmitter } from 'events';
+import { RequestFlowNotDefined } from '../../error/exceptions/RequestFlowNotDefined';
+import { Server } from 'http';
 
-export class ExpressAdapter implements IApiAdapter {
+export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 
   public static ADAPTER_NAME = "Express";
 
@@ -24,28 +22,90 @@ export class ExpressAdapter implements IApiAdapter {
     return ExpressAdapter.ADAPTER_NAME;
   }
 
+  /**
+   * Express application
+   * -------------------
+   * Holds the actual express application
+   * 
+   */
   protected express: Application;
 
+  /**
+   * Containers
+   * ------------
+   * Hold all the API Containers that will be exposed to the 
+   * Express Adapter
+   */
   protected containers: ApiContainer[] = [];
 
+  /**
+   * Port
+   * ----
+   * Which port the adapter will run
+   */
   protected _port: number = Number(process.env.EXPRESS_PORT) ?? 3333;
 
+  /**
+   * Booted
+   * -------
+   * Boot state of the adapter
+   */
   protected _booted = false;
 
+  /**
+   * Started
+   * --------
+   * Start state of the adapter
+   */
+  protected _started = false;
+
+  /**
+   * Server
+   * ------
+   * HTTP Server created when the adapter is started
+   */
+  protected _server? : Server;
+
+  /**
+   * Loaded Routes
+   * --------------
+   * All Routes that were already 'loaded'
+   * and are therefore exposed 
+   */
   protected _loadedRoutes: IProxiedApiRoute[] = [];
 
-  protected _middlewares: {
-    [matcher: string]: ExpressMiddleware[]
-  } = {};
-
+  /**
+   * Transform Request
+   * -----------------
+   * Holds the function that shall normalize a Request input
+   * into an *IApiRouteRequest*
+   */
   protected _transformRequest: typeof ExpressTransformRequest = ExpressTransformRequest;
 
-  protected _validateApiCallRequest: ValidateApiCallRoutine = DefaultRouteRequestValidation;
-
-  protected _apiCallRoutine: ApiCallRoutine = ExpressRouteRoutine;
-
+  /**
+   * Send Response
+   * ---------------
+   * Holds the function that shall output an IApiRouteResponse
+   * as an actual HTTP Response (usually in JSON format)
+   */
   protected _sendResponse: typeof ExpressSendResponse = ExpressSendResponse;
 
+  /**
+   * Request Handler
+   * ---------------
+   * Responsible for orchestrating the flow of a request
+   * Steps taken by the default flow:
+   * 1. Trasnform Request
+   * 2. Call the API Request Handler set in the adapter (Usually an APIMaestro handle function)
+   * > 2.1 The API Handler has access to a normalized function to either send the IApiRouteResponse
+   * > or an error
+   * 
+   * @param route Route that the request is directed to
+   * @param method Http method used to fetch the request
+   * @param request Express Request object
+   * @param response Express Response object
+   * @param next Express NextFunction, usually called when an error has ocurred
+   */
   protected _requestHandler = async (
     route: IProxiedApiRoute,
     method: HTTPMethod,
@@ -54,54 +114,116 @@ export class ExpressAdapter implements IApiAdapter {
     next: NextFunction
   ) => {
 
+    if (typeof this._apiHandler !== "function") {
+      this._errorHanlder(
+        response,
+        next,
+        new RequestFlowNotDefined('Express adatper does not have an associated api request handler')
+      );
+    }
+
     // Create API Request
     let apiRequest = this._transformRequest(request);
     apiRequest.method = method;
 
-    // Validate Parameter Policies
-    let isValidRequest = this._validateApiCallRequest(route, apiRequest);
-    if (isValidRequest !== true) {
-      this._errorHanlder(response, next, isValidRequest);
-      return;
-    }
-
-    // Call API
-    let apiResponse = await this._apiCallRoutine(route, apiRequest);
-    if (apiResponse instanceof ApiError || apiResponse instanceof ApiException) {
-      this._errorHanlder(response, next, apiResponse);
-      return;
-    }
-
-    this._sendResponse(apiResponse, response);
+    // Send it to API Handler
+    this._apiHandler!(
+      route,
+      apiRequest,
+      (routeResp) => {
+        this._sendResponse(routeResp, response);
+      },
+      (error) => {
+        this._errorHanlder(response, next, error)
+      }
+    );
 
   };
 
+  /**
+   * Actual API Hanlder
+   * -------------------
+   * Express adapter is only responsible for normalizing the Input/Output
+   * of the API, therefore properly translating the Express request
+   * into an *IApiRouteRequest* and them outputing the *IApiRouteResponse*
+   * 
+   * All other steps should be done by an 'api request hanlder', how this handler
+   * will manage all the processes of validating the request, calling the resolver
+   * checking for possible errors and so on is no concern to the adapter!
+   */
+  protected _apiHandler?: ApiRequestHandler;
+
+  /**
+   * Error Handler
+   * --------------
+   * Function that allows the API Handler to output errors through the default
+   * Express Error Handler or any other adapter error handler
+   */
   protected _errorHanlder: typeof ExpressErrorHandler = ExpressErrorHandler;
 
   constructor() {
+    super();
     this.express = express();
   }
 
-  setCallRouteRoutine(routine: ApiCallRoutine) {
-    this._apiCallRoutine = routine;
+  /**
+   * [SET] Transform Request Function
+   * ---------------------------------
+   * Defines the function that the adapter will use to
+   * transform an Express Request into an *iApiRouteRequest*
+   * 
+   * @param func 
+   */
+  setTransformRequestFunction(func: typeof ExpressTransformRequest) {
+    this._transformRequest = func;
   }
 
-  setRouteRequestValidation(validation: ValidateApiCallRoutine) {
-    this._validateApiCallRequest = validation;
+  /**
+   * [SET] Send Response
+   * --------------------
+   * Defines the function that will output through express
+   * an *IApiResponse* object
+   * 
+   * @param func 
+   */
+  setSendResponseFunction(func: typeof ExpressSendResponse) {
+    this._sendResponse = func;
   }
 
-  setTransformRequestRoutine(routine: typeof ExpressTransformRequest) {
-    this._transformRequest = routine;
-  }
-
-  setSendResponseRoutine(routine: typeof ExpressSendResponse) {
-    this._sendResponse = routine;
-  }
-
-  setErrorHanlder(handler : typeof ExpressErrorHandler) {
+  /**
+   * [SET] Error Handler
+   * -------------------
+   * Defines how the adapter will output errors
+   * @param handler 
+   */
+  setErrorHanlder(handler: typeof ExpressErrorHandler) {
     this._errorHanlder = handler;
   }
 
+  /**
+   * [SET] Request Handler
+   * ----------------------
+   * Defines the function that will actually be repsonsible
+   * for transforming the IApiRouteRequest into an IAPiRouteResponse
+   * 
+   * All other steps like parameter validation, schema validation
+   * check for errors must be done by this handler
+   * 
+   * @param handler 
+   */
+  setRequestHanlder(handler: ApiRequestHandler) {
+    this._apiHandler = handler;
+  }
+
+  /**
+   * [ADD] API Container
+   * --------------------
+   * Add a new API Container to the Express adapter
+   * exposing its routes as acessible URL's when
+   * the adapter in started
+   * 
+   * @param container 
+   */
   addApiContainer(container: ApiContainer) {
     // Prevent duplicates
     if (!this.containers.includes(container)) {
@@ -109,15 +231,30 @@ export class ExpressAdapter implements IApiAdapter {
     }
   }
 
+  /**
+   * Use
+   * -------
+   * Wrapper for Express *use* function
+   * 
+   * @param handler 
+   */
   use(handler: RequestHandler): void {
     this.express.use(handler);
   }
 
   boot() {
+    
+    if(this._booted) return;
+
+    // Add needed express capabilities
     this.use(bodyParser.json());
     this.use(bodyParser.urlencoded({ extended: true }));
     this.use(cookieParser());
+
+    // Add all routes from currently known containers
     this.loadRoutesFromContainers(this.containers);
+
+    this._booted = true;
   }
 
   /**
@@ -129,7 +266,7 @@ export class ExpressAdapter implements IApiAdapter {
    * 
    * @param containers All Containers that will have thei api routes exposed
    */
-  protected loadRoutesFromContainers(containers: IApiContainer[]) {
+  loadRoutesFromContainers(containers: IApiContainer[]) {
 
     for (let container of containers) {
 
@@ -214,15 +351,30 @@ export class ExpressAdapter implements IApiAdapter {
     }
   }
 
+  /**
+   * On Port
+   * --------
+   * Defines the port the server should be started at
+   * Cannot be modified once the server has started
+   * 
+   * @param port 
+   */
   onPort(port: number) {
+    if(this._started) return;
     this._port = port;
   }
 
-  run() {
+  start() {
     this.boot();
-    this.express.listen(this._port);
+    this._server = this.express.listen(this._port);
+    this._started = true;
+  }
+
+  stop() {
+    if(this._started) { 
+      this._server!.close();
+      this._started = false;
+    }
   }
 
 }
-
-type ExpressMiddleware = (req: Request, res: Response, next: NextFunction) => void;
