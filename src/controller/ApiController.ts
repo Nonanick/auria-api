@@ -30,10 +30,16 @@ export abstract class ApiController implements IApiController {
   /**
    * Request Proxies
    * ---------------
+   * All Request proxies of this ApiController
    * 
    */
   protected _requestProxies: IApiRequestProxy[] = [];
 
+  /**
+   * Response Proxies
+   * ----------------
+   * All Response proxies of this ApiController
+   */
   protected _responseProxies: IApiResponseProxy[] = [];
 
   abstract get baseURL(): string;
@@ -76,7 +82,12 @@ export abstract class ApiController implements IApiController {
   }
 
   /**
+   * Add API Route
+   * --------------
    * 
+   * Add a new APIRoute to this instance of APIController
+   * opposite to '@RegisterApiRoute' decorator which defined a new
+   * API Route to ALL instances of the same class
    * @param route 
    */
   addApiRoute(route: IApiRoute) {
@@ -87,10 +98,28 @@ export abstract class ApiController implements IApiController {
     this._apiRoutes.push(routeWithDefaults);
   }
 
+  /**
+   * Request Proxies
+   * ----------------
+   * Return all request proxies defined for this controller
+   * in the order they were added
+   */
   requestProxies(): IApiRequestProxy[] {
     return [...this._requestProxies];
   }
 
+  /**
+   * Add Request Proxy
+   * ------------------
+   * Add a new proxy that will receive all Requests
+   * that are destined to the APiResolvers which reside in this
+   * controller
+   * 
+   * The same proxy cannot be added twice, trying to add the same proxy
+   * to this controller will silently fail
+   * 
+   * @param proxy 
+   */
   addRequestProxy(proxy: IApiRequestProxy): IApiController {
     if (!this._requestProxies.includes(proxy)) {
       this._requestProxies.push(proxy);
@@ -98,6 +127,14 @@ export abstract class ApiController implements IApiController {
     return this;
   }
 
+  /**
+   * Remove Request Proxy
+   * ---------------------
+   * Removes a previously added Request Proxy
+   * Trying to remove a proxy that is not included
+   * in this controller will silently fail
+   * @param proxy 
+   */
   removeRequestProxy(proxy: IApiRequestProxy): IApiController {
     let ioProxy = this._requestProxies.indexOf(proxy);
     if (ioProxy >= 0) {
@@ -106,10 +143,23 @@ export abstract class ApiController implements IApiController {
     return this;
   }
 
+  /**
+   * Response Proxies
+   * -----------------
+   * Return all Response Proxies that for this controller
+   * in the order they were added
+   */
   responseProxies(): IApiResponseProxy[] {
     return [...this._responseProxies];
   }
 
+  /**
+   * Add Response Proxy
+   * -------------------
+   * Add a new proxy that will receive the response from an APIResolver
+   * which resides inside this controller
+   * @param proxy 
+   */
   addResponseProxy(proxy: IApiResponseProxy): IApiController {
     if (!this._responseProxies.includes(proxy)) {
       this._responseProxies.push(proxy);
@@ -117,6 +167,14 @@ export abstract class ApiController implements IApiController {
     return this;
   }
 
+  /**
+   * Remove Response Proxy
+   * ---------------------
+   * Removes a prevuisly added proxy in this controller
+   * Trying to remove a proxy that is not included
+   * in this controller will silently fail
+   * @param proxy 
+   */
   removeResponseProxy(proxy: IApiResponseProxy): IApiController {
     let ioProxy = this._responseProxies.indexOf(proxy);
     if (ioProxy >= 0) {
@@ -125,6 +183,13 @@ export abstract class ApiController implements IApiController {
     return this;
   }
 
+
+  /**
+   * All Routes
+   * ----------
+   * Return all APIRoutes with the Request and Response
+   * proxys from this ApiController
+   */
   allRoutes(): IProxiedApiRoute[] {
     let transformedRoutes: IProxiedApiRoute[] = this._apiRoutes
       .map(r => ({
@@ -134,10 +199,6 @@ export abstract class ApiController implements IApiController {
       }));
 
     return transformedRoutes;
-  }
-
-  runResolver() {
-
   }
 
 }

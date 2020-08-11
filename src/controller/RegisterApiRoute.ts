@@ -3,6 +3,13 @@ import { HTTPMethod } from '../route/HTTPMethod';
 
 export const apiRoutesSymbol = Symbol('ApiControllerRoutes');
 
+/**
+ * Register Api Route
+ * -------------------
+ * Add a class method/parameter as an ApiResolver
+ * 
+ * @param params 
+ */
 export function RegisterApiRoute(params: Omit<Partial<IApiRoute>, 'resolver'> & { url: string }) {
 
   return (target: any, propertyKey: string | symbol) => {
@@ -22,6 +29,13 @@ export function RegisterApiRoute(params: Omit<Partial<IApiRoute>, 'resolver'> & 
     let defaultConfig = proto['defaultRouteConfig'] ?? {};
 
     proto[apiRoutesSymbol].push({
+      ... {
+        parameterSchemaPolicy : 'enforce-required',
+        parametersValidationPolicy : 'ignore-parameter',
+        requiredParameters : [],
+        optionalParameters : [],
+        methods : 'all'
+      },
       ...defaultConfig,
       ...params,
       resolver: proto[propertyKey]

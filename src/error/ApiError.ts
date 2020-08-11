@@ -28,4 +28,4 @@ ${desc.reason}${
   }
 }
 
-type ErrorDisplay = string | ApiErrorDescription;
+export type ErrorDisplay = string | ApiErrorDescription;

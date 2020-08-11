@@ -15,7 +15,8 @@ type ValidationPolicies = {
   "enforce-required": ParameterSchemaEnforcerFunction;
   "strict-schema": ParameterSchemaEnforcerFunction;
   [name: string]: ParameterSchemaEnforcerFunction;
-}
+};
+
 /**
  * Schema Policy Enforcers
  * -----------------------
@@ -38,14 +39,14 @@ const SchemaValidationsPolicies: ValidationPolicies = {
  * @param policy
  */
 export function DefaultSchemaValidator(
+  route: IProxiedApiRoute,
   request: IApiRouteRequest,
-  route: IProxiedApiRoute
 ): Maybe<true> {
   let policy = route.parameterSchemaPolicy ?? DefaultSchemaPolicy;
 
   if (typeof SchemaValidationsPolicies[policy] === "function") {
     try {
-      let ans = SchemaValidationsPolicies[policy](request, route);
+      let ans = SchemaValidationsPolicies[policy](route, request);
       if (
         typeof ans === "boolean" ||
         ans instanceof ApiError ||
@@ -75,15 +76,15 @@ export function SetSchemaPolicyValidation(
 }
 
 function DontValidatePolicy(
+  route: IProxiedApiRoute,
   request: IApiRouteRequest,
-  route: IProxiedApiRoute
 ): Maybe<true> {
   return true;
 }
 
 function EnforceRequiredPolicy(
+  route: IProxiedApiRoute,
   request: IApiRouteRequest,
-  route: IProxiedApiRoute
 ): Maybe<true> {
   let required = route.requiredParameters;
 
@@ -138,8 +139,8 @@ function searchInRequest(
 }
 
 function OnlyInSchemaPolicy(
+  route: IProxiedApiRoute,
   request: IApiRouteRequest,
-  route: IProxiedApiRoute
 ): Maybe<true> {
 
   let knownRequiredParameters : string[] = [];
@@ -171,6 +172,6 @@ function parameterExistsInRouteSchema(route: IProxiedApiRoute, origin: string, p
 }
 
 export type ParameterSchemaEnforcerFunction = (
+  route: IProxiedApiRoute,
   request: IApiRouteRequest,
-  route: IProxiedApiRoute
 ) => Maybe<true>;

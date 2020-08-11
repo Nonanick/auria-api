@@ -111,7 +111,11 @@ async function applyResponseProxies(
   response: IApiRouteResponse,
   proxies: IApiResponseProxy[]
 ): Promise<Maybe<IApiRouteResponse>> {
-  for (let proxy of proxies) {
+
+  // Response proxies go from last to first added ???
+  let reversedProxies = [...proxies].reverse();
+
+  for (let proxy of reversedProxies) {
     try {
       let proxiedResponse = await proxy.apply(response);
       if (

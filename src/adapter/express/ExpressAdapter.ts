@@ -38,7 +38,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
    * Hold all the API Containers that will be exposed to the 
    * Express Adapter
    */
-  protected containers: ApiContainer[] = [];
+  protected _containers: ApiContainer[] = [];
 
   /**
    * Port
@@ -234,8 +234,8 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
    */
   addApiContainer(container: ApiContainer) {
     // Prevent duplicates
-    if (!this.containers.includes(container)) {
-      this.containers.push(container);
+    if (!this._containers.includes(container)) {
+      this._containers.push(container);
     }
   }
 
@@ -252,7 +252,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 
   boot() {
 
-    if (this._booted) return;
+    if (this._booted === true) return;
 
     // Add needed express capabilities
     this.use(bodyParser.json());
@@ -260,7 +260,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
     this.use(cookieParser());
 
     // Add all routes from currently known containers
-    this.loadRoutesFromContainers(this.containers);
+    this.loadRoutesFromContainers(this._containers);
 
     this._booted = true;
   }
@@ -281,11 +281,21 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
       const allRoutes = container.allRoutes();
 
       for (let route of allRoutes) {
+
+        // Trim whitespaces
+        route.url = route.url.trim();
+        
         // Already loaded? Do not add duplicates
         if (this._loadedRoutes.includes(route)) {
           continue;
         }
 
+        // Preppend '/' if not set
+        if(route.url.trim().charAt(0) !== '/') {
+          route.url = '/' + route.url.trim();
+        }
+
+        
         if (Array.isArray(route.methods)) {
           for (let method of route.methods) {
             this.addRouteToHttpMethod(method, route);
@@ -310,6 +320,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
    * @param route Route corresponding to the URL + Method
    */
   protected addRouteToHttpMethod(method: HTTPMethod, route: IProxiedApiRoute) {
+    
     switch (method) {
       case 'all':
         this.express.all(route.url, (req, res, next) => {
