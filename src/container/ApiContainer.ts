@@ -1,143 +1,176 @@
 import path from 'path';
-import { IApiContainer } from './IApiContainer';
+import { ApiAdapterClass, IApiContainer } from './IApiContainer';
 import { IApiController } from '../controller/IApiController';
 import { IApiRequestProxy } from '../proxy/IApiRequestProxy';
 import { IApiResponseProxy } from '../proxy/IApiResponseProxy';
 import { EventEmitter } from 'events';
 import { IProxiedApiRoute } from '../proxy/IProxiedApiRoute';
+import { IApiAdapter } from '../adapter/IApiAdapter';
 
 export abstract class ApiContainer extends EventEmitter implements IApiContainer {
 
-  protected _cachedRoutes?: IProxiedApiRoute[];
+	abstract get baseURL(): string;
 
-  protected _controllers: IApiController[] = [];
+	protected _targetedAdapters?: ApiAdapterClass[];
 
-  protected _containers: IApiContainer[] = [];
+	protected _cachedRoutes?: IProxiedApiRoute[];
 
-  protected _requestProxies: IApiRequestProxy[] = [];
+	transformRoute(route: IProxiedApiRoute): IProxiedApiRoute {
 
-  protected _responseProxies: IApiResponseProxy[] = [];
+		let nRoute: IProxiedApiRoute = {
+			...route,
+			url: path.posix.join(this.baseURL, route.url),
+			requestProxies: [...this.requestProxies(), ...route.requestProxies],
+			responseProxies: [...this.responseProxies(), ...route.responseProxies]
+		};
 
-  abstract get baseURL(): string;
+		return nRoute;
+	}
 
-  transformRoute(route: IProxiedApiRoute): IProxiedApiRoute {
+	/**
+	 * Controllers
+	 * -----------
+	 */
+	protected _controllers: IApiController[] = [];
 
-    let nRoute: IProxiedApiRoute = {
-      ...route,
-      url: path.posix.join(this.baseURL, route.url),
-      requestProxies: [...this.requestProxies(), ...route.requestProxies],
-      responseProxies: [...this.responseProxies(), ...route.responseProxies]
-    };
+	controllers(): IApiController[] {
+		return [...this._controllers];
+	}
 
-    return nRoute;
-  }
+	addController(controller: IApiController): IApiContainer {
+		if (!this._controllers.includes(controller)) {
+			this._controllers.push(controller);
+		}
+		return this;
+	}
 
-  addController(controller: IApiController): IApiContainer {
-    if (!this._controllers.includes(controller)) {
-      this._controllers.push(controller);
-    }
-    return this;
-  }
+	removeController(controller: IApiController): IApiContainer {
+		let ioController = this._controllers.indexOf(controller);
+		if (ioController >= 0) {
+			this._controllers.splice(ioController, 1);
+		}
+		return this;
+	}
 
-  removeController(controller: IApiController): IApiContainer {
-    let ioController = this._controllers.indexOf(controller);
-    if (ioController >= 0) {
-      this._controllers.splice(ioController, 1);
-    }
-    return this;
-  }
+	protected _containers: IApiContainer[] = [];
 
-  controllers(): IApiController[] {
-    return [...this._controllers];
-  }
+	containers(): IApiContainer[] {
+		return [...this._containers];
+	}
 
-  childContainers(): IApiContainer[] {
-    return [...this._containers];
-  }
+	addChildContainer(container: IApiContainer): IApiContainer {
+		if (!this._containers.includes(container)) {
+			this._containers.push(container);
+		}
+		return this;
+	}
 
-  addChildContainer(container: IApiContainer): IApiContainer {
-    if (!this._containers.includes(container)) {
-      this._containers.push(container);
-    }
-    return this;
-  }
+	removeChildContainer(container: IApiContainer): IApiContainer {
+		let ioContainer = this._containers.indexOf(container);
+		if (ioContainer >= 0) {
+			this._containers.splice(ioContainer, 1);
+		}
+		return this;
+	}
 
-  removeChildContainer(container: IApiContainer): IApiContainer {
-    let ioContainer = this._containers.indexOf(container);
-    if (ioContainer >= 0) {
-      this._containers.splice(ioContainer, 1);
-    }
-    return this;
-  }
+	protected _requestProxies: IApiRequestProxy[] = [];
 
-  requestProxies(): IApiRequestProxy[] {
-    return [...this._requestProxies];
-  }
+	requestProxies(): IApiRequestProxy[] {
+		return [...this._requestProxies];
+	}
 
-  addRequestProxy(proxy: IApiRequestProxy): IApiContainer {
-    if (!this._requestProxies.includes(proxy)) {
-      this._requestProxies.push(proxy);
-    }
-    return this;
-  }
+	addRequestProxy(proxy: IApiRequestProxy): IApiContainer {
+		if (!this._requestProxies.includes(proxy)) {
+			this._requestProxies.push(proxy);
+		}
+		return this;
+	}
 
-  removeRequestProxy(proxy: IApiRequestProxy): IApiContainer {
-    let ioProxy = this._requestProxies.indexOf(proxy);
-    if (ioProxy >= 0) {
-      this._requestProxies.splice(ioProxy, 1);
-    }
-    return this;
-  }
+	removeRequestProxy(proxy: IApiRequestProxy): IApiContainer {
+		let ioProxy = this._requestProxies.indexOf(proxy);
+		if (ioProxy >= 0) {
+			this._requestProxies.splice(ioProxy, 1);
+		}
+		return this;
+	}
 
-  responseProxies(): IApiResponseProxy[] {
-    return [...this._responseProxies];
-  }
+	protected _responseProxies: IApiResponseProxy[] = [];
 
-  addResponseProxy(proxy: IApiResponseProxy): IApiContainer {
-    if (!this._responseProxies.includes(proxy)) {
-      this._responseProxies.push(proxy);
-    }
-    return this;
-  }
+	responseProxies(): IApiResponseProxy[] {
+		return [...this._responseProxies];
+	}
 
-  removeResponseProxy(proxy: IApiResponseProxy): IApiContainer {
-    let ioProxy = this._responseProxies.indexOf(proxy);
-    if (ioProxy >= 0) {
-      this._responseProxies.splice(ioProxy, 1);
-    }
-    return this;
-  }
+	addResponseProxy(proxy: IApiResponseProxy): IApiContainer {
+		if (!this._responseProxies.includes(proxy)) {
+			this._responseProxies.push(proxy);
+		}
+		return this;
+	}
 
-  allRoutes(): IProxiedApiRoute[] {
+	removeResponseProxy(proxy: IApiResponseProxy): IApiContainer {
+		let ioProxy = this._responseProxies.indexOf(proxy);
+		if (ioProxy >= 0) {
+			this._responseProxies.splice(ioProxy, 1);
+		}
+		return this;
+	}
 
-    if (this._cachedRoutes != null) {
-      return this._cachedRoutes;
-    }
+	allRoutes(): IProxiedApiRoute[] {
 
-    let childContainerRoutes = this._containers.map(c => c.allRoutes());
-    let controllerRoutes = this._controllers.map(c => c.allRoutes());
+		if (this._cachedRoutes != null) {
+			return this._cachedRoutes;
+		}
 
-    let allRoutes: IProxiedApiRoute[] = [];
+		let childContainerRoutes = this._containers.map(c => c.allRoutes());
+		let controllerRoutes = this._controllers.map(c => c.allRoutes());
 
-    allRoutes = allRoutes.concat(...controllerRoutes);
-    allRoutes = allRoutes.concat(...childContainerRoutes);
+		let allRoutes: IProxiedApiRoute[] = [];
 
-    this._cachedRoutes = allRoutes.map(r => {
-      return { ...this.transformRoute(r) };
-    });
+		allRoutes = allRoutes.concat(...controllerRoutes);
+		allRoutes = allRoutes.concat(...childContainerRoutes);
 
-    // Add Base URL to route URL's
-    return [...this._cachedRoutes];
-  }
+		this._cachedRoutes = allRoutes.map(r => {
+			return { ...this.transformRoute(r) };
+		});
 
-  deleteCacheRoutes() {
-    this.childContainers().forEach(
-      (c) => {
-        if (c instanceof ApiContainer)
-          c.deleteCacheRoutes();
-      }
-    );
-    delete this._cachedRoutes;
-  }
+		// Add Base URL to route URL's
+		return [...this._cachedRoutes];
+	}
 
+	deleteCachedRoutes() {
+		this.containers().forEach(
+			(c) => {
+				if (c instanceof ApiContainer)
+					c.deleteCachedRoutes();
+			}
+		);
+		delete this._cachedRoutes;
+	}
+
+	setTargetedAdapters(adapters: ApiAdapterClass[]) {
+		this._targetedAdapters = adapters;
+	}
+
+	removeTargetedAdapters() {
+		delete this._targetedAdapters;
+	}
+
+	hasTargetedAdapters(): boolean {
+		return this._targetedAdapters != null
+			? this._targetedAdapters.length > 0
+			: false;
+	}
+
+	acceptsAdapter(adapterInstance: IApiAdapter): boolean {
+		if (this.hasTargetedAdapters()) {
+			for (let c of this._targetedAdapters ?? []) {
+				if (adapterInstance instanceof c) {
+					return true;
+				}
+			}
+			return false;
+		}
+		return true;
+	}
 }
+

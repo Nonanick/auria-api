@@ -5,9 +5,9 @@ import { ApiParameterSchemaPolicy } from "../policies/ApiParameterSchemaPolicy";
 import { ApiParametersValidationPolicy } from "../policies/ApiParametersValidationPolicy";
 
 export interface IApiRoute {
-  url: string;
+	url: string;
 
-  methods: HTTPMethod | HTTPMethod[];
+	methods: HTTPMethod | HTTPMethod[];
 
   /**
    * Resolver
@@ -15,8 +15,13 @@ export interface IApiRoute {
    * Function responsible for answering a request
    * Will generate either the *IApiRouteResponse* or
    * the payload for it! 
+	 * 
+	 * When resolver is a string it indicates that the function is
+	 * actually a property from the controller and should be
+	 * called when needed as an index:
+	 * @example controller[route.resolver]
    */
-  resolver: ApiRouteResolver;
+	resolver: ApiRouteResolver | string;
 
   /**
    * Parameter Schema Policy
@@ -34,7 +39,7 @@ export interface IApiRoute {
    * fail when an unkown parameter is passed [DISCOURAGED]
    *
    */
-  parameterSchemaPolicy?: ApiParameterSchemaPolicy;
+	parameterSchemaPolicy?: ApiParameterSchemaPolicy;
 
   /**
    * Optional Parameters Validation Policy
@@ -50,7 +55,7 @@ export interface IApiRoute {
    * 3) Don't validate, will not apply validate function on parameter, sanitizers will
    * apply regardless!
    */
-  parametersValidationPolicy?: ApiParametersValidationPolicy;
+	parametersValidationPolicy?: ApiParametersValidationPolicy;
 
   /**
    * Required Parameters
@@ -58,7 +63,7 @@ export interface IApiRoute {
    * Parameters that are necessary for the route, depending on the schema
    * policy ('none') the route MIGHT be called anyway when they are not passed!
    */
-  requiredParameters?: RouteParameter | RouteParameter[];
+	requiredParameters?: RouteParameter | RouteParameter[];
 
   /**
    * Optional Parameters
@@ -67,5 +72,5 @@ export interface IApiRoute {
    * but can change its behaviour when present, depending on schema policy
    * parameters not present in 'required' or 'optional'
    */
-  optionalParameters?: RouteParameter | RouteParameter[];
+	optionalParameters?: RouteParameter | RouteParameter[];
 }

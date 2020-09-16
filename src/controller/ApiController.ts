@@ -9,7 +9,7 @@ import { IProxiedApiRoute } from '../proxy/IProxiedApiRoute';
 
 export abstract class ApiController implements IApiController {
 
-  protected _apiRoutes: IApiRoute[] = [];
+	protected _apiRoutes: IApiRoute[] = [];
 
   /**
    * ## Default Route Configuration
@@ -22,33 +22,34 @@ export abstract class ApiController implements IApiController {
    * If you need to enforce a property inside all ApiRoutes override
    * *transformRoute* method
    */
-  public get defaultRouteConfig():
-    ApiControllerDefaultRouteConfig {
-    return {};
-  }
+	public get defaultRouteConfig():
+		ApiControllerDefaultRouteConfig {
+		return {};
+	}
 
   /**
    * Request Proxies
    * ---------------
    * 
    */
-  protected _requestProxies: IApiRequestProxy[] = [];
+	protected _requestProxies: IApiRequestProxy[] = [];
 
-  protected _responseProxies: IApiResponseProxy[] = [];
+	protected _responseProxies: IApiResponseProxy[] = [];
 
-  abstract get baseURL(): string;
+	abstract get baseURL(): string;
 
-  constructor() {
+	constructor() {
 
-    // Fetch from class prototype
-    let proto = Object.getPrototypeOf(this);
+		// Fetch from class prototype
+		let proto = Object.getPrototypeOf(this);
 
-    if (proto[apiRoutesSymbol] == null) {
-      proto[apiRoutesSymbol] = [];
-    }
+		if (proto[apiRoutesSymbol] == null) {
+			proto[apiRoutesSymbol] = [];
+		}
 
-    this._apiRoutes = [...proto[apiRoutesSymbol]];
-  }
+		this._apiRoutes = [...proto[apiRoutesSymbol]];
+
+	}
 
   /**
    * ## Transform Route
@@ -69,75 +70,76 @@ export abstract class ApiController implements IApiController {
    * 
    * @param route Route that will be transformed
    */
-  transformRoute(route: IApiRoute): IApiRoute {
-    let transformedRoute = { ...route };
-    transformedRoute.url = path.posix.join(this.baseURL, route.url);
-    return transformedRoute;
-  }
+	transformRoute(route: IApiRoute): IApiRoute {
+		let transformedRoute = { ...route };
+		transformedRoute.url = path.posix.join(this.baseURL, route.url);
+		return transformedRoute;
+	}
 
   /**
    * 
    * @param route 
    */
-  addApiRoute(route: IApiRoute) {
-    let routeWithDefaults = {
-      ...this.defaultRouteConfig,
-      ...route
-    };
-    this._apiRoutes.push(routeWithDefaults);
-  }
+	addApiRoute(route: IApiRoute) {
+		let routeWithDefaults = {
+			...this.defaultRouteConfig,
+			...route
+		};
+		this._apiRoutes.push(routeWithDefaults);
+	}
 
-  requestProxies(): IApiRequestProxy[] {
-    return [...this._requestProxies];
-  }
+	requestProxies(): IApiRequestProxy[] {
+		return [...this._requestProxies];
+	}
 
-  addRequestProxy(proxy: IApiRequestProxy): IApiController {
-    if (!this._requestProxies.includes(proxy)) {
-      this._requestProxies.push(proxy);
-    }
-    return this;
-  }
+	addRequestProxy(proxy: IApiRequestProxy): IApiController {
+		if (!this._requestProxies.includes(proxy)) {
+			this._requestProxies.push(proxy);
+		}
+		return this;
+	}
 
-  removeRequestProxy(proxy: IApiRequestProxy): IApiController {
-    let ioProxy = this._requestProxies.indexOf(proxy);
-    if (ioProxy >= 0) {
-      this._requestProxies.splice(ioProxy, 1);
-    }
-    return this;
-  }
+	removeRequestProxy(proxy: IApiRequestProxy): IApiController {
+		let ioProxy = this._requestProxies.indexOf(proxy);
+		if (ioProxy >= 0) {
+			this._requestProxies.splice(ioProxy, 1);
+		}
+		return this;
+	}
 
-  responseProxies(): IApiResponseProxy[] {
-    return [...this._responseProxies];
-  }
+	responseProxies(): IApiResponseProxy[] {
+		return [...this._responseProxies];
+	}
 
-  addResponseProxy(proxy: IApiResponseProxy): IApiController {
-    if (!this._responseProxies.includes(proxy)) {
-      this._responseProxies.push(proxy);
-    }
-    return this;
-  }
+	addResponseProxy(proxy: IApiResponseProxy): IApiController {
+		if (!this._responseProxies.includes(proxy)) {
+			this._responseProxies.push(proxy);
+		}
+		return this;
+	}
 
-  removeResponseProxy(proxy: IApiResponseProxy): IApiController {
-    let ioProxy = this._responseProxies.indexOf(proxy);
-    if (ioProxy >= 0) {
-      this._responseProxies.splice(ioProxy, 1);
-    }
-    return this;
-  }
+	removeResponseProxy(proxy: IApiResponseProxy): IApiController {
+		let ioProxy = this._responseProxies.indexOf(proxy);
+		if (ioProxy >= 0) {
+			this._responseProxies.splice(ioProxy, 1);
+		}
+		return this;
+	}
 
-  allRoutes(): IProxiedApiRoute[] {
-    let transformedRoutes: IProxiedApiRoute[] = this._apiRoutes
-      .map(r => ({
-        ...this.transformRoute(r),
-        requestProxies: this.requestProxies(),
-        responseProxies: this.responseProxies()
-      }));
+	allRoutes(): IProxiedApiRoute[] {
+		let transformedRoutes: IProxiedApiRoute[] = this._apiRoutes
+			.map(r => ({
+				...this.transformRoute(r),
+				requestProxies: this.requestProxies(),
+				responseProxies: this.responseProxies(),
+				controller: this,
+			}));
 
-    return transformedRoutes;
-  }
+		return transformedRoutes;
+	}
 
-  runResolver() {
+	runResolver() {
 
-  }
+	}
 
 }

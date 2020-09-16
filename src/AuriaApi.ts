@@ -20,7 +20,7 @@ export { IApiContainer } from './container/IApiContainer';
 export { ApiController } from './controller/ApiController';
 export { ApiControllerDefaultRouteConfig } from './controller/ApiControllerDefaultRouteConfig';
 export { IApiController } from './controller/IApiController';
-export { RegisterApiRoute, apiRoutesSymbol } from './controller/RegisterApiRoute';
+export { RegisterApiRoute, apiRoutesSymbol, RegisterApiRouteParams } from './controller/RegisterApiRoute';
 
 // Error
 export { ApiError } from './error/ApiError';
@@ -36,14 +36,14 @@ export { UnknownParameterSchemaPolicy } from './error/exceptions/UnknowmParamete
 export { UnknownParameterValidationPolicy } from './error/exceptions/UnknowmParameterValidationPolicy';
 
 // Maestro
-export { ApiMaestro } from './maestro/ApiMaestro'
-export { ApiRequestHandler } from './maestro/ApiRequestHandler'
-export { ApiSendErrorFunction } from './maestro/ApiSendErrorFunction'
-export { ApiSendResponseFunction } from './maestro/ApiSendResponseFunction'
-export { IApiMaestro } from './maestro/IApiMaestro'
-export { DefaultCallRouteResolver } from './maestro/default/DefaultCallRouteResolver'
-export { DefaultParameterValidator, DefaultValidationPolicy, ParameterValidationPolicies } from './maestro/default/DefaultParameterValidator'
-export { DefaultSchemaValidator, ParameterSchemaEnforcerFunction, SetSchemaPolicyValidation } from './maestro/default/DefaultSchemaValidator'
+export { ApiMaestro } from './maestro/ApiMaestro';
+export { ApiRequestHandler } from './maestro/ApiRequestHandler';
+export { ApiSendErrorFunction } from './maestro/ApiSendErrorFunction';
+export { ApiSendResponseFunction } from './maestro/ApiSendResponseFunction';
+export { IApiMaestro } from './maestro/IApiMaestro';
+export { DefaultCallRouteResolver } from './maestro/default/DefaultCallRouteResolver';
+export { DefaultParameterValidator, DefaultValidationPolicy, ParameterValidationPolicies } from './maestro/default/DefaultParameterValidator';
+export { DefaultSchemaValidator, ParameterSchemaEnforcerFunction, SetSchemaPolicyValidation } from './maestro/default/DefaultSchemaValidator';
 
 // Policies
 export { ApiParameterSchemaPolicy } from './policies/ApiParameterSchemaPolicy';
