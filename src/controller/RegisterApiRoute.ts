@@ -2,7 +2,21 @@ import { IApiRoute } from '../route/IApiRoute';
 import { HTTPMethod } from '../route/HTTPMethod';
 
 export const apiRoutesSymbol = Symbol('ApiControllerRoutes');
+
+/**
+ * Register Api Route Params
+ * -------------------------
+ * 
+ */
 export type RegisterApiRouteParams = Omit<Partial<IApiRoute>, 'resolver'> & { url: string; };
+
+/**
+ * Register Api Route
+ * -------------------
+ * Add a class method/parameter as an ApiResolver
+ * 
+ * @param params 
+ */
 export function RegisterApiRoute(params: RegisterApiRouteParams) {
 
 	return (target: any, propertyKey: string | symbol) => {
@@ -32,5 +46,4 @@ export function RegisterApiRoute(params: RegisterApiRouteParams) {
 		}
 		proto[apiRoutesSymbol].push(pushNewResolver);
 	};
-
 }

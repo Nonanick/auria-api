@@ -11,29 +11,35 @@ export abstract class ApiController implements IApiController {
 
 	protected _apiRoutes: IApiRoute[] = [];
 
-  /**
-   * ## Default Route Configuration
-   * ---------------------------
-   * Changes the default configuration for all API routes
-   * inside this controller
-   * 
-   * #### !! The configuration can be overriden by the APIRoute!!  
-   * 
-   * If you need to enforce a property inside all ApiRoutes override
-   * *transformRoute* method
-   */
+	/**
+	 * ## Default Route Configuration
+	 * ---------------------------
+	 * Changes the default configuration for all API routes
+	 * inside this controller
+	 * 
+	 * #### !! The configuration can be overriden by the APIRoute!!  
+	 * 
+	 * If you need to enforce a property inside all ApiRoutes override
+	 * *transformRoute* method
+	 */
 	public get defaultRouteConfig():
 		ApiControllerDefaultRouteConfig {
 		return {};
 	}
 
-  /**
-   * Request Proxies
-   * ---------------
-   * 
-   */
+	/**
+	 * Request Proxies
+	 * ---------------
+	 * All Request proxies of this ApiController
+	 * 
+	 */
 	protected _requestProxies: IApiRequestProxy[] = [];
 
+	/**
+	 * Response Proxies
+	 * ----------------
+	 * All Response proxies of this ApiController
+	 */
 	protected _responseProxies: IApiResponseProxy[] = [];
 
 	abstract get baseURL(): string;
@@ -51,35 +57,40 @@ export abstract class ApiController implements IApiController {
 
 	}
 
-  /**
-   * ## Transform Route
-   * ------------------
-   * 
-   * Act as a proxy for all APIRoutes inside this controller
-   * 
-   * By default it only appends the base URL of the controller to all 
-   * routes inside of it  
-   * You can override this method to disable this behaviour !
-   * 
-   * If you need to enforce a property too all APIRoutes
-   * defined inside this controller the best way to achieve it
-   * is to override this method! 
-   * 
-   * Remember to call *super.transformRoute* if you wish to preserve 
-   * the default behaviour!
-   * 
-   * @param route Route that will be transformed
-   */
+	/**
+	 * ## Transform Route
+	 * ------------------
+	 * 
+	 * Act as a proxy for all APIRoutes inside this controller
+	 * 
+	 * By default it only appends the base URL of the controller to all 
+	 * routes inside of it  
+	 * You can override this method to disable this behaviour !
+	 * 
+	 * If you need to enforce a property too all APIRoutes
+	 * defined inside this controller the best way to achieve it
+	 * is to override this method! 
+	 * 
+	 * Remember to call *super.transformRoute* if you wish to preserve 
+	 * the default behaviour!
+	 * 
+	 * @param route Route that will be transformed
+	 */
 	transformRoute(route: IApiRoute): IApiRoute {
 		let transformedRoute = { ...route };
 		transformedRoute.url = path.posix.join(this.baseURL, route.url);
 		return transformedRoute;
 	}
 
-  /**
-   * 
-   * @param route 
-   */
+	/**
+	 * Add API Route
+	 * --------------
+	 * 
+	 * Add a new APIRoute to this instance of APIController
+	 * opposite to '@RegisterApiRoute' decorator which defined a new
+	 * API Route to ALL instances of the same class
+	 * @param route 
+	 */
 	addApiRoute(route: IApiRoute) {
 		let routeWithDefaults = {
 			...this.defaultRouteConfig,

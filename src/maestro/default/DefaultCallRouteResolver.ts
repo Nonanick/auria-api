@@ -125,24 +125,28 @@ async function applyResponseProxies(
 	response: IApiRouteResponse,
 	proxies: IApiResponseProxy[]
 ): Promise<Maybe<IApiRouteResponse>> {
-	for (let proxy of proxies) {
-		try {
-			let proxiedResponse = await proxy.apply(response);
-			if (
-				proxiedResponse instanceof ApiError ||
-				proxiedResponse instanceof ApiException
-			) {
-				return proxiedResponse;
-			}
-			response = proxiedResponse;
-		} catch (err) {
-			if (err instanceof ApiError || err instanceof ApiException) {
-				return err;
-			} else {
-				throw err;
-			}
-		}
-	}
+
+  // Response proxies go from last to first added ???
+  let reversedProxies = [...proxies].reverse();
+
+  for (let proxy of reversedProxies) {
+    try {
+      let proxiedResponse = await proxy.apply(response);
+      if (
+        proxiedResponse instanceof ApiError ||
+        proxiedResponse instanceof ApiException
+      ) {
+        return proxiedResponse;
+      }
+      response = proxiedResponse;
+    } catch (err) {
+      if (err instanceof ApiError || err instanceof ApiException) {
+        return err;
+      } else {
+        throw err;
+      }
+    }
+  }
 
 	return response;
 }
