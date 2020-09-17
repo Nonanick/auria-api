@@ -14,6 +14,16 @@ import { ApiCallResolver } from '../../resolver/ApiCallResolver';
 import { ApiRouteResolver } from '../../route/ApiRouteResolver';
 import { RouteControllerNotAFunction } from '../../error/exceptions/RouteControllerNotAFunction';
 
+/**
+ * DefaultCallRouteResolver
+ * ------------------------
+ * 
+ * A default implementation to the ApiRouteResolver function signature
+ * 
+ * 
+ * @param route 
+ * @param request 
+ */
 export const DefaultCallRouteResolver: ApiCallResolver =
 	async (
 		route: IProxiedApiRoute,
@@ -22,16 +32,15 @@ export const DefaultCallRouteResolver: ApiCallResolver =
 
 		let requestProxies: IApiRequestProxy[] = route.requestProxies;
 
-		// Handle Request Proxies
-		let maybeRequest = await applyRequestProxies(request, requestProxies);
+		let maybeProxiedRequest = await applyRequestProxies(request, requestProxies);
 		// Any errors during request proxies?
 		if (
-			maybeRequest instanceof ApiError ||
-			maybeRequest instanceof ApiException
+			maybeProxiedRequest instanceof ApiError ||
+			maybeProxiedRequest instanceof ApiException
 		) {
-			return maybeRequest;
+			return maybeProxiedRequest;
 		}
-		request = maybeRequest;
+		request = maybeProxiedRequest;
 
 		let response: IApiRouteResponse;
 
@@ -82,16 +91,16 @@ export const DefaultCallRouteResolver: ApiCallResolver =
 
 		let responseProxies: IApiResponseProxy[] = route.responseProxies;
 		// Handle response proxies
-		let maybeResponse = await applyResponseProxies(response, responseProxies);
+		let maybeProxiedResponse = await applyResponseProxies(response, responseProxies);
 		// Any errors during response proxies ?
 		if (
-			maybeResponse instanceof ApiException ||
-			maybeResponse instanceof ApiError
+			maybeProxiedResponse instanceof ApiException ||
+			maybeProxiedResponse instanceof ApiError
 		) {
-			return maybeResponse;
+			return maybeProxiedResponse;
 		}
 
-		response = maybeResponse;
+		response = maybeProxiedResponse;
 		return response;
 	};
 
@@ -126,27 +135,27 @@ async function applyResponseProxies(
 	proxies: IApiResponseProxy[]
 ): Promise<Maybe<IApiRouteResponse>> {
 
-  // Response proxies go from last to first added ???
-  let reversedProxies = [...proxies].reverse();
+	// Response proxies go from last to first added ???
+	let reversedProxies = [...proxies].reverse();
 
-  for (let proxy of reversedProxies) {
-    try {
-      let proxiedResponse = await proxy.apply(response);
-      if (
-        proxiedResponse instanceof ApiError ||
-        proxiedResponse instanceof ApiException
-      ) {
-        return proxiedResponse;
-      }
-      response = proxiedResponse;
-    } catch (err) {
-      if (err instanceof ApiError || err instanceof ApiException) {
-        return err;
-      } else {
-        throw err;
-      }
-    }
-  }
+	for (let proxy of reversedProxies) {
+		try {
+			let proxiedResponse = await proxy.apply(response);
+			if (
+				proxiedResponse instanceof ApiError ||
+				proxiedResponse instanceof ApiException
+			) {
+				return proxiedResponse;
+			}
+			response = proxiedResponse;
+		} catch (err) {
+			if (err instanceof ApiError || err instanceof ApiException) {
+				return err;
+			} else {
+				throw err;
+			}
+		}
+	}
 
 	return response;
 }
