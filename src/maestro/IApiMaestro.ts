@@ -1,10 +1,10 @@
 import { ApiRequestHandler } from './ApiRequestHandler';
 import { ApiCallResolver } from '../resolver/ApiCallResolver';
 import { ValidateApiCallFunction } from '../validation/ValidateApiCallFunction';
-import { IApiContainer } from '../container/IApiContainer';
 import { IApiAdapter } from '../adapter/IApiAdapter';
+import { ApiContainer } from '../container/ApiContainer';
 
-export interface IApiMaestro {
+export interface IApiMaestro extends ApiContainer {
 
 	/**
 	 * Api Call Resolver
@@ -51,8 +51,6 @@ export interface IApiMaestro {
 	 * Function exposed to all adapters that receives 
 	 */
 	handle: ApiRequestHandler;
-
-	addApiContainer(container: IApiContainer): void;
 
 	addAdapter(adapter: IApiAdapter): void;
 

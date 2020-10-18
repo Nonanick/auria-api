@@ -9,17 +9,13 @@ import { DefaultCallRouteResolver } from './default/DefaultCallRouteResolver';
 import { DefaultParameterValidator } from './default/DefaultParameterValidator';
 import { DefaultSchemaValidator } from './default/DefaultSchemaValidator';
 import { IApiAdapter } from '../adapter/IApiAdapter';
-import { IApiContainer } from '../container/IApiContainer';
+import { ApiContainer } from '../container/ApiContainer';
 
-export class ApiMaestro implements IApiMaestro {
+export class ApiMaestro extends ApiContainer implements IApiMaestro {
 
-	/**
-	 * Containers
-	 * ----------
-	 * All API Containers exposed to the adapters
-	 * 
-	 */
-	public containers: IApiContainer[] = [];
+	get baseURL() {
+		return '';
+	}
 
 	public adapters: {
 		[name: string]: IApiAdapter;
@@ -30,6 +26,10 @@ export class ApiMaestro implements IApiMaestro {
 	public validateRequestSchema?: ValidateApiCallFunction = DefaultSchemaValidator;
 
 	public callResolver: ApiCallResolver = DefaultCallRouteResolver;
+
+	constructor() {
+		super();
+	}
 
 	setCallResolver(resolver: ApiCallResolver): void {
 		this.callResolver = resolver;
@@ -45,16 +45,6 @@ export class ApiMaestro implements IApiMaestro {
 
 	addAdapter(adapter: IApiAdapter) {
 		this.adapters[adapter.name] = adapter;
-	}
-
-	addApiContainer(container: IApiContainer) {
-
-		if (this.containers.includes(container)) {
-			console.warn('Duplicate container ', container.baseURL, ' on Api Maestro!');
-			return;
-		}
-
-		this.containers.push(container);
 	}
 
 	handle: ApiRequestHandler = async (route, request, sendResponse, sendError) => {
@@ -125,15 +115,8 @@ export class ApiMaestro implements IApiMaestro {
 	start() {
 		for (let adapterName in this.adapters) {
 			let adapter = this.adapters[adapterName];
-
 			adapter.setRequestHandler(this.handle);
-
-			for (let container of this.containers) {
-				if (container.acceptsAdapter(adapter)) {
-					adapter.addApiContainer(container);
-				}
-			}
-
+			adapter.addApiContainer(this);
 			adapter.start();
 		}
 	}

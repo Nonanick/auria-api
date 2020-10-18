@@ -8,5 +8,11 @@ For now supports the following adapters:
 > Fastify
 > Node IPC
 
-Create an easy to understand flow data flow
+
+## App Requirements
+--------------------
+
+Auria-Maestro
+The main goal of auria maestro is to control requests to a REST-like server, this should allow
+multiple ways of 
 

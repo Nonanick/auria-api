@@ -1,20 +1,21 @@
+import { EventEmitter } from 'events';
 import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fastifyCookie from 'fastify-cookie';
-import { Server } from 'http';
-import { EventEmitter } from 'events';
-import { IApiAdapter } from '../IApiAdapter';
-import { ApiContainer } from '../../container/ApiContainer';
-import { IProxiedApiRoute } from '../../proxy/IProxiedApiRoute';
-import { IApiContainer } from '../../container/IApiContainer';
-import { HTTPMethod } from '../../route/HTTPMethod';
-import { ApiRequestHandler } from '../../maestro/ApiRequestHandler';
-import { RequestFlowNotDefined } from '../../error/exceptions/RequestFlowNotDefined';
-import { FastifyTransformRequest } from './FastifyTransformRequest';
-import { FastifySendResponse } from './FastifySendResponse';
-import { FastifyErrorHandler } from './FastifyErrorHandler';
-import { FastifyEvents } from './FastifyEvents';
 import fastifyHelmet from 'fastify-helmet';
 import fastifyMultipart from 'fastify-multipart';
+import { Server } from 'http';
+import { ApiContainer } from '../../container/ApiContainer';
+import { IApiContainer } from '../../container/IApiContainer';
+import { RequestFlowNotDefined } from '../../error/exceptions/RequestFlowNotDefined';
+import { ApiRequestHandler } from '../../maestro/ApiRequestHandler';
+import { IProxiedApiRoute } from '../../proxy/IProxiedApiRoute';
+import { HTTPMethod } from '../../route/HTTPMethod';
+import { IApiAdapter } from '../IApiAdapter';
+import { FastifyErrorHandler } from './FastifyErrorHandler';
+import { FastifyEvents } from './FastifyEvents';
+import { FastifySendResponse } from './FastifySendResponse';
+import { FastifyTransformRequest } from './FastifyTransformRequest';
+
 export class FastifyAdapter extends EventEmitter implements IApiAdapter {
 
   public static ADAPTER_NAME = "Fastify";
@@ -322,7 +323,7 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
 
     this.fastify.route(
       {
-        method: method.toLocaleLowerCase() as any,
+        method: method.toLocaleUpperCase() as any,
         url,
         handler: async (req, res) => {
           this._requestHandler(route, method, req, res);
@@ -383,6 +384,7 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
   start() {
     this.boot();
     this.fastify.listen(this._port > 0 ? this._port : 3031);
+    this._server = this.fastify.server;
     this._started = true;
   }
 

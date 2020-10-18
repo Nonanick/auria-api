@@ -37,9 +37,11 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 		return [...this._controllers];
 	}
 
-	addController(controller: IApiController): IApiContainer {
-		if (!this._controllers.includes(controller)) {
-			this._controllers.push(controller);
+	addController(...controllers: IApiController[]): IApiContainer {
+		for (let controller of controllers) {
+			if (!this._controllers.includes(controller)) {
+				this._controllers.push(controller);
+			}
 		}
 		return this;
 	}
@@ -58,9 +60,11 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 		return [...this._containers];
 	}
 
-	addChildContainer(container: IApiContainer): IApiContainer {
-		if (!this._containers.includes(container)) {
-			this._containers.push(container);
+	addChildContainer(...containers: IApiContainer[]): IApiContainer {
+		for (let container of containers) {
+			if (!this._containers.includes(container)) {
+				this._containers.push(container);
+			}
 		}
 		return this;
 	}
@@ -79,17 +83,21 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 		return [...this._requestProxies];
 	}
 
-	addRequestProxy(proxy: IApiRequestProxy): IApiContainer {
-		if (!this._requestProxies.includes(proxy)) {
-			this._requestProxies.push(proxy);
+	addRequestProxy(...proxies: IApiRequestProxy[]): IApiContainer {
+		for (let proxy of proxies) {
+			if (!this._requestProxies.includes(proxy)) {
+				this._requestProxies.push(proxy);
+			}
 		}
 		return this;
 	}
 
-	removeRequestProxy(proxy: IApiRequestProxy): IApiContainer {
-		let ioProxy = this._requestProxies.indexOf(proxy);
-		if (ioProxy >= 0) {
-			this._requestProxies.splice(ioProxy, 1);
+	removeRequestProxy(...proxies: IApiRequestProxy[]): IApiContainer {
+		for (let proxy of proxies) {
+			let ioProxy = this._requestProxies.indexOf(proxy);
+			if (ioProxy >= 0) {
+				this._requestProxies.splice(ioProxy, 1);
+			}
 		}
 		return this;
 	}
@@ -100,17 +108,21 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 		return [...this._responseProxies];
 	}
 
-	addResponseProxy(proxy: IApiResponseProxy): IApiContainer {
-		if (!this._responseProxies.includes(proxy)) {
-			this._responseProxies.push(proxy);
+	addResponseProxy(...proxies: IApiResponseProxy[]): IApiContainer {
+		for (let proxy of proxies) {
+			if (!this._responseProxies.includes(proxy)) {
+				this._responseProxies.push(proxy);
+			}
 		}
 		return this;
 	}
 
-	removeResponseProxy(proxy: IApiResponseProxy): IApiContainer {
-		let ioProxy = this._responseProxies.indexOf(proxy);
-		if (ioProxy >= 0) {
-			this._responseProxies.splice(ioProxy, 1);
+	removeResponseProxy(...proxies: IApiResponseProxy[]): IApiContainer {
+		for (let proxy of proxies) {
+			let ioProxy = this._responseProxies.indexOf(proxy);
+			if (ioProxy >= 0) {
+				this._responseProxies.splice(ioProxy, 1);
+			}
 		}
 		return this;
 	}

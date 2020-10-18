@@ -1,13 +1,9 @@
 // Adapter
 export { IApiAdapter } from './adapter/IApiAdapter';
 // -- Express
-export { ExpressAdapter } from './adapter/express/ExpressAdapter';
-export { ExpressCommandSetCookiePayload, ExpressCommandSetHeaderPayload, ExpressCommands, KnownExpressCommands } from './adapter/express/ExpressCommands';
-export { ExpressErrorHandler } from './adapter/express/ExpressErrorHandler';
-export { ExpressEvents } from './adapter/express/ExpressEvents';
-export { ExpressBodyOrigin, ExpressCookieOrigin, ExpressHeaderOrigin, ExpressQueryStringOrigin, ExpressUrlOrigin } from './adapter/express/ExpressParameterOrigins';
-export { ExpressSendResponse } from './adapter/express/ExpressSendResponse';
-export { ExpressTransformRequest } from './adapter/express/ExpressTransformRequest';
+export * as Express from './adapter/express';
+// -- Fastify
+export * as Fastify from './adapter/fastify';
 
 // Command
 export { IApiCommand } from './command/IApiCommand';
