@@ -1,14 +1,14 @@
-import { ApiError, ErrorDisplay} from './ApiError';
+import { ApiError, ErrorDisplay } from './ApiError';
 
 export abstract class ApiException extends Error {
-  
-  abstract get code() : string;
+
+  abstract get code(): string;
 
   constructor(...error: ErrorDisplay[]) {
     super(
       error
         .map((e) =>
-          typeof e === "string" ? e : ApiError.stringfyApiErrorDescription(e)
+          typeof e === "string" ? e : e instanceof Error ? e.message : ApiError.stringfyApiErrorDescription(e)
         )
         .join("\n")
     );

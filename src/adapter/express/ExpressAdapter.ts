@@ -172,20 +172,11 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 	 */
 	protected _errorHanlder: typeof ExpressErrorHandler = ExpressErrorHandler;
 
-	/**
-	 * Use
-	 * -------
-	 * Wrapper for Express *use* function
-	 * 
-	 * @param handler 
-	 */
-	public use: Application["use"];
 
 	constructor() {
 		super();
 		this.express = express();
 
-		this.use = this.express.use;
 	}
 
 	/**
@@ -260,9 +251,9 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 		if (this._booted) return;
 
 		// Add needed express capabilities
-		this.use(bodyParser.json());
-		this.use(bodyParser.urlencoded({ extended: true }));
-		this.use(cookieParser());
+		this.express.use(bodyParser.json());
+		this.express.use(bodyParser.urlencoded({ extended: true }));
+		this.express.use(cookieParser());
 
 		this.express.disable('x-powered-by');
 

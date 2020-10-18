@@ -1,14 +1,13 @@
 import { ApiErrorDescription } from "./ApiErrorDescription";
+import { ApiException } from './ApiException';
 
 export abstract class ApiError extends Error {
   public static stringfyApiErrorDescription(desc: ApiErrorDescription): string {
     return `ERROR ${desc.code} - ${desc.title}
 -------------------------------------------------
-${desc.reason}${
-  desc.hint != null ? "\nHint:\n" + desc.hint : ""
-}${
-      desc.example != null ? "\nExample:\n" + desc.example : ""
-    }`;
+${desc.reason}${desc.hint != null ? "\nHint:\n" + desc.hint : ""
+      }${desc.example != null ? "\nExample:\n" + desc.example : ""
+      }`;
   }
 
   abstract get httpStatus(): number;
@@ -19,7 +18,7 @@ ${desc.reason}${
     super(
       error
         .map((e) =>
-          typeof e === "string" ? e : ApiError.stringfyApiErrorDescription(e)
+          typeof e === "string" ? e : e instanceof Error ? e.message : ApiError.stringfyApiErrorDescription(e)
         )
         .join("\n")
     );
@@ -28,4 +27,4 @@ ${desc.reason}${
   }
 }
 
-export type ErrorDisplay = string | ApiErrorDescription;
+export type ErrorDisplay = string | ApiErrorDescription | ApiError | ApiException;
