@@ -1,20 +1,19 @@
-import express, { Application, Request, Response, NextFunction, RequestHandler, } from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
-import { Server } from 'http';
 import { EventEmitter } from 'events';
-import { IApiAdapter } from '../IApiAdapter';
+import express, { Application, NextFunction, Request, Response } from 'express';
+import { Server } from 'http';
 import { ApiContainer } from '../../container/ApiContainer';
-import { IProxiedApiRoute } from '../../proxy/IProxiedApiRoute';
-import { ExpressTransformRequest } from './ExpressTransformRequest';
-import { ExpressSendResponse } from './ExpressSendResponse';
 import { IApiContainer } from '../../container/IApiContainer';
-import { HTTPMethod } from '../../route/HTTPMethod';
-import { ExpressErrorHandler } from './ExpressErrorHandler';
-import { RequestHandler } from '../../maestro/composition/RequestHandler';
 import { RequestFlowNotDefined } from '../../error/exceptions/RequestFlowNotDefined';
-import { ExpressEvents } from './ExpressEvents';
 import { ApiMaestro } from '../../maestro/ApiMaestro';
+import { IProxiedApiRoute } from '../../proxy/IProxiedApiRoute';
+import { HTTPMethod } from '../../route/HTTPMethod';
+import { IApiAdapter } from '../IApiAdapter';
+import { ExpressErrorHandler } from './ExpressErrorHandler';
+import { ExpressEvents } from './ExpressEvents';
+import { ExpressSendResponse } from './ExpressSendResponse';
+import { ExpressTransformRequest } from './ExpressTransformRequest';
 
 export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 

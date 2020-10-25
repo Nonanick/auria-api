@@ -11,21 +11,19 @@ describe('Api Error', () => {
   }
 
   class TestException extends ApiException {
-
     code = 'JEST.ERROR';
-
   }
 
   it('should generate appropriate errors on proxy', () => {
-    let errorProxy : IApiRequestProxy = {
-      name : 'test',
+    let errorProxy: IApiRequestProxy = {
+      name: 'test',
       apply(r) {
         throw new TestError('Testing', {
-          code : 'JEST.TEST',
-          title : 'Testing purpose',
-          reason : 'I need to test',
-          hint : 'You should not test if you want to avoid this error',
-          example : 'Dont run yarn test!'
+          code: 'JEST.TEST',
+          title: 'Testing purpose',
+          reason: 'I need to test',
+          hint: 'You should not test if you want to avoid this error',
+          example: 'Dont run yarn test!'
         });
       }
     };
@@ -34,8 +32,8 @@ describe('Api Error', () => {
   });
 
   it('should generate appropriate exceptions on proxy', () => {
-    let errorProxy : IApiRequestProxy = {
-      name : 'test',
+    let errorProxy: IApiRequestProxy = {
+      name: 'test',
       apply(r) {
         throw new TestException('Testing');
       }

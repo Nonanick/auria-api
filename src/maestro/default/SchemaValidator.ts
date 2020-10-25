@@ -1,3 +1,4 @@
+import { ApiError } from '../../error/ApiError';
 import { PropertyValidationPolicyVault } from '../../policies/PropertyValidationPolicyVault.ts';
 import { IProxiedApiRoute } from '../../proxy/IProxiedApiRoute';
 import { IApiRouteRequest } from '../../request/IApiRouteRequest';
@@ -11,33 +12,43 @@ export const SchemaValidator: ValidateSchemaProperties =
 
 		// Iterate through each origin
 		for (let origin in request.parametersByOrigin) {
-			let allParams = request.parametersByOrigin[origin];
+			const allParams = request.parametersByOrigin[origin];
 
 			// And each parameter
 			for (let name in allParams) {
-				let value = allParams[name];
+				const value = allParams[name];
 
 				// Is there an schema definition for it?
 				if (route.schema?.[origin]?.properties[name] != null) {
 
-					let propertySchema = route.schema?.[origin]?.properties[name]!;
-					let isValid = await SchemaValidations[propertySchema.type](propertySchema, value);
+					const propertySchema = route.schema?.[origin]?.properties[name]!;
 
-					// If property validation fails...
-					if (isValid instanceof Error) {
-						let policy = PropertyValidationPolicyVault[
+					const passedSchemaValidation = await SchemaValidations[propertySchema.type](propertySchema, value);
+					const passedDefinedValidation = await propertySchema.validate?.(value) ?? true;
+
+					// If any property validation fails...
+					if (
+						passedSchemaValidation instanceof Error
+						|| passedDefinedValidation instanceof Error
+					) {
+
+						const error = passedSchemaValidation instanceof Error
+							? passedSchemaValidation
+							: passedDefinedValidation as ApiError;
+
+						const applyPolicy = PropertyValidationPolicyVault[
 							route.schemaValidationPolicy ?? DefaultPropertyValidationPolicy
 						];
-						let policyAnswer = await policy(
+						const policyResponse = await applyPolicy(
 							route,
 							request,
 							origin,
 							name,
-							isValid
+							error!
 						);
-						// Check for policy (true === continue, else return)
-						if (policyAnswer !== true) {
-							return policyAnswer;
+						// Check for policy (true === continue, else return the error)
+						if (policyResponse !== true) {
+							return policyResponse;
 						}
 					}
 				}
