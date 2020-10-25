@@ -1,6 +1,6 @@
 {
   "name": "auria-maestro",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "mode": "development",
   "description": "Auria Server - API",
   "main": "dist/Maestro.js",

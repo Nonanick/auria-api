@@ -11,9 +11,10 @@ import { ExpressSendResponse } from './ExpressSendResponse';
 import { IApiContainer } from '../../container/IApiContainer';
 import { HTTPMethod } from '../../route/HTTPMethod';
 import { ExpressErrorHandler } from './ExpressErrorHandler';
-import { ApiRequestHandler } from '../../maestro/ApiRequestHandler';
+import { RequestHandler } from '../../maestro/composition/RequestHandler';
 import { RequestFlowNotDefined } from '../../error/exceptions/RequestFlowNotDefined';
 import { ExpressEvents } from './ExpressEvents';
+import { ApiMaestro } from '../../maestro/ApiMaestro';
 
 export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 
@@ -162,7 +163,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 	 * will manage all the processes of validating the request, calling the resolver
 	 * checking for possible errors and so on is no concern to the adapter!
 	 */
-	protected _apiHandler?: ApiRequestHandler;
+	protected _apiHandler?: ApiMaestro['handle'];
 
 	/**
 	 * Error Handler
@@ -224,7 +225,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 	 * 
 	 * @param handler 
 	 */
-	setRequestHandler(handler: ApiRequestHandler) {
+	setRequestHandler(handler: ApiMaestro['handle']) {
 		this._apiHandler = handler;
 	}
 

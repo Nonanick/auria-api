@@ -1,15 +1,17 @@
-import { IApiMaestro } from './IApiMaestro';
-import { ApiRequestHandler } from './ApiRequestHandler';
-import { ApiCallResolver } from '../resolver/ApiCallResolver';
-import { ApiException } from '../error/ApiException';
-import { ApiError } from '../error/ApiError';
-import { FailedSchemaValidationPolicyEnforcer } from '../validation/policies/property/FailedSchemaValidationPolicy';
-import { RequestFlowNotDefined } from '../error/exceptions/RequestFlowNotDefined';
-import { SchemaValidator } from './default/SchemaValidator';
 import { IApiAdapter } from '../adapter/IApiAdapter';
 import { ApiContainer } from '../container/ApiContainer';
-import { RouteSchemaEnforcer } from '../validation/policies/schema/RouteSchemaEnforcer';
+import { ApiError } from '../error/ApiError';
+import { ApiException } from '../error/ApiException';
+import { RequestFlowNotDefined } from '../error/exceptions/RequestFlowNotDefined';
+import { IProxiedApiRoute } from '../proxy/IProxiedApiRoute';
+import { IApiRouteRequest } from '../request/IApiRouteRequest';
+import { ApiSendErrorFunction } from './ApiSendErrorFunction';
+import { ApiSendResponseFunction } from './ApiSendResponseFunction';
+import { EnforceRouteSchema } from './composition/EnforceRouteSchema';
+import { RequestHandler } from './composition/RequestHandler';
+import { ValidateSchemaProperties } from './composition/ValidateSchemaProperties';
 import * as Default from './default';
+import { IApiMaestro } from './IApiMaestro';
 
 export class ApiMaestro extends ApiContainer implements IApiMaestro {
 
@@ -21,36 +23,45 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 		[name: string]: IApiAdapter;
 	} = {};
 
-	public schemaEnforcer: RouteSchemaEnforcer = Default.SchemaEnforcer;
+	public schemaEnforcer: EnforceRouteSchema =
+		Default.SchemaEnforcer;
 
-	public schemaValidator?: FailedSchemaValidationPolicyEnforcer = Default.SchemaValidator;
+	public propertyValidator: ValidateSchemaProperties =
+		Default.SchemaValidator;
 
-	public callResolver: ApiCallResolver = Default.RouteResolver;
+	public requestHandler: RequestHandler =
+		Default.RequestHandler;
 
+	/**
+	 * Api Maestro
+	 * -----------
+	 * 
+	 * Mostly responsible for wiring all the elements of the library
+	 * Will connect all the adapters to the exposed API Endpoints
+	 * enforcing policies and request/response flow inside the app
+	 * 
+	 */
 	constructor() {
 		super();
 	}
 
-	setCallResolver(resolver: ApiCallResolver): void {
-		this.callResolver = resolver;
-	}
-
-	setSchemaValidation(validation: FailedSchemaValidationPolicyEnforcer): void {
-		this.schemaValidator = validation;
-	}
-
-	setSchemaEnforcer(enforcer: RouteSchemaEnforcer): void {
-		this.schemaEnforcer = enforcer;
+	setRequestHandler(resolver: RequestHandler): void {
+		this.requestHandler = resolver;
 	}
 
 	addAdapter(adapter: IApiAdapter) {
 		this.adapters[adapter.name] = adapter;
 	}
 
-	handle: ApiRequestHandler = async (route, request, sendResponse, sendError) => {
+	async handle(
+		route: IProxiedApiRoute,
+		request: IApiRouteRequest,
+		sendResponse: ApiSendResponseFunction,
+		sendError: ApiSendErrorFunction
+	) {
 
 		// Validate request parameters first
-		let isRequestParametersValid = await this.schemaValidator!(route, request);
+		let isRequestParametersValid = await this.propertyValidator!(route, request);
 		if (isRequestParametersValid !== true) {
 			sendError(isRequestParametersValid);
 			return;
@@ -63,35 +74,33 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 			return;
 		}
 
-		// Call API
-		let apiResponse = await this.callResolver(route, request, sendResponse, sendError);
+		// Call API Endpoint
+		let apiResponse = await this.requestHandler(route, request, sendResponse, sendError);
 		if (apiResponse instanceof ApiError || apiResponse instanceof ApiException) {
 			sendError(apiResponse);
 			return;
 		}
 
-		// Any commands for Maestro ? TODO -- what will be exposed to ApiMaestro Command?
+		// Any commands for Maestro ? 
+		// TODO -- what will be exposed to ApiMaestro Command?
 
 		sendResponse(apiResponse);
 	};
 
 	start() {
 
-		// Call resolver cannot be undefined
-		if (typeof this.callResolver !== "function") {
+		if (typeof this.requestHandler !== "function") {
 			throw new RequestFlowNotDefined(
-				'API Maestro cannot fullfill request flow, one of its required pieces is missing! -> Resolver'
+				'API Maestro cannot fullfill request flow, one of its required pieces is missing! -> Request Resolver'
 			);
 		}
 
-		// Validate can only be null if policy for validation is dont-validate 
-		if (typeof this.schemaValidator !== "function") {
+		if (typeof this.propertyValidator !== "function") {
 			throw new RequestFlowNotDefined(
-				'API Maestro cannot fullfill request flow, one of its required pieces is missing! -> Parameter Validation'
+				'API Maestro cannot fullfill request flow, one of its required pieces is missing! -> Property Validation'
 			);
 		}
 
-		// Validate schema can only be null if policy for schema is dont-enforce
 		if (typeof this.schemaEnforcer !== "function") {
 			throw new RequestFlowNotDefined(
 				'API Maestro cannot fullfill request flow, one of its required pieces is missing! -> Schema Enforcer'

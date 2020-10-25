@@ -7,7 +7,8 @@ import { Server } from 'http';
 import { ApiContainer } from '../../container/ApiContainer';
 import { IApiContainer } from '../../container/IApiContainer';
 import { RequestFlowNotDefined } from '../../error/exceptions/RequestFlowNotDefined';
-import { ApiRequestHandler } from '../../maestro/ApiRequestHandler';
+import { ApiMaestro } from '../../maestro/ApiMaestro';
+import { RequestHandler } from '../../maestro/composition/RequestHandler';
 import { IProxiedApiRoute } from '../../proxy/IProxiedApiRoute';
 import { HTTPMethod } from '../../route/HTTPMethod';
 import { IApiAdapter } from '../IApiAdapter';
@@ -160,7 +161,7 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
    * will manage all the processes of validating the request, calling the resolver
    * checking for possible errors and so on is no concern to the adapter!
    */
-  protected _apiHandler?: ApiRequestHandler;
+  protected _apiHandler?: ApiMaestro['handle'];
 
   /**
    * Error Handler
@@ -223,7 +224,7 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
    * 
    * @param handler 
    */
-  setRequestHandler(handler: ApiRequestHandler) {
+  setRequestHandler(handler: ApiMaestro['handle']) {
     this._apiHandler = handler;
   }
 

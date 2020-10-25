@@ -1,7 +1,7 @@
 import { IApiRouteResponse } from './IApiRouteResponse';
 import { IApiCommand } from '../command/IApiCommand';
 
-export class ApiRouteResponse  implements IApiRouteResponse {
+export class ApiRouteResponse implements IApiRouteResponse {
 
   exitCode: string = "OK";
   status: number = 201;

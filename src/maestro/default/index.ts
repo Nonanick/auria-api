@@ -1,3 +1,3 @@
 export { SchemaEnforcer } from './SchemaEnforcer';
 export { SchemaValidator } from './SchemaValidator';
-export { RouteResolver } from './RouteResolver';
+export { MaestroRequestHandler as RequestHandler } from './RequestHandler';

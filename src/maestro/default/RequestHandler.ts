@@ -10,34 +10,30 @@ import {
 } from "../../response/IApiRouteResponse";
 import { IApiResponseProxy } from "../../proxy/IApiResponseProxy";
 import { Maybe } from "../../error/Maybe";
-import { ApiCallResolver } from '../../resolver/ApiCallResolver';
 import { ApiRouteResolver } from '../../route/ApiRouteResolver';
-import { RouteControllerNotAFunction } from '../../error/exceptions/RouteControllerNotAFunction';
+import { ApiEndpointNotAFunction } from '../../error/exceptions/ApiEndpointNotAFunction';
+import { RequestHandler } from '../composition/RequestHandler';
 
 /**
- * DefaultCallRouteResolver
+ * RouteResolver
  * ------------------------
  * 
- * A default implementation to the ApiRouteResolver 
- * function signature
+ * A default implementation to the ApiRequestHandler
  * 
  * @param route 
  * @param request 
  */
-export const RouteResolver: ApiCallResolver =
+export const MaestroRequestHandler: RequestHandler =
 	async (
 		route: IProxiedApiRoute,
 		request: IApiRouteRequest
 	) => {
 
 		let requestProxies: IApiRequestProxy[] = route.requestProxies;
-
 		let maybeProxiedRequest = await applyRequestProxies(request, requestProxies);
+
 		// Any errors during request proxies?
-		if (
-			maybeProxiedRequest instanceof ApiError ||
-			maybeProxiedRequest instanceof ApiException
-		) {
+		if (maybeProxiedRequest instanceof Error) {
 			return maybeProxiedRequest;
 		}
 		request = maybeProxiedRequest;
@@ -55,7 +51,7 @@ export const RouteResolver: ApiCallResolver =
 			}
 
 			if (typeof resolver! !== "function") {
-				throw new RouteControllerNotAFunction("Route controller " + route.resolver + " is not a function!");
+				throw new ApiEndpointNotAFunction("Route controller method " + route.resolver + " is not a function!");
 			}
 
 			let routineResponse = await resolver(request);

@@ -1,9 +1,10 @@
-import { ApiRequestHandler } from './ApiRequestHandler';
-import { ApiCallResolver } from '../resolver/ApiCallResolver';
 import { IApiAdapter } from '../adapter/IApiAdapter';
 import { ApiContainer } from '../container/ApiContainer';
-import { RouteSchemaEnforcer } from '../validation/policies/schema/RouteSchemaEnforcer';
-import { FailedSchemaValidationPolicyEnforcer } from '../validation/policies/property/FailedSchemaValidationPolicy';
+import { IProxiedApiRoute } from '../proxy/IProxiedApiRoute';
+import { IApiRouteRequest } from '../request/IApiRouteRequest';
+import { ApiSendErrorFunction } from './ApiSendErrorFunction';
+import { ApiSendResponseFunction } from './ApiSendResponseFunction';
+import { RequestHandler } from './composition/RequestHandler';
 
 export interface IApiMaestro extends ApiContainer {
 
@@ -23,27 +24,8 @@ export interface IApiMaestro extends ApiContainer {
 	 * 
 	 * @param resolver 
 	 */
-	setCallResolver(resolver: ApiCallResolver): void;
+	setRequestHandler(resolver: RequestHandler): void;
 
-	/**
-	 * Parameter Validation
-	 * ---------------------
-	 * 
-	 * Defines how the route parameters validation will be handled
-	 * 
-	 * @param validation 
-	 */
-	setSchemaValidation(validation: FailedSchemaValidationPolicyEnforcer): void;
-
-	/**
-	 * Schema Validation
-	 * ------------------
-	 * 
-	 * Defines how the schema defined by the route will be enforced
-	 * 
-	 * @param validation 
-	 */
-	setSchemaEnforcer(validation: RouteSchemaEnforcer): void;
 
 	/**
 	 * Handle
@@ -51,7 +33,12 @@ export interface IApiMaestro extends ApiContainer {
 	 * 
 	 * Function exposed to all adapters that receives 
 	 */
-	handle: ApiRequestHandler;
+	handle(
+		route: IProxiedApiRoute,
+		request: IApiRouteRequest,
+		sendResponse: ApiSendResponseFunction,
+		sendError: ApiSendErrorFunction,
+	): void;
 
 	addAdapter(adapter: IApiAdapter): void;
 

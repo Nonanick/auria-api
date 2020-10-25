@@ -1,12 +1,13 @@
 import { SchemaEnforcedPolicyNotImplemented } from '../../error/exceptions/SchemaEnforcedPolicyNotImplemented';
-import { SchemaEnforcerPolicyVault } from '../../policies/SchemaEnforcerPolicyVault';
-import { RouteSchemaEnforcer } from '../../validation/policies/schema/RouteSchemaEnforcer';
+import { SchemaEnforcerPolicyVault } from '../../policies/SchemaEnforcerPolicyVault copy';
+import { EnforceRouteSchema } from '../composition/EnforceRouteSchema';
 
 export const DefaultSchemaEnforcedPolicy = 'strict';
 
-export const SchemaEnforcer: RouteSchemaEnforcer = (route, request) => {
+export const SchemaEnforcer: EnforceRouteSchema = async (route, request) => {
 
   let enforcedPolicy = SchemaEnforcerPolicyVault[route.enforceSchemaPolicy ?? DefaultSchemaEnforcedPolicy];
+
   if (typeof enforcedPolicy !== 'function') {
     return new SchemaEnforcedPolicyNotImplemented(
       'Requested schema policy ',
@@ -15,6 +16,8 @@ export const SchemaEnforcer: RouteSchemaEnforcer = (route, request) => {
     );
   }
 
-  return true;
+  let allowedSchema = await enforcedPolicy(route, request);
+
+  return allowedSchema;
 
 }; 
