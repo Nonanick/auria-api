@@ -18,13 +18,13 @@ import { RouteControllerNotAFunction } from '../../error/exceptions/RouteControl
  * DefaultCallRouteResolver
  * ------------------------
  * 
- * A default implementation to the ApiRouteResolver function signature
- * 
+ * A default implementation to the ApiRouteResolver 
+ * function signature
  * 
  * @param route 
  * @param request 
  */
-export const DefaultCallRouteResolver: ApiCallResolver =
+export const RouteResolver: ApiCallResolver =
 	async (
 		route: IProxiedApiRoute,
 		request: IApiRouteRequest
@@ -47,14 +47,14 @@ export const DefaultCallRouteResolver: ApiCallResolver =
 		// Execute Function
 		try {
 			let resolver: ApiRouteResolver;
+
 			if (typeof route.resolver === 'function') {
 				resolver = route.resolver;
 			} else if (typeof route.resolver === 'string') {
 				resolver = (route.controller as any)[route.resolver];
-				if (typeof resolver != "function") {
-					throw new RouteControllerNotAFunction("Route controller " + route.resolver + " is not a function!");
-				}
-			} else {
+			}
+
+			if (typeof resolver! !== "function") {
 				throw new RouteControllerNotAFunction("Route controller " + route.resolver + " is not a function!");
 			}
 
@@ -90,18 +90,10 @@ export const DefaultCallRouteResolver: ApiCallResolver =
 		}
 
 		let responseProxies: IApiResponseProxy[] = route.responseProxies;
-		// Handle response proxies
-		let maybeProxiedResponse = await applyResponseProxies(response, responseProxies);
-		// Any errors during response proxies ?
-		if (
-			maybeProxiedResponse instanceof ApiException ||
-			maybeProxiedResponse instanceof ApiError
-		) {
-			return maybeProxiedResponse;
-		}
 
-		response = maybeProxiedResponse;
-		return response;
+		// Return proxied response
+		return await applyResponseProxies(response, responseProxies);
+
 	};
 
 async function applyRequestProxies(

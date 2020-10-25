@@ -3,13 +3,13 @@ import { ApiRequestHandler } from './ApiRequestHandler';
 import { ApiCallResolver } from '../resolver/ApiCallResolver';
 import { ApiException } from '../error/ApiException';
 import { ApiError } from '../error/ApiError';
-import { ValidateApiCallFunction } from '../validation/ValidateApiCallFunction';
+import { FailedSchemaValidationPolicyEnforcer } from '../validation/policies/property/FailedSchemaValidationPolicy';
 import { RequestFlowNotDefined } from '../error/exceptions/RequestFlowNotDefined';
-import { DefaultCallRouteResolver } from './default/DefaultCallRouteResolver';
-import { DefaultParameterValidator } from './default/DefaultParameterValidator';
-import { DefaultSchemaValidator } from './default/DefaultSchemaValidator';
+import { SchemaValidator } from './default/SchemaValidator';
 import { IApiAdapter } from '../adapter/IApiAdapter';
 import { ApiContainer } from '../container/ApiContainer';
+import { RouteSchemaEnforcer } from '../validation/policies/schema/RouteSchemaEnforcer';
+import * as Default from './default';
 
 export class ApiMaestro extends ApiContainer implements IApiMaestro {
 
@@ -21,11 +21,11 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 		[name: string]: IApiAdapter;
 	} = {};
 
-	public validateRequestParameters: ValidateApiCallFunction = DefaultParameterValidator;
+	public schemaEnforcer: RouteSchemaEnforcer = Default.SchemaEnforcer;
 
-	public validateRequestSchema?: ValidateApiCallFunction = DefaultSchemaValidator;
+	public schemaValidator?: FailedSchemaValidationPolicyEnforcer = Default.SchemaValidator;
 
-	public callResolver: ApiCallResolver = DefaultCallRouteResolver;
+	public callResolver: ApiCallResolver = Default.RouteResolver;
 
 	constructor() {
 		super();
@@ -35,12 +35,12 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 		this.callResolver = resolver;
 	}
 
-	setParameterValidation(validation: ValidateApiCallFunction): void {
-		this.validateRequestParameters = validation;
+	setSchemaValidation(validation: FailedSchemaValidationPolicyEnforcer): void {
+		this.schemaValidator = validation;
 	}
 
-	setSchemaValidation(validation: ValidateApiCallFunction): void {
-		this.validateRequestSchema = validation;
+	setSchemaEnforcer(enforcer: RouteSchemaEnforcer): void {
+		this.schemaEnforcer = enforcer;
 	}
 
 	addAdapter(adapter: IApiAdapter) {
@@ -49,55 +49,18 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 
 	handle: ApiRequestHandler = async (route, request, sendResponse, sendError) => {
 
-		// Call resolver cannot be undefined
-		if (typeof this.callResolver !== "function") {
-			console.error('Maestro requires "callResolver" to be defined!');
-			sendError(
-				new RequestFlowNotDefined('API Maestro cannot fullfill request flow, one of its required pieces is missing! -> Resolver')
-			);
+		// Validate request parameters first
+		let isRequestParametersValid = await this.schemaValidator!(route, request);
+		if (isRequestParametersValid !== true) {
+			sendError(isRequestParametersValid);
 			return;
-		}
-
-		// Validate can only be null if policy for validation is dont-validate 
-		if (
-			typeof this.validateRequestParameters !== "function"
-			&& route.parametersValidationPolicy !== 'dont-validate'
-		) {
-			console.error('Maestro requires "validateRequest" to be defined! Route specifies its validation policy as ', route.parametersValidationPolicy);
-			sendError(
-				new RequestFlowNotDefined('API Maestro cannot fullfill request flow, one of its required pieces is missing! -> Parameter Validation')
-			);
-			return;
-		}
-
-		// Validate schema can only be null if policy for schema is dont-validate
-		if (
-			typeof this.validateRequestSchema !== "function"
-			&& (route.parameterSchemaPolicy !== 'dont-validate' || route.parameterSchemaPolicy !== undefined)
-		) {
-			console.error('Maestro requires "validateSchema" to be defined! Route specifies its validation policy as ', route.parameterSchemaPolicy);
-			sendError(
-				new RequestFlowNotDefined('API Maestro cannot fullfill request flow, one of its required pieces is missing!')
-			);
-			return;
-		}
-
-		// Validate Parameter Policies
-		if (route.parametersValidationPolicy !== 'dont-validate') {
-			let isRequestParametersValid = await this.validateRequestParameters!(route, request);
-			if (isRequestParametersValid !== true) {
-				sendError(isRequestParametersValid);
-				return;
-			}
 		}
 
 		// Validate Parameters Schema
-		if (route.parameterSchemaPolicy !== 'dont-validate') {
-			let isRequestSchemaValid = await this.validateRequestSchema!(route, request);
-			if (isRequestSchemaValid !== true) {
-				sendError(isRequestSchemaValid);
-				return;
-			}
+		let isRequestSchemaValid = await this.schemaEnforcer!(route, request);
+		if (isRequestSchemaValid !== true) {
+			sendError(isRequestSchemaValid);
+			return;
 		}
 
 		// Call API
@@ -113,12 +76,35 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 	};
 
 	start() {
+
+		// Call resolver cannot be undefined
+		if (typeof this.callResolver !== "function") {
+			throw new RequestFlowNotDefined(
+				'API Maestro cannot fullfill request flow, one of its required pieces is missing! -> Resolver'
+			);
+		}
+
+		// Validate can only be null if policy for validation is dont-validate 
+		if (typeof this.schemaValidator !== "function") {
+			throw new RequestFlowNotDefined(
+				'API Maestro cannot fullfill request flow, one of its required pieces is missing! -> Parameter Validation'
+			);
+		}
+
+		// Validate schema can only be null if policy for schema is dont-enforce
+		if (typeof this.schemaEnforcer !== "function") {
+			throw new RequestFlowNotDefined(
+				'API Maestro cannot fullfill request flow, one of its required pieces is missing! -> Schema Enforcer'
+			);
+		}
+
 		for (let adapterName in this.adapters) {
 			let adapter = this.adapters[adapterName];
 			adapter.setRequestHandler(this.handle);
 			adapter.addApiContainer(this);
 			adapter.start();
 		}
+
 	}
 
 }

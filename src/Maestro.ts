@@ -37,13 +37,7 @@ export { ApiRequestHandler } from './maestro/ApiRequestHandler';
 export { ApiSendErrorFunction } from './maestro/ApiSendErrorFunction';
 export { ApiSendResponseFunction } from './maestro/ApiSendResponseFunction';
 export { IApiMaestro } from './maestro/IApiMaestro';
-export { DefaultCallRouteResolver } from './maestro/default/DefaultCallRouteResolver';
-export { DefaultParameterValidator, DefaultValidationPolicy, ParameterValidationPolicies } from './maestro/default/DefaultParameterValidator';
-export { DefaultSchemaValidator, ParameterSchemaEnforcerFunction, SetSchemaPolicyValidation } from './maestro/default/DefaultSchemaValidator';
-
-// Policies
-export { ApiParameterSchemaPolicy } from './policies/ApiParameterSchemaPolicy';
-export { ApiParametersValidationPolicy } from './policies/ApiParametersValidationPolicy';
+export { RouteResolver as DefaultCallRouteResolver } from './maestro/default/RouteResolver';
 
 // Proxy
 export { IApiRequestProxy } from './proxy/IApiRequestProxy';
@@ -67,6 +61,3 @@ export { HTTPMethod } from './route/HTTPMethod';
 export { IApiRoute } from './route/IApiRoute';
 export { IRouteParameterSpecification } from './route/IRouteParameterSpecification';
 export { RouteParameter } from './route/RouteParameter';
-
-// Validation
-export { ValidateApiCallFunction } from './validation/ValidateApiCallFunction';

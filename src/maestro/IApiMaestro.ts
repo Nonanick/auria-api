@@ -1,8 +1,9 @@
 import { ApiRequestHandler } from './ApiRequestHandler';
 import { ApiCallResolver } from '../resolver/ApiCallResolver';
-import { ValidateApiCallFunction } from '../validation/ValidateApiCallFunction';
 import { IApiAdapter } from '../adapter/IApiAdapter';
 import { ApiContainer } from '../container/ApiContainer';
+import { RouteSchemaEnforcer } from '../validation/policies/schema/RouteSchemaEnforcer';
+import { FailedSchemaValidationPolicyEnforcer } from '../validation/policies/property/FailedSchemaValidationPolicy';
 
 export interface IApiMaestro extends ApiContainer {
 
@@ -32,7 +33,7 @@ export interface IApiMaestro extends ApiContainer {
 	 * 
 	 * @param validation 
 	 */
-	setParameterValidation(validation: ValidateApiCallFunction): void;
+	setSchemaValidation(validation: FailedSchemaValidationPolicyEnforcer): void;
 
 	/**
 	 * Schema Validation
@@ -42,7 +43,7 @@ export interface IApiMaestro extends ApiContainer {
 	 * 
 	 * @param validation 
 	 */
-	setSchemaValidation(validation: ValidateApiCallFunction): void;
+	setSchemaEnforcer(validation: RouteSchemaEnforcer): void;
 
 	/**
 	 * Handle

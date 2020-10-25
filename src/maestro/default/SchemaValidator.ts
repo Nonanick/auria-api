@@ -1,4 +1,3 @@
-import { ApiParameterSchemaPolicy } from "../../policies/ApiParameterSchemaPolicy";
 import { Maybe } from "../../error/Maybe";
 import { IApiRouteRequest } from "../../request/IApiRouteRequest";
 import { IProxiedApiRoute } from "../../proxy/IProxiedApiRoute";
@@ -7,8 +6,9 @@ import { UnknownParameterSchemaPolicy } from "../../error/exceptions/UnknowmPara
 import { ApiError } from "../../error/ApiError";
 import { ParameterSchemaViolation } from "../../error/error/ParameterSchemaViolation";
 import { isRouteParameterSpecification } from "../../route/IRouteParameterSpecification";
+import { EnforceSchemaPolicy } from '../../validation/policies/schema/EnforceSchemaPolicy';
 
-const DefaultSchemaPolicy: ApiParameterSchemaPolicy = "enforce-required";
+const DefaultSchemaPolicy: EnforceSchemaPolicy = "enforce-required";
 
 type ValidationPolicies = {
 	"dont-validate": ParameterSchemaEnforcerFunction;
@@ -37,11 +37,12 @@ const SchemaValidationsPolicies: ValidationPolicies = {
  * @param route
  * @param policy
  */
-export function DefaultSchemaValidator(
+export function SchemaValidator(
 	route: IProxiedApiRoute,
 	request: IApiRouteRequest,
 ): Maybe<true> {
-	let policy = route.parameterSchemaPolicy ?? DefaultSchemaPolicy;
+
+	let policy = route.enforceSchemaPolicy ?? DefaultSchemaPolicy;
 
 	if (policy === undefined) {
 		policy = DefaultSchemaPolicy;
@@ -92,7 +93,13 @@ function EnforceRequiredPolicy(
 	request: IApiRouteRequest,
 	route: IProxiedApiRoute
 ): Maybe<true> {
-	let required = route.requiredParameters;
+
+	// iterate each origin, search for required params in request
+	for (let origin in route.schema ?? {}) {
+		let originSchema = route.schema![origin];
+	}
+
+	let required = route.schema;
 
 	if (required === undefined) return true;
 

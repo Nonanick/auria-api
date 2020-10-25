@@ -1,9 +1,8 @@
-import { RouteParameter } from "./RouteParameter";
 import { HTTPMethod } from "./HTTPMethod";
 import { ApiRouteResolver } from "./ApiRouteResolver";
-import { ApiParameterSchemaPolicy } from "../policies/ApiParameterSchemaPolicy";
-import { ApiParametersValidationPolicy } from "../policies/ApiParametersValidationPolicy";
 import { ApiParametersSchema } from './ApiParametersSchema';
+import { EnforceSchemaPolicy } from '../validation/policies/schema/EnforceSchemaPolicy';
+import { FailedPropertyValidationPolicy } from '../validation/policies/property/FailedPropertyValidationPolicy';
 
 export interface IApiRoute {
   url: string;
@@ -40,7 +39,7 @@ export interface IApiRoute {
    * fail when an unkown parameter is passed [DISCOURAGED]
    *
    */
-  parameterSchemaPolicy?: ApiParameterSchemaPolicy;
+  enforceSchemaPolicy?: EnforceSchemaPolicy;
 
   /**
    * Optional Parameters Validation Policy
@@ -56,7 +55,7 @@ export interface IApiRoute {
    * 3) Don't validate, will not apply validate function on parameter, sanitizers will
    * apply regardless!
    */
-  parametersValidationPolicy?: ApiParametersValidationPolicy;
+  schemaValidationPolicy?: FailedPropertyValidationPolicy;
 
   /**
    * Schema
