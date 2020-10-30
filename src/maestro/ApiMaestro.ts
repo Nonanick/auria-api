@@ -53,22 +53,22 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 		this.adapters[adapter.name] = adapter;
 	}
 
-	async handle(
+	public handle = async (
 		route: IProxiedApiRoute,
 		request: IApiRouteRequest,
 		sendResponse: ApiSendResponseFunction,
 		sendError: ApiSendErrorFunction
-	) {
+	) => {
 
 		// Validate request parameters first
-		let isRequestParametersValid = await this.propertyValidator!(route, request);
+		let isRequestParametersValid = await this.propertyValidator(route, request);
 		if (isRequestParametersValid !== true) {
 			sendError(isRequestParametersValid);
 			return;
 		}
 
 		// Validate Parameters Schema
-		let isRequestSchemaValid = await this.schemaEnforcer!(route, request);
+		let isRequestSchemaValid = await this.schemaEnforcer(route, request);
 		if (isRequestSchemaValid !== true) {
 			sendError(isRequestSchemaValid);
 			return;

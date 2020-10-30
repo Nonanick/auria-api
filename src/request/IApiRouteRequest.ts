@@ -14,16 +14,16 @@ export interface IApiRouteRequest {
 
   appliedProxies?: IApiRequestProxy[];
 
-  getParameter(name: string, origin?: string): any | undefined;
-  hasParameter(name: string, origin?: string): boolean;
-  addParameter(name: string, value: any, origin?: string): void;
-  removeParameter(name: string, origin?: string): void;
+  get(name: string, from?: string): any | undefined;
+  has(name: string, from?: string): boolean;
+  add(name: string, value: any, from?: string): void;
+  remove(name: string, from?: string): void;
 
   readonly parameters?: {
     [name: string]: any;
   };
 
-  readonly parametersByOrigin?: {
+  readonly getByOrigin?: {
     [originName: string]: {
       [name: string]: any;
     };

@@ -4,17 +4,14 @@ import { RouteSchemaEnforcer } from '../../validation/policies/schema/RouteSchem
 export const EnforceStrictSchema: RouteSchemaEnforcer =
   (route, request) => {
 
-    let allParameters = request.parametersByOrigin ?? {};
+    let allParameters = request.getByOrigin ?? {};
 
     // Check if everything present in the request is described
     for (let origin in allParameters) {
 
       let originSchema = route.schema?.[origin];
       if (originSchema == null) {
-        return new SchemaViolation(
-          'Source ', origin,
-          ' is present in the request but not described in the schema!'
-        );
+        continue;
       }
 
       for (let parameter in allParameters[origin]) {
@@ -39,11 +36,11 @@ export const EnforceStrictSchema: RouteSchemaEnforcer =
     // Check each required parameter
     for (let origin in route.schema) {
       let originSchema = route.schema[origin]!;
-      for (let required in originSchema.required ?? []) {
-        if (!request.hasParameter(required, origin)) {
+      for (let required of originSchema.required ?? []) {
+        if (!request.has(required, origin)) {
           return new SchemaViolation(
-            'Required property ', required,
-            ' expected in ', origin,
+            'Required property "' + required +
+            '" expected in ' + origin +
             ' is not present in the request!'
           );
         }

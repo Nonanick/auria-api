@@ -17,7 +17,7 @@ export type RegisterApiRouteParams = Omit<Partial<IApiRoute>, 'resolver'> & { ur
  * 
  * @param params 
  */
-export function RegisterApiRoute(params: RegisterApiRouteParams) {
+export function Route(params: RegisterApiRouteParams) {
 
 	return (target: any, propertyKey: string | symbol) => {
 		let proto = target.constructor.prototype;

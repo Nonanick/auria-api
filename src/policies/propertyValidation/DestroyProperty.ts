@@ -4,7 +4,7 @@ import { FailedSchemaValidationPolicyFunction } from '../../validation/policies/
 export const DestroyProperty: FailedSchemaValidationPolicyFunction =
   (route, request, origin, property, error) => {
 
-    request.removeParameter(
+    request.remove(
       property,
       origin
     );

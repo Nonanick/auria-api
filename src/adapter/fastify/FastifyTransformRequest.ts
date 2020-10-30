@@ -21,7 +21,7 @@ export async function FastifyTransformRequest(request: FastifyRequest): Promise<
 
   // Add Header parameters
   for (let headerName in request.headers) {
-    req.addParameter(
+    req.add(
       headerName,
       request.headers[headerName],
       FastifyHeaderOrigin
@@ -30,7 +30,7 @@ export async function FastifyTransformRequest(request: FastifyRequest): Promise<
 
   // Add Cookie parameters
   for (let cookieName in request.cookies) {
-    req.addParameter(
+    req.add(
       cookieName,
       request.cookies[cookieName],
       FastifyCookieOrigin
@@ -39,7 +39,7 @@ export async function FastifyTransformRequest(request: FastifyRequest): Promise<
 
   // Add Body parameters
   for (let bodyName in body) {
-    req.addParameter(
+    req.add(
       bodyName,
       body[bodyName],
       FastifyBodyOrigin
@@ -48,7 +48,7 @@ export async function FastifyTransformRequest(request: FastifyRequest): Promise<
 
   // Add QueryString parameters
   for (let qsName in query) {
-    req.addParameter(
+    req.add(
       qsName,
       query[qsName],
       FastifyQueryStringOrigin
@@ -57,20 +57,20 @@ export async function FastifyTransformRequest(request: FastifyRequest): Promise<
 
   // Add URL parameters
   for (let urlName in params) {
-    req.addParameter(
+    req.add(
       urlName,
       params[urlName],
       FastifyUrlOrigin
     );
   }
 
-  for await (let singleFile of files) {
+  /*for await (let singleFile of files) {
     req.addParameter(
       singleFile.fieldname,
       singleFile,
       FastifyFileOrigin
     );
-  }
+  }*/
 
   return req;
 }

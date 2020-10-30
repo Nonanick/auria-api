@@ -14,7 +14,7 @@ export const EnforceRequiredSchema: RouteSchemaEnforcer =
       let requiredProperties = originSchema.required ?? [];
 
       for (let required of requiredProperties) {
-        if (!request.hasParameter(required, origin)) {
+        if (!request.has(required, origin)) {
           return new SchemaViolation(
             'Required property ', required,
             ' expected in ', origin,

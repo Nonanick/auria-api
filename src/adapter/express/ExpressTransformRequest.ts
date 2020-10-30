@@ -16,27 +16,27 @@ export function ExpressTransformRequest(request: Request): IApiRouteRequest {
 
   // Add Header parameters
   for (let headerName in request.headers) {
-    req.addParameter(headerName, request.headers[headerName], ExpressHeaderOrigin);
+    req.add(headerName, request.headers[headerName], ExpressHeaderOrigin);
   }
 
   // Add Cookie parameters
   for (let cookieName in request.cookies) {
-    req.addParameter(cookieName, request.cookies[cookieName], ExpressCookieOrigin);
+    req.add(cookieName, request.cookies[cookieName], ExpressCookieOrigin);
   }
 
   // Add Body parameters
   for (let bodyName in request.body) {
-    req.addParameter(bodyName, request.body[bodyName], ExpressBodyOrigin);
+    req.add(bodyName, request.body[bodyName], ExpressBodyOrigin);
   }
 
   // Add QueryString parameters
   for (let qsName in request.query) {
-    req.addParameter(qsName, request.query[qsName], ExpressQueryStringOrigin);
+    req.add(qsName, request.query[qsName], ExpressQueryStringOrigin);
   }
 
   // Add URL parameters
   for (let urlName in request.params) {
-    req.addParameter(urlName, request.params[urlName], ExpressUrlOrigin);
+    req.add(urlName, request.params[urlName], ExpressUrlOrigin);
   }
 
   return req;

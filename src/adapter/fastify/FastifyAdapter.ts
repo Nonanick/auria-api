@@ -118,35 +118,40 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
     request: FastifyRequest,
     response: FastifyReply
   ) => {
+    let returnToFastify = new Promise<any>(async (resolve, reject) => {
 
-    if (typeof this._apiHandler !== "function") {
-      let error = new RequestFlowNotDefined(
-        'Fastfy adatper does not have an associated api request handler'
-      );
-      this._errorHanlder(
-        response,
-        error
-      );
-      this.emit(FastifyEvents.REQUEST_ERROR, error, route, request);
-    }
-
-    // Create API Request
-    let apiRequest = await this._transformRequest(request);
-    apiRequest.method = method;
-
-    // Send it to API Handler
-    this._apiHandler!(
-      route,
-      apiRequest,
-      (routeResp) => {
-        this._sendResponse(routeResp, response);
-        this.emit(FastifyEvents.REQUEST_RESPONSE, routeResp, route);
-      },
-      (error) => {
-        this._errorHanlder(response, error);
+      if (typeof this._apiHandler !== "function") {
+        let error = new RequestFlowNotDefined(
+          'Fastfy adatper does not have an associated api request handler'
+        );
+        this._errorHanlder(
+          response,
+          error,
+          resolve,
+          reject
+        );
         this.emit(FastifyEvents.REQUEST_ERROR, error, route, request);
       }
-    );
+
+      // Create API Request
+      let apiRequest = await this._transformRequest(request);
+      apiRequest.method = method;
+
+      // Send it to API Handler
+      this._apiHandler!(
+        route,
+        apiRequest,
+        (routeResp) => {
+          this._sendResponse(routeResp, response, resolve);
+          this.emit(FastifyEvents.REQUEST_RESPONSE, routeResp, route);
+        },
+        (error) => {
+          this._errorHanlder(response, error, resolve, reject);
+          this.emit(FastifyEvents.REQUEST_ERROR, error, route, request);
+        }
+      );
+    });
+    return returnToFastify;
 
   };
 
@@ -327,7 +332,7 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
         method: method.toLocaleUpperCase() as any,
         url,
         handler: async (req, res) => {
-          this._requestHandler(route, method, req, res);
+          return await this._requestHandler(route, method, req, res);
         },
       }
     );

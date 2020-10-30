@@ -4,7 +4,11 @@ import { FastifyReply } from 'fastify';
 import { FastifyAdapter } from './FastifyAdapter';
 import { FastifyCommands } from './FastifyCommands';
 
-export function FastifySendResponse(routeResp: IApiRouteResponse, response: FastifyReply) {
+export function FastifySendResponse(
+	routeResp: IApiRouteResponse,
+	response: FastifyReply,
+	resolve: (value?: any) => void
+) {
 	let send = routeResp.payload;
 	if (routeResp.commands != null) {
 		applyCommandsToResponse(
@@ -20,8 +24,9 @@ export function FastifySendResponse(routeResp: IApiRouteResponse, response: Fast
 		);
 
 	response
-		.status(routeResp.status)
-		.send(send);
+		.status(routeResp.status);
+
+	resolve(send);
 }
 
 function applyCommandsToResponse(response: FastifyReply, commands: IApiCommand | IApiCommand[]) {

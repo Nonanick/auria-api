@@ -11,8 +11,8 @@ export const SchemaValidator: ValidateSchemaProperties =
 	async (route: IProxiedApiRoute, request: IApiRouteRequest) => {
 
 		// Iterate through each origin
-		for (let origin in request.parametersByOrigin) {
-			const allParams = request.parametersByOrigin[origin];
+		for (let origin in request.getByOrigin) {
+			const allParams = request.getByOrigin[origin];
 
 			// And each parameter
 			for (let name in allParams) {

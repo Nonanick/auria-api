@@ -16,7 +16,7 @@ export { IApiContainer } from './container/IApiContainer';
 export { ApiController } from './controller/ApiController';
 export { ApiControllerDefaultRouteConfig } from './controller/ApiControllerDefaultRouteConfig';
 export { IApiController } from './controller/IApiController';
-export { RegisterApiRoute, apiRoutesSymbol, RegisterApiRouteParams } from './controller/RegisterApiRoute';
+export { Route, apiRoutesSymbol, RegisterApiRouteParams } from './controller/RegisterApiRoute';
 
 // Error
 export { ApiError } from './error/ApiError';

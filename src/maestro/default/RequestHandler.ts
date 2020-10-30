@@ -60,6 +60,13 @@ export const MaestroRequestHandler: RequestHandler =
 				routineResponse = await routineResponse;
 			}
 
+			// Return generated errors
+			if (
+				routineResponse instanceof ApiError
+				|| routineResponse instanceof ApiException) {
+				return routineResponse;
+			}
+
 			// Route might return an ApiRouteResponse for greater control of the output
 			if (
 				routineResponse instanceof ApiRouteResponse ||

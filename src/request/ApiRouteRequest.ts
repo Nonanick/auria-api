@@ -3,7 +3,7 @@ import { IApiRequestProxy } from '../proxy/IApiRequestProxy';
 
 export class ApiRouteRequest implements IApiRouteRequest {
 
-  private static EMPTY_ORIGIN_NAME = '__emptyOrigin';
+  private static EMPTY_ORIGIN_NAME = '_';
 
   private static DEBUG_REQUEST_LIFECYCLE = process.env.NODE_ENV === "development";
 
@@ -23,7 +23,7 @@ export class ApiRouteRequest implements IApiRouteRequest {
 
   url: string;
 
-  method? : string;
+  method?: string;
 
   constructor(adapter: string, url: string) {
     this._adapter = adapter;
@@ -44,7 +44,7 @@ export class ApiRouteRequest implements IApiRouteRequest {
     ];
   }
 
-  getParameter(name: string, origin = ApiRouteRequest.EMPTY_ORIGIN_NAME) {
+  get(name: string, origin = ApiRouteRequest.EMPTY_ORIGIN_NAME) {
     // Asking for a specific origin?
     if (origin != ApiRouteRequest.EMPTY_ORIGIN_NAME) {
       if (this._parametersByOrigin[origin] != null) {
@@ -58,7 +58,7 @@ export class ApiRouteRequest implements IApiRouteRequest {
     return this._allParameters[name];
   }
 
-  hasParameter(name: string, origin = ApiRouteRequest.EMPTY_ORIGIN_NAME): boolean {
+  has(name: string, origin = ApiRouteRequest.EMPTY_ORIGIN_NAME): boolean {
     // Asking for a specific origin?
     if (origin != ApiRouteRequest.EMPTY_ORIGIN_NAME) {
       if (this._parametersByOrigin[origin] != null) {
@@ -80,26 +80,26 @@ export class ApiRouteRequest implements IApiRouteRequest {
     return { ...this._allParameters };
   }
 
-  addParameter(name: string, value: any, origin = ApiRouteRequest.EMPTY_ORIGIN_NAME) {
+  add(name: string, value: any, from = ApiRouteRequest.EMPTY_ORIGIN_NAME) {
 
-    if (this._parametersByOrigin[origin] == null) {
-      this._parametersByOrigin[origin] = {};
+    if (this._parametersByOrigin[from] == null) {
+      this._parametersByOrigin[from] = {};
     }
-    this._parametersByOrigin[origin] = {
-      ...this._parametersByOrigin[origin],
+    this._parametersByOrigin[from] = {
+      ...this._parametersByOrigin[from],
       [name]: value
     };
     this._allParameters[name] = value;
   }
 
-  removeParameter(name: string, origin = ApiRouteRequest.EMPTY_ORIGIN_NAME) {
-    if (this._parametersByOrigin[origin] == null) {
-      this._parametersByOrigin[origin] = {};
+  remove(name: string, from = ApiRouteRequest.EMPTY_ORIGIN_NAME) {
+    if (this._parametersByOrigin[from] == null) {
+      this._parametersByOrigin[from] = {};
     }
 
-    if (this._parametersByOrigin[origin][name] != null) {
-      let paramValue = this._parametersByOrigin[origin][name];
-      delete this._parametersByOrigin[origin][name];
+    if (this._parametersByOrigin[from][name] != null) {
+      let paramValue = this._parametersByOrigin[from][name];
+      delete this._parametersByOrigin[from][name];
 
       // Repopulate 'All' parameters?
       if (this._allParameters[name] === paramValue) {
@@ -108,7 +108,7 @@ export class ApiRouteRequest implements IApiRouteRequest {
         // Deleted ALL Parameters, it should repopulate if there are other values!
         for (let existingOrigins in this._parametersByOrigin) {
           // Skip removed origin
-          if (existingOrigins === origin) {
+          if (existingOrigins === from) {
             continue;
           }
           // If there were previous shadowed value, update!
@@ -126,12 +126,9 @@ export class ApiRouteRequest implements IApiRouteRequest {
    * Parameters By Origin
    * --------------------
    * Return all parameters that have an origin
-   * Parameters included whhitout an origin are only present
-   * by accessing 'parameters'
    */
-  get parametersByOrigin(): ParametersByOrigin {
+  get getByOrigin(): ParametersByOrigin {
     let all = { ...this._parametersByOrigin };
-    delete all[ApiRouteRequest.EMPTY_ORIGIN_NAME];
     return all;
   }
 }
@@ -141,5 +138,5 @@ type RequestParameters = {
 };
 
 type ParametersByOrigin = {
-  [originName: string]: RequestParameters
+  [originName: string]: RequestParameters;
 };
