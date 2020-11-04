@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import fastify, { FastifyInstance, FastifyReply, FastifyRequest, FastifyServerOptions } from 'fastify';
 import fastifyCookie from 'fastify-cookie';
 import fastifyHelmet from 'fastify-helmet';
 import fastifyMultipart from 'fastify-multipart';
@@ -176,12 +176,9 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
    */
   protected _errorHanlder: typeof FastifyErrorHandler = FastifyErrorHandler;
 
-  constructor() {
+  constructor(options?: FastifyServerOptions) {
     super();
-    this.fastify = fastify({
-      logger: true,
-    });
-
+    this.fastify = fastify(options);
   }
 
   /**
@@ -297,7 +294,9 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
           methods = route.methods;
         }
 
-        console.debug('-', methods.map(m => m.toLocaleUpperCase()).join(', '), `- ${route.url}`);
+        methods.forEach(
+          m => console.debug(`${m.toLocaleUpperCase()}\t- ${route.url}`)
+        );
         for (let method of methods) {
           this.addRouteToHttpMethod(method, route);
         }

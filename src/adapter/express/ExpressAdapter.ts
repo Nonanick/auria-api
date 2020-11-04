@@ -292,11 +292,13 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 					methods = route.methods;
 				}
 
-				console.debug('-', methods.map(m => m.toLocaleUpperCase()).join(', '), `- ${route.url}`);
+				methods.forEach(
+					m => console.debug(`${m.toLocaleUpperCase()}\t- ${route.url}`)
+				);
+
 				for (let method of methods) {
 					this.addRouteToHttpMethod(method, route);
 				}
-
 
 				this._loadedRoutes.push(route);
 
