@@ -1,11 +1,11 @@
 import path from 'path';
 import { ApiController } from '../../src/controller/ApiController';
 import { IApiRouteRequest } from '../../src/request/IApiRouteRequest';
-import { RegisterApiRoute } from '../../src/controller/RegisterApiRoute';
 import { ApiControllerDefaultRouteConfig } from '../../src/controller/ApiControllerDefaultRouteConfig';
 import { IApiRequestProxy } from '../../src/proxy/IApiRequestProxy';
 import { IApiResponseProxy } from '../../src/proxy/IApiResponseProxy';
 import { IApiRouteResponse } from '../../src/response/IApiRouteResponse';
+import { Route } from '../../src/controller/RegisterApiRoute';
 
 const TestBaseURL = 'test';
 
@@ -14,7 +14,7 @@ describe('ApiController', () => {
 
     get defaultRouteConfig(): ApiControllerDefaultRouteConfig {
       return {
-        parameterSchemaPolicy: "enforce-required"
+        enforceSchemaPolicy: "enforce-required"
       }
     }
 
@@ -22,14 +22,14 @@ describe('ApiController', () => {
       return TestBaseURL;
     }
 
-    @RegisterApiRoute({
+    @Route({
       url: 'test',
       methods: ['get']
     })
-    public testRouteWithDecorators(req: IApiRouteRequest) {}
+    public testRouteWithDecorators(req: IApiRouteRequest) { }
   }
 
-  it('should empty object when not overriden', () => {
+  it('should empty object when not overridden', () => {
     let t = new class extends ApiController {
       get baseURL(): string {
         return 'anon';
@@ -47,7 +47,7 @@ describe('ApiController', () => {
 
   it('should retain custom default route config', () => {
     let t = new TestController();
-    expect(t.defaultRouteConfig.parameterSchemaPolicy).toBe("enforce-required");
+    expect(t.defaultRouteConfig.enforceSchemaPolicy).toBe("enforce-required");
   });
 
   it('should understand decorated property as route', () => {
@@ -57,7 +57,7 @@ describe('ApiController', () => {
 
   it('should inherit default route config', () => {
     let t = new TestController();
-    expect(t.allRoutes()[0].parameterSchemaPolicy).toBe("enforce-required");
+    expect(t.allRoutes()[0].enforceSchemaPolicy).toBe("enforce-required");
   });
 
   it('should be able to add new routes dynamically', () => {
@@ -70,7 +70,7 @@ describe('ApiController', () => {
     });
 
     expect(t.allRoutes().length).toBe(2);
-    expect(t.allRoutes()[1].url).toBe(path.join('test','dynamic'));
+    expect(t.allRoutes()[1].url).toBe(path.posix.join('test', 'dynamic'));
 
   });
 

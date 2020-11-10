@@ -257,7 +257,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 
 		this.express.disable('x-powered-by');
 
-		console.debug("\nAll avaliable routes:\n----------------------");
+		console.debug("\nAll available routes:\n----------------------");
 		// Add all routes from currently known containers
 		this.loadRoutesFromContainers(this.containers);
 		console.debug();

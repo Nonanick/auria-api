@@ -9,6 +9,7 @@ import { ApiSendErrorFunction } from './ApiSendErrorFunction';
 import { ApiSendResponseFunction } from './ApiSendResponseFunction';
 import { EnforceRouteSchema } from './composition/EnforceRouteSchema';
 import { RequestHandler } from './composition/RequestHandler';
+import { RequestPropertyCaster } from './composition/RequestPropertyCaster';
 import { ValidateSchemaProperties } from './composition/ValidateSchemaProperties';
 import * as Default from './default';
 import { IApiMaestro } from './IApiMaestro';
@@ -32,6 +33,8 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 	public requestHandler: RequestHandler =
 		Default.RequestHandler;
 
+	public requestCaster: RequestPropertyCaster =
+		Default.CastProperties;
 	/**
 	 * Api Maestro
 	 * -----------
@@ -71,6 +74,13 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 		let isRequestSchemaValid = await this.schemaEnforcer(route, request);
 		if (isRequestSchemaValid !== true) {
 			sendError(isRequestSchemaValid);
+			return;
+		}
+
+		// Apply property casting
+		let succededInCasting = await this.requestCaster(route, request);
+		if (succededInCasting !== true) {
+			sendError(succededInCasting);
 			return;
 		}
 

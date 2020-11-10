@@ -1,7 +1,7 @@
 import { ExpressAdapter } from '../../src/adapter/express/ExpressAdapter';
 import { ApiContainer } from '../../src/container/ApiContainer';
 import { ApiController } from '../../src/controller/ApiController';
-import { RegisterApiRoute } from '../../src/controller/RegisterApiRoute';
+import { Route } from '../../src/controller/RegisterApiRoute';
 import { ApiRouteResolver } from '../../src/route/ApiRouteResolver';
 
 describe('Express Adapter', () => {
@@ -17,9 +17,9 @@ describe('Express Adapter', () => {
       return 'ctrl';
     }
 
-    @RegisterApiRoute({
+    @Route({
       'url': 'test',
-      methods: ['connect', 'delete', 'get', 'head', 'options', 'patch', 'put', 'trace', 'post', 'all']
+      methods: 'all'
     })
     public default: ApiRouteResolver = (req) => {
       return 'default';
@@ -38,9 +38,10 @@ describe('Express Adapter', () => {
 
   it('Should expose routes from added containers', () => {
     let adapter = new ExpressAdapter();
+    adapter.onPort(3001);
     adapter.addApiContainer(container);
     adapter.start();
-
-    expect(adapter.loadedRoutes()[''])
+    expect(adapter.loadedRoutes()).toBeDefined();
+    adapter.stop();
   });
 });

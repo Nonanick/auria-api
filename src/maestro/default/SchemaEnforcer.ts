@@ -1,5 +1,5 @@
 import { SchemaEnforcedPolicyNotImplemented } from '../../error/exceptions/SchemaEnforcedPolicyNotImplemented';
-import { SchemaEnforcerPolicyVault } from '../../policies/SchemaEnforcerPolicyVault copy';
+import { SchemaEnforcerPolicyVault } from '../../policies/SchemaEnforcerPolicyVault';
 import { EnforceRouteSchema } from '../composition/EnforceRouteSchema';
 
 export const DefaultSchemaEnforcedPolicy = 'strict';

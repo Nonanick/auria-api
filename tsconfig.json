@@ -1,43 +1,23 @@
 {
 	"compilerOptions": {
-		/* Basic Options */
-		// "incremental": true,                   /* Enable incremental compilation */
+		"incremental": true,
 		"target": "es6",
 		"module": "commonjs",
 		"lib": [
 			"ESNext"
 		],
-		/* Specify library files to be included in the compilation. */
-		// "allowJs": true,                       /* Allow javascript files to be compiled. */
-		// "checkJs": true,                       /* Report errors in .js files. */
 		"declaration": true,
 		"sourceMap": true,
 		"outDir": "./dist",
 		"rootDir": "./src",
-		// "removeComments": true,                /* Do not emit comments to output. */
-		// "noEmit": true,                        /* Do not emit outputs. */
 		"importHelpers": true,
-		// "downlevelIteration": true,            /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
-		/* Strict Type-Checking Options */
 		"strict": true,
-		/* Module Resolution Options */
 		"moduleResolution": "node",
 		"baseUrl": "./src",
-		/* Base directory to resolve non-absolute module names. */
-		// "paths": {},                           /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
-		// "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
-		// "typeRoots": [],                       /* List of folders to include type definitions from. */
-		// "types": [],                           /* Type declaration files to be included in compilation. */
-		// "allowSyntheticDefaultImports": true,  /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */
 		"esModuleInterop": true,
-		/* Experimental Options */
 		"experimentalDecorators": true,
-		/* Enables experimental support for ES7 decorators. */
-		// "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
-		/* Advanced Options */
 		"skipLibCheck": true,
-		/* Skip type checking of declaration files. */
-		"forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
+		"forceConsistentCasingInFileNames": true
 	},
 	"include": [
 		"src"

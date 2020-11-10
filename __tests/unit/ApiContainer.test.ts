@@ -1,38 +1,16 @@
-import { ApiContainer } from '../../src/container/ApiContainer';
-import { ApiController } from '../../src/controller/ApiController';
-import { RegisterApiRoute } from '../../src/controller/RegisterApiRoute';
+import path from 'path';
 import { IApiRequestProxy } from '../../src/proxy/IApiRequestProxy';
 import { IApiResponseProxy } from '../../src/proxy/IApiResponseProxy';
-import path from 'path';
 import { IApiRoute } from '../../src/route/IApiRoute';
+import { MockedApiContainer } from '../__mock__/MockedApiContainer';
+import { MockedApiController } from '../__mock__/MockedApiController';
 
 describe('ApiContainer', () => {
 
-  class TestContainer extends ApiContainer {
-
-    get baseURL(): string {
-      return 'cont';
-    }
-
-  }
-
-  class TestController extends ApiController {
-
-    get baseURL(): string {
-      return 'ctrl';
-    }
-
-    @RegisterApiRoute({
-      url : 'test'
-    })
-    public route() {
-
-    }
-  }
 
   it('should add controllers without duplicates', () => {
-    let cont = new TestContainer();
-    let ctrl = new TestController();
+    let cont = new MockedApiContainer();
+    let ctrl = new MockedApiController();
 
     cont.addController(ctrl);
     cont.addController(ctrl);
@@ -40,9 +18,9 @@ describe('ApiContainer', () => {
     expect(cont.controllers()[0]).toBe(ctrl);
   });
 
-  it('should remove controllers without failing when removeing twice', () => {
-    let cont = new TestContainer();
-    let ctrl = new TestController();
+  it('should remove controllers without failing when removing twice', () => {
+    let cont = new MockedApiContainer();
+    let ctrl = new MockedApiController();
 
     cont.addController(ctrl);
     cont.removeController(ctrl);
@@ -53,35 +31,35 @@ describe('ApiContainer', () => {
   });
 
   it('should add child containers without duplicates', () => {
-    let cont = new TestContainer();
-    let childCont = new TestContainer();
+    let cont = new MockedApiContainer();
+    let childCont = new MockedApiContainer();
     cont.addChildContainer(childCont);
     cont.addChildContainer(childCont);
 
-    expect(cont.childContainers().length).toBe(1);
-    expect(cont.childContainers()[0]).toBe(childCont);
+    expect(cont.containers().length).toBe(1);
+    expect(cont.containers()[0]).toBe(childCont);
   });
 
   it('should remove child containers without failing when removing twice', () => {
-    let cont = new TestContainer();
-    let childCont = new TestContainer();
+    let cont = new MockedApiContainer();
+    let childCont = new MockedApiContainer();
     cont.addChildContainer(childCont);
 
     cont.removeChildContainer(childCont);
     cont.removeChildContainer(childCont);
 
-    expect(cont.childContainers().length).toBe(0);
-    expect(cont.childContainers()[0]).toBeUndefined();
+    expect(cont.containers().length).toBe(0);
+    expect(cont.containers()[0]).toBeUndefined();
   });
 
   it('should add request proxies without duplicates', () => {
-    let cont = new TestContainer();
+    let cont = new MockedApiContainer();
 
-    let proxy : IApiRequestProxy = {
-      name : 'proxy',
+    let proxy: IApiRequestProxy = {
+      name: 'proxy',
       apply(r) {
         return r;
-      } 
+      }
     };
     cont.addRequestProxy(proxy);
     cont.addRequestProxy(proxy);
@@ -91,14 +69,14 @@ describe('ApiContainer', () => {
 
   });
 
-  it('should remove request proxies without failling when removing twice', () => {
-    let cont = new TestContainer();
+  it('should remove request proxies without failing when removing twice', () => {
+    let cont = new MockedApiContainer();
 
-    let proxy : IApiRequestProxy = {
-      name : 'proxy',
+    let proxy: IApiRequestProxy = {
+      name: 'proxy',
       apply(r) {
         return r;
-      } 
+      }
     };
     cont.addRequestProxy(proxy);
 
@@ -110,13 +88,13 @@ describe('ApiContainer', () => {
   });
 
   it('should add response proxies without duplicates', () => {
-    let cont = new TestContainer();
+    let cont = new MockedApiContainer();
 
-    let proxy : IApiResponseProxy = {
-      name : 'proxy',
+    let proxy: IApiResponseProxy = {
+      name: 'proxy',
       apply(r) {
         return r;
-      } 
+      }
     };
     cont.addResponseProxy(proxy);
     cont.addResponseProxy(proxy);
@@ -126,13 +104,13 @@ describe('ApiContainer', () => {
   });
 
   it('should remove response proxies', () => {
-    let cont = new TestContainer();
+    let cont = new MockedApiContainer();
 
-    let proxy : IApiResponseProxy = {
-      name : 'proxy',
+    let proxy: IApiResponseProxy = {
+      name: 'proxy',
       apply(r) {
         return r;
-      } 
+      }
     };
     cont.addResponseProxy(proxy);
 
@@ -144,27 +122,27 @@ describe('ApiContainer', () => {
   });
 
   it('should return routes from child containers and controllers', () => {
-    let t = new TestController();
-    let cont = new TestContainer();
-    let childContainer = new TestContainer();
+    let t = new MockedApiController();
+    let cont = new MockedApiContainer();
+    let childContainer = new MockedApiContainer();
 
     cont.addController(t);
     cont.addChildContainer(childContainer);
     childContainer.addController(t);
 
     expect(cont.allRoutes().length).toBe(2);
-    cont.deleteCacheRoutes();
-    
-    let route : IApiRoute = {
-      url : 'new',
-      methods : 'get',
-      resolver(r) {}
+    cont.deleteCachedRoutes();
+
+    let route: IApiRoute = {
+      url: 'new',
+      methods: 'get',
+      resolver(r) { }
     };
     t.addApiRoute(route);
 
     expect(cont.allRoutes().length).toBe(4);
-    expect(cont.allRoutes()[1].url).toBe(path.join('cont','ctrl','new'));
-    expect(cont.allRoutes()[3].url).toBe(path.join('cont','cont','ctrl','new'));
+    expect(cont.allRoutes()[1].url).toBe(path.posix.join('container', 'controller', 'new'));
+    expect(cont.allRoutes()[3].url).toBe(path.posix.join('container', 'container', 'controller', 'new'));
 
   });
 
