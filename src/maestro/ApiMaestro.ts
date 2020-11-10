@@ -1,3 +1,4 @@
+import { ApiController } from 'controller/ApiController';
 import { IApiAdapter } from '../adapter/IApiAdapter';
 import { ApiContainer } from '../container/ApiContainer';
 import { ApiError } from '../error/ApiError';
@@ -7,10 +8,8 @@ import { IProxiedApiRoute } from '../proxy/IProxiedApiRoute';
 import { IApiRouteRequest } from '../request/IApiRouteRequest';
 import { ApiSendErrorFunction } from './ApiSendErrorFunction';
 import { ApiSendResponseFunction } from './ApiSendResponseFunction';
-import { EnforceRouteSchema } from './composition/EnforceRouteSchema';
 import { RequestHandler } from './composition/RequestHandler';
-import { RequestPropertyCaster } from './composition/RequestPropertyCaster';
-import { ValidateSchemaProperties } from './composition/ValidateSchemaProperties';
+import { IRequestPipe } from './composition/RequestPipe';
 import * as Default from './default';
 import { IApiMaestro } from './IApiMaestro';
 
@@ -24,17 +23,25 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 		[name: string]: IApiAdapter;
 	} = {};
 
-	public schemaEnforcer: EnforceRouteSchema =
-		Default.SchemaEnforcer;
+	protected requestPipes: IRequestPipe[] = [
+		{
+			name: 'property-validator',
+			pipe: Default.SchemaValidator
+		},
+		{
+			name: 'schema-enforcer',
+			pipe: Default.SchemaEnforcer
+		},
+		{
+			name: 'request-caster',
+			pipe: Default.CastProperties
+		}
+	];
 
-	public propertyValidator: ValidateSchemaProperties =
-		Default.SchemaValidator;
 
 	public requestHandler: RequestHandler =
 		Default.RequestHandler;
 
-	public requestCaster: RequestPropertyCaster =
-		Default.CastProperties;
 	/**
 	 * Api Maestro
 	 * -----------
@@ -56,6 +63,41 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 		this.adapters[adapter.name] = adapter;
 	}
 
+	use(...addToLyra: UseInMaestro[]) {
+		addToLyra.forEach(use => {
+			if (use instanceof ApiContainer) {
+				this.addChildContainer(use);
+				return;
+			}
+
+			if (use instanceof ApiController) {
+				this.addController(use);
+				return;
+			}
+
+		});
+	}
+
+	pipe(...pipes: IRequestPipe[]) {
+		this.requestPipes = [...this.requestPipes, ...pipes];
+		return this;
+	}
+
+	removePipe(name: string): boolean {
+		let filteredPipes = this.requestPipes.filter(p => p.name !== name);
+		let foundMatches = this.requestPipes.length !== filteredPipes.length;
+		this.requestPipes = filteredPipes;
+		return foundMatches;
+	}
+
+	allPipeNames(): string[] {
+		return this.requestPipes.map(p => p.name);
+	}
+
+	allPipes() {
+		return [...this.requestPipes];
+	}
+
 	public handle = async (
 		route: IProxiedApiRoute,
 		request: IApiRouteRequest,
@@ -63,25 +105,13 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 		sendError: ApiSendErrorFunction
 	) => {
 
-		// Validate request parameters first
-		let isRequestParametersValid = await this.propertyValidator(route, request);
-		if (isRequestParametersValid !== true) {
-			sendError(isRequestParametersValid);
-			return;
-		}
-
-		// Validate Parameters Schema
-		let isRequestSchemaValid = await this.schemaEnforcer(route, request);
-		if (isRequestSchemaValid !== true) {
-			sendError(isRequestSchemaValid);
-			return;
-		}
-
-		// Apply property casting
-		let succededInCasting = await this.requestCaster(route, request);
-		if (succededInCasting !== true) {
-			sendError(succededInCasting);
-			return;
+		for (let pipe of this.requestPipes) {
+			let canProceed = await pipe.pipe(route, request);
+			if (canProceed !== true) {
+				console.error('Failed to fulfill request!\n', pipe.name, ' returned the error: ', canProceed.message);
+				sendError(canProceed);
+				return;
+			}
 		}
 
 		// Call API Endpoint
@@ -101,19 +131,7 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 
 		if (typeof this.requestHandler !== "function") {
 			throw new RequestFlowNotDefined(
-				'API Maestro cannot fullfill request flow, one of its required pieces is missing! -> Request Resolver'
-			);
-		}
-
-		if (typeof this.propertyValidator !== "function") {
-			throw new RequestFlowNotDefined(
-				'API Maestro cannot fullfill request flow, one of its required pieces is missing! -> Property Validation'
-			);
-		}
-
-		if (typeof this.schemaEnforcer !== "function") {
-			throw new RequestFlowNotDefined(
-				'API Maestro cannot fullfill request flow, one of its required pieces is missing! -> Schema Enforcer'
+				'API Maestro cannot fullfil request flow, one of its required pieces is missing! -> Request Resolver'
 			);
 		}
 
@@ -127,3 +145,6 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 	}
 
 }
+
+
+export type UseInMaestro = ApiContainer | ApiController;

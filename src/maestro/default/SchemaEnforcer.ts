@@ -1,10 +1,15 @@
+import { RequestPipeFunction } from 'maestro/composition/RequestPipe';
+import { IProxiedApiRoute } from 'proxy/IProxiedApiRoute';
+import { IApiRouteRequest } from 'request/IApiRouteRequest';
 import { SchemaEnforcedPolicyNotImplemented } from '../../error/exceptions/SchemaEnforcedPolicyNotImplemented';
 import { SchemaEnforcerPolicyVault } from '../../policies/SchemaEnforcerPolicyVault';
-import { EnforceRouteSchema } from '../composition/EnforceRouteSchema';
 
 export const DefaultSchemaEnforcedPolicy = 'strict';
 
-export const SchemaEnforcer: EnforceRouteSchema = async (route, request) => {
+export async function SchemaEnforcer(
+  route: IProxiedApiRoute,
+  request: IApiRouteRequest,
+) {
 
   let enforcedPolicy = SchemaEnforcerPolicyVault[route.enforceSchemaPolicy ?? DefaultSchemaEnforcedPolicy];
 
