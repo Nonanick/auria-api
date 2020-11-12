@@ -13,7 +13,7 @@ export { Container } from './container/Container';
 export { IContainer } from './container/IContainer';
 
 // Controller
-export { ApiController } from './controller/Controller';
+export { Controller } from './controller/Controller';
 export { ControllerDefaultRouteConfig } from './controller/ControllerDefaultRouteConfig';
 export { IController } from './controller/IController';
 export { Route, apiRoutesSymbol, RegisterApiRouteParams } from './controller/RouteDecorator';

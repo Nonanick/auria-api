@@ -1,14 +1,14 @@
 import { EventEmitter } from 'events';
 import fastify, { FastifyInstance, FastifyReply, FastifyRequest, FastifyServerOptions } from 'fastify';
-import fastifyCookie from 'fastify-cookie';
+import fastifyCookie, { CookieSerializeOptions } from 'fastify-cookie';
 import fastifyHelmet from 'fastify-helmet';
 import fastifyMultipart from 'fastify-multipart';
 import { Server } from 'http';
+import { IApiCommand } from '../../command/IApiCommand';
 import { Container } from '../../container/Container';
 import { IContainer } from '../../container/IContainer';
 import { RequestFlowNotDefined } from '../../error/exceptions/RequestFlowNotDefined';
 import { Maestro } from '../../maestro/Maestro';
-import { RequestHandler } from '../../maestro/composition/RequestHandler';
 import { IProxiedRoute } from '../../proxy/IProxiedRoute';
 import { HTTPMethod } from '../../route/HTTPMethod';
 import { IAdapter } from '../IAdapter';
@@ -20,6 +20,20 @@ import { FastifyTransformRequest } from './FastifyTransformRequest';
 export class FastifyAdapter extends EventEmitter implements IAdapter {
 
   public static ADAPTER_NAME = "Fastify";
+
+  public static CreateCookie = (name: string, value: string, options: CookieSerializeOptions) => {
+    let command: IApiCommand = {
+      name: 'create-cookie',
+      adapters: [FastifyAdapter.ADAPTER_NAME],
+      payload: {
+        name,
+        value,
+        ...options
+      }
+    };
+
+    return command;
+  };
 
   get name(): string {
     return FastifyAdapter.ADAPTER_NAME;
@@ -41,7 +55,7 @@ export class FastifyAdapter extends EventEmitter implements IAdapter {
    * Containers
    * ------------
    * Hold all the API Containers that will be exposed to the 
-   * Fastidy Adapter
+   * Fastify Adapter
    */
   protected containers: Container[] = [];
 
@@ -102,7 +116,7 @@ export class FastifyAdapter extends EventEmitter implements IAdapter {
    * ---------------
    * Responsible for orchestrating the flow of a request
    * Steps taken by the default flow:
-   * 1. Trasnform Request
+   * 1. Transform Request
    * 2. Call the API Request Handler set in the adapter (Usually an APIMaestro handle function)
    * > 2.1 The API Handler has access to a normalized function to either send the IApiRouteResponse
    * > or an error
@@ -122,7 +136,7 @@ export class FastifyAdapter extends EventEmitter implements IAdapter {
 
       if (typeof this._apiHandler !== "function") {
         let error = new RequestFlowNotDefined(
-          'Fastify adatper does not have an associated api request handler'
+          'Fastify adapter does not have an associated api request handler'
         );
         this._errorHandler(
           response,
@@ -204,7 +218,7 @@ export class FastifyAdapter extends EventEmitter implements IAdapter {
   /**
    * [SET] Send Response
    * --------------------
-   * Defines the function that will output through fastidy
+   * Defines the function that will output through fastify
    * an *IApiResponse* object
    * 
    * @param func 
@@ -219,14 +233,14 @@ export class FastifyAdapter extends EventEmitter implements IAdapter {
    * Defines how the adapter will output errors
    * @param handler 
    */
-  setErrorHanlder(handler: typeof FastifyErrorHandler) {
+  setErrorHandler(handler: typeof FastifyErrorHandler) {
     this._errorHandler = handler;
   }
 
   /**
    * [SET] Request Handler
    * ----------------------
-   * Defines the function that will actually be repsonsible
+   * Defines the function that will actually be responsible
    * for transforming the IApiRouteRequest into an IAPiRouteResponse
    * 
    * All other steps like parameter validation, schema validation
@@ -241,8 +255,8 @@ export class FastifyAdapter extends EventEmitter implements IAdapter {
   /**
    * [ADD] API Container
    * --------------------
-   * Add a new API Container to the fastidy adapter
-   * exposing its routes as acessible URL's when
+   * Add a new API Container to the fastify adapter
+   * exposing its routes as accessible URL's when
    * the adapter in started
    * 
    * @param container 
@@ -267,7 +281,7 @@ export class FastifyAdapter extends EventEmitter implements IAdapter {
 
     this.fastify.register(fastifyMultipart);
 
-    console.debug("\nAll avaliable routes:\n----------------------");
+    console.debug("\nAll available routes:\n----------------------");
     // Add all routes from currently known containers
     this.loadRoutesFromContainers(this.containers);
     console.debug();
@@ -281,7 +295,7 @@ export class FastifyAdapter extends EventEmitter implements IAdapter {
    * Assign them to the fastify server using the adapters
    * *Request Hanlder*
    * 
-   * @param containers All Containers that will have thei api routes exposed
+   * @param containers All Containers that will have their api routes exposed
    */
   loadRoutesFromContainers(containers: IContainer[]) {
 

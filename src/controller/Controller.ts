@@ -7,7 +7,7 @@ import { apiRoutesSymbol } from './RouteDecorator';
 import { ControllerDefaultRouteConfig } from './ControllerDefaultRouteConfig';
 import { IProxiedRoute } from '../proxy/IProxiedRoute';
 
-export abstract class ApiController implements IController {
+export abstract class Controller implements IController {
 
 	protected _apiRoutes: IRoute[] = [];
 

@@ -1,4 +1,4 @@
-import { ApiController } from '../controller/Controller';
+import { Controller } from '../controller/Controller';
 import { IAdapter } from '../adapter/IAdapter';
 import { Container } from '../container/Container';
 import { ApiError } from '../error/ApiError';
@@ -70,7 +70,7 @@ export class Maestro extends Container implements IMaestro {
 				return;
 			}
 
-			if (use instanceof ApiController) {
+			if (use instanceof Controller) {
 				this.addController(use);
 				return;
 			}
@@ -147,4 +147,4 @@ export class Maestro extends Container implements IMaestro {
 }
 
 
-export type UseInMaestro = Container | ApiController;
+export type UseInMaestro = Container | Controller;

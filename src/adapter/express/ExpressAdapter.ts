@@ -1,8 +1,9 @@
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import { EventEmitter } from 'events';
-import express, { Application, NextFunction, Request, Response } from 'express';
+import express, { Application, CookieOptions, NextFunction, Request, Response } from 'express';
 import { Server } from 'http';
+import { IApiCommand } from '../../command/IApiCommand';
 import { Container } from '../../container/Container';
 import { IContainer } from '../../container/IContainer';
 import { RequestFlowNotDefined } from '../../error/exceptions/RequestFlowNotDefined';
@@ -16,6 +17,20 @@ import { ExpressSendResponse } from './ExpressSendResponse';
 import { ExpressTransformRequest } from './ExpressTransformRequest';
 
 export class ExpressAdapter extends EventEmitter implements IAdapter {
+
+	static CreateCookie = (name: string, value: string, options: CookieOptions) => {
+		let createCookieCommand: IApiCommand = {
+			name: 'create-cookie',
+			adapters: [ExpressAdapter.ADAPTER_NAME],
+			payload: {
+				name,
+				value,
+				...options
+			}
+		};
+
+		return createCookieCommand;
+	};
 
 	public static ADAPTER_NAME = "Express";
 
@@ -123,7 +138,7 @@ export class ExpressAdapter extends EventEmitter implements IAdapter {
 
 		if (typeof this._apiHandler !== "function") {
 			let error = new RequestFlowNotDefined(
-				'Express adatper does not have an associated api request handler'
+				'Express adapter does not have an associated api request handler'
 			);
 			this._errorHandler(
 				response,
@@ -154,13 +169,13 @@ export class ExpressAdapter extends EventEmitter implements IAdapter {
 	};
 
 	/**
-	 * Actual API Hanlder
+	 * Actual API Handler
 	 * -------------------
 	 * Express adapter is only responsible for normalizing the Input/Output
 	 * of the API, therefore properly translating the Express request
-	 * into an *IApiRouteRequest* and them outputing the *IApiRouteResponse*
+	 * into an *IApiRouteRequest* and them outputting the *IApiRouteResponse*
 	 * 
-	 * All other steps should be done by an 'api request hanlder', how this handler
+	 * All other steps should be done by an 'api request handler', how this handler
 	 * will manage all the processes of validating the request, calling the resolver
 	 * checking for possible errors and so on is no concern to the adapter!
 	 */
@@ -218,7 +233,7 @@ export class ExpressAdapter extends EventEmitter implements IAdapter {
 	/**
 	 * [SET] Request Handler
 	 * ----------------------
-	 * Defines the function that will actually be repsonsible
+	 * Defines the function that will actually be responsible
 	 * for transforming the IApiRouteRequest into an IAPiRouteResponse
 	 * 
 	 * All other steps like parameter validation, schema validation
@@ -234,7 +249,7 @@ export class ExpressAdapter extends EventEmitter implements IAdapter {
 	 * [ADD] API Container
 	 * --------------------
 	 * Add a new API Container to the Express adapter
-	 * exposing its routes as acessible URL's when
+	 * exposing its routes as accessible URL's when
 	 * the adapter in started
 	 * 
 	 * @param container 
@@ -271,9 +286,9 @@ export class ExpressAdapter extends EventEmitter implements IAdapter {
 	 * ---------------------------
 	 * Crawls into the container fetching all exposed routes
 	 * Assign them to the express server using the adapters
-	 * *Request Hanlder*
+	 * *Request Handler*
 	 * 
-	 * @param containers All Containers that will have thei api routes exposed
+	 * @param containers All Containers that will have their api routes exposed
 	 */
 	loadRoutesFromContainers(containers: IContainer[]) {
 
