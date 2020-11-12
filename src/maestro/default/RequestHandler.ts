@@ -1,16 +1,16 @@
-import { IProxiedApiRoute } from "../../proxy/IProxiedApiRoute";
-import { IApiRouteRequest } from "../../request/IApiRouteRequest";
-import { IApiRequestProxy } from "../../proxy/IApiRequestProxy";
+import { IProxiedRoute } from "../../proxy/IProxiedRoute";
+import { IRouteRequest } from "../../request/IRouteRequest";
+import { IProxyRequest } from "../../proxy/IProxyRequest";
 import { ApiError } from "../../error/ApiError";
 import { ApiException } from "../../error/ApiException";
-import { ApiRouteResponse } from "../../response/ApiRouteResponse";
+import { RouteResponse } from "../../response/RouteResponse";
 import {
 	IApiRouteResponse,
-	implementsApiRouteResponse,
-} from "../../response/IApiRouteResponse";
-import { IApiResponseProxy } from "../../proxy/IApiResponseProxy";
+	implementsRouteResponse,
+} from "../../response/IRouteResponse";
+import { IApiResponseProxy } from "../../proxy/IProxyResponse";
 import { Maybe } from "../../error/Maybe";
-import { ApiRouteResolver } from '../../route/ApiRouteResolver';
+import { Resolver } from '../../route/Resolver';
 import { ApiEndpointNotAFunction } from '../../error/exceptions/ApiEndpointNotAFunction';
 import { RequestHandler } from '../composition/RequestHandler';
 
@@ -25,11 +25,11 @@ import { RequestHandler } from '../composition/RequestHandler';
  */
 export const MaestroRequestHandler: RequestHandler =
 	async (
-		route: IProxiedApiRoute,
-		request: IApiRouteRequest
+		route: IProxiedRoute,
+		request: IRouteRequest
 	) => {
 
-		let requestProxies: IApiRequestProxy[] = route.requestProxies;
+		let requestProxies: IProxyRequest[] = route.requestProxies;
 		let maybeProxiedRequest = await applyRequestProxies(request, requestProxies);
 
 		// Any errors during request proxies?
@@ -42,7 +42,7 @@ export const MaestroRequestHandler: RequestHandler =
 
 		// Execute Function
 		try {
-			let resolver: ApiRouteResolver;
+			let resolver: Resolver;
 
 			if (typeof route.resolver === 'function') {
 				resolver = route.resolver;
@@ -69,8 +69,8 @@ export const MaestroRequestHandler: RequestHandler =
 
 			// Route might return an ApiRouteResponse for greater control of the output
 			if (
-				routineResponse instanceof ApiRouteResponse ||
-				implementsApiRouteResponse(routineResponse)
+				routineResponse instanceof RouteResponse ||
+				implementsRouteResponse(routineResponse)
 			) {
 				response = routineResponse;
 			}
@@ -100,9 +100,9 @@ export const MaestroRequestHandler: RequestHandler =
 	};
 
 async function applyRequestProxies(
-	request: IApiRouteRequest,
-	proxies: IApiRequestProxy[]
-): Promise<Maybe<IApiRouteRequest>> {
+	request: IRouteRequest,
+	proxies: IProxyRequest[]
+): Promise<Maybe<IRouteRequest>> {
 	for (let proxy of proxies) {
 		try {
 			let proxiedRequest = await proxy.apply(request);

@@ -1,6 +1,6 @@
 import { Maybe, MaybePromise } from 'error/Maybe';
-import { IProxiedApiRoute } from 'proxy/IProxiedApiRoute';
-import { IApiRouteRequest } from 'request/IApiRouteRequest';
+import { IProxiedRoute } from 'proxy/IProxiedRoute';
+import { IRouteRequest } from 'request/IRouteRequest';
 
 export interface IRequestPipe {
   name: string;
@@ -8,4 +8,4 @@ export interface IRequestPipe {
 }
 
 
-export type RequestPipeFunction = (route: IProxiedApiRoute, request: IApiRouteRequest) => Maybe<true> | MaybePromise<true>;
+export type RequestPipeFunction = (route: IProxiedRoute, request: IRouteRequest) => Maybe<true> | MaybePromise<true>;

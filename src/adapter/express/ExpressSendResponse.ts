@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { IApiRouteResponse } from '../../response/IApiRouteResponse';
+import { IApiRouteResponse } from '../../response/IRouteResponse';
 import { ExpressCommands } from './ExpressCommands';
 import { ExpressAdapter } from './ExpressAdapter';
 import { IApiCommand } from '../../command/IApiCommand';

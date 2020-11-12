@@ -4,20 +4,20 @@ import fastifyCookie from 'fastify-cookie';
 import fastifyHelmet from 'fastify-helmet';
 import fastifyMultipart from 'fastify-multipart';
 import { Server } from 'http';
-import { ApiContainer } from '../../container/ApiContainer';
-import { IApiContainer } from '../../container/IApiContainer';
+import { Container } from '../../container/Container';
+import { IContainer } from '../../container/IContainer';
 import { RequestFlowNotDefined } from '../../error/exceptions/RequestFlowNotDefined';
-import { ApiMaestro } from '../../maestro/ApiMaestro';
+import { Maestro } from '../../maestro/Maestro';
 import { RequestHandler } from '../../maestro/composition/RequestHandler';
-import { IProxiedApiRoute } from '../../proxy/IProxiedApiRoute';
+import { IProxiedRoute } from '../../proxy/IProxiedRoute';
 import { HTTPMethod } from '../../route/HTTPMethod';
-import { IApiAdapter } from '../IApiAdapter';
+import { IAdapter } from '../IAdapter';
 import { FastifyErrorHandler } from './FastifyErrorHandler';
 import { FastifyEvents } from './FastifyEvents';
 import { FastifySendResponse } from './FastifySendResponse';
 import { FastifyTransformRequest } from './FastifyTransformRequest';
 
-export class FastifyAdapter extends EventEmitter implements IApiAdapter {
+export class FastifyAdapter extends EventEmitter implements IAdapter {
 
   public static ADAPTER_NAME = "Fastify";
 
@@ -43,7 +43,7 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
    * Hold all the API Containers that will be exposed to the 
    * Fastidy Adapter
    */
-  protected containers: ApiContainer[] = [];
+  protected containers: Container[] = [];
 
   /**
    * Port
@@ -79,7 +79,7 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
    * All Routes that were already 'loaded'
    * and are therefore exposed 
    */
-  protected _loadedRoutes: IProxiedApiRoute[] = [];
+  protected _loadedRoutes: IProxiedRoute[] = [];
 
   /**
    * Transform Request
@@ -113,7 +113,7 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
    * @param response Fastify Response object
    */
   protected _requestHandler = async (
-    route: IProxiedApiRoute,
+    route: IProxiedRoute,
     method: HTTPMethod,
     request: FastifyRequest,
     response: FastifyReply
@@ -122,9 +122,9 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
 
       if (typeof this._apiHandler !== "function") {
         let error = new RequestFlowNotDefined(
-          'Fastfy adatper does not have an associated api request handler'
+          'Fastify adatper does not have an associated api request handler'
         );
-        this._errorHanlder(
+        this._errorHandler(
           response,
           error,
           resolve,
@@ -146,7 +146,7 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
           this.emit(FastifyEvents.REQUEST_RESPONSE, routeResp, route);
         },
         (error) => {
-          this._errorHanlder(response, error, resolve, reject);
+          this._errorHandler(response, error, resolve, reject);
           this.emit(FastifyEvents.REQUEST_ERROR, error, route, request);
         }
       );
@@ -156,17 +156,17 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
   };
 
   /**
-   * Actual API Hanlder
+   * Actual API Handler
    * -------------------
    * Fastify adapter is only responsible for normalizing the Input/Output
    * of the API, therefore properly translating the Fastify request
-   * into an *IApiRouteRequest* and them outputing the *IApiRouteResponse*
+   * into an *IApiRouteRequest* and them outputting the *IApiRouteResponse*
    * 
-   * All other steps should be done by an 'api request hanlder', how this handler
+   * All other steps should be done by an 'api request handler', how this handler
    * will manage all the processes of validating the request, calling the resolver
    * checking for possible errors and so on is no concern to the adapter!
    */
-  protected _apiHandler?: ApiMaestro['handle'];
+  protected _apiHandler?: Maestro['handle'];
 
   /**
    * Error Handler
@@ -174,11 +174,19 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
    * Function that allows the API Handler to output errors through the default
    * Fastify Error Handler or any other adapter error handler
    */
-  protected _errorHanlder: typeof FastifyErrorHandler = FastifyErrorHandler;
+  protected _errorHandler: typeof FastifyErrorHandler = FastifyErrorHandler;
 
-  constructor(options?: FastifyServerOptions) {
+  constructor(options?: FastifyServerOptions);
+  constructor(port: number, options?: FastifyServerOptions);
+  constructor(portOrOptions?: number | FastifyServerOptions, options?: FastifyServerOptions) {
     super();
-    this.fastify = fastify(options);
+
+    if (typeof portOrOptions === 'number') {
+      this.fastify = fastify(options);
+      this.onPort(portOrOptions);
+    } else {
+      this.fastify = fastify(options);
+    }
   }
 
   /**
@@ -212,7 +220,7 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
    * @param handler 
    */
   setErrorHanlder(handler: typeof FastifyErrorHandler) {
-    this._errorHanlder = handler;
+    this._errorHandler = handler;
   }
 
   /**
@@ -226,7 +234,7 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
    * 
    * @param handler 
    */
-  setRequestHandler(handler: ApiMaestro['handle']) {
+  setRequestHandler(handler: Maestro['handle']) {
     this._apiHandler = handler;
   }
 
@@ -239,7 +247,7 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
    * 
    * @param container 
    */
-  addApiContainer(container: ApiContainer) {
+  addContainer(container: Container) {
     // Prevent duplicates
     if (!this.containers.includes(container)) {
       this.containers.push(container);
@@ -275,7 +283,7 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
    * 
    * @param containers All Containers that will have thei api routes exposed
    */
-  loadRoutesFromContainers(containers: IApiContainer[]) {
+  loadRoutesFromContainers(containers: IContainer[]) {
 
     for (let container of containers) {
 
@@ -317,13 +325,21 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
    * @param method HTTPMethod that will be listened
    * @param route Route corresponding to the URL + Method
    */
-  protected addRouteToHttpMethod(method: HTTPMethod, route: IProxiedApiRoute) {
+  protected addRouteToHttpMethod(method: HTTPMethod, route: IProxiedRoute) {
     let url: string;
 
     if (route.url.trim().charAt(0) !== '/') {
       url = '/' + route.url.trim();
     } else {
       url = route.url.trim();
+    }
+
+    // Handle 'search' http method, currently unsupported by fastify - Transformed into 'ALL'
+    if (['search', 'all'].includes(method)) {
+      console.warn(
+        'Fastify adapter does not support "' + method.toLocaleUpperCase() + '" HTTP verb, serving route as POST instead'
+      );
+      method = 'post';
     }
 
     this.fastify.route(
@@ -411,5 +427,5 @@ export class FastifyAdapter extends EventEmitter implements IApiAdapter {
 }
 
 type RoutesByURL = {
-  [routeURL: string]: IProxiedApiRoute;
+  [routeURL: string]: IProxiedRoute;
 };

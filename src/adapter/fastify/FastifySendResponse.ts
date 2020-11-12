@@ -1,4 +1,4 @@
-import { IApiRouteResponse } from '../../response/IApiRouteResponse';
+import { IApiRouteResponse } from '../../response/IRouteResponse';
 import { IApiCommand } from '../../command/IApiCommand';
 import { FastifyReply } from 'fastify';
 import { FastifyAdapter } from './FastifyAdapter';
@@ -9,7 +9,8 @@ export function FastifySendResponse(
 	response: FastifyReply,
 	resolve: (value?: any) => void
 ) {
-	let send = routeResp.payload;
+	// Cannot resolve a promise with null/undefined!
+	let send = routeResp.payload ?? {};
 	if (routeResp.commands != null) {
 		applyCommandsToResponse(
 			response,

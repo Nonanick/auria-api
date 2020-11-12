@@ -1,4 +1,4 @@
-import { IApiRoute } from '../route/IApiRoute';
+import { IRoute } from '../route/IRoute';
 import { HTTPMethod } from '../route/HTTPMethod';
 
 export const apiRoutesSymbol = Symbol('ApiControllerRoutes');
@@ -8,7 +8,7 @@ export const apiRoutesSymbol = Symbol('ApiControllerRoutes');
  * -------------------------
  * 
  */
-export type RegisterApiRouteParams = Omit<Partial<IApiRoute>, 'resolver'> & { url: string; };
+export type RegisterApiRouteParams = Omit<Partial<IRoute>, 'resolver'> & { url: string; };
 
 /**
  * Register Api Route

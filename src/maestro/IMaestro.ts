@@ -1,12 +1,12 @@
-import { IApiAdapter } from '../adapter/IApiAdapter';
-import { ApiContainer } from '../container/ApiContainer';
-import { IProxiedApiRoute } from '../proxy/IProxiedApiRoute';
-import { IApiRouteRequest } from '../request/IApiRouteRequest';
-import { ApiSendErrorFunction } from './ApiSendErrorFunction';
-import { ApiSendResponseFunction } from './ApiSendResponseFunction';
+import { IAdapter } from '../adapter/IAdapter';
+import { Container } from '../container/Container';
+import { IProxiedRoute } from '../proxy/IProxiedRoute';
+import { IRouteRequest } from '../request/IRouteRequest';
+import { SendErrorFunction } from './SendErrorFunction';
+import { SendResponseFunction } from './SendResponseFunction';
 import { RequestHandler } from './composition/RequestHandler';
 
-export interface IApiMaestro extends ApiContainer {
+export interface IMaestro extends Container {
 
 	/**
 	 * Api Call Resolver
@@ -34,13 +34,13 @@ export interface IApiMaestro extends ApiContainer {
 	 * Function exposed to all adapters that receives 
 	 */
 	handle(
-		route: IProxiedApiRoute,
-		request: IApiRouteRequest,
-		sendResponse: ApiSendResponseFunction,
-		sendError: ApiSendErrorFunction,
+		route: IProxiedRoute,
+		request: IRouteRequest,
+		sendResponse: SendResponseFunction,
+		sendError: SendErrorFunction,
 	): void;
 
-	addAdapter(adapter: IApiAdapter): void;
+	addAdapter(adapter: IAdapter): void;
 
 	start(): void;
 

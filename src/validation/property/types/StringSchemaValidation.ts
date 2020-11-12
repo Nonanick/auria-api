@@ -1,11 +1,11 @@
 import { IncorrectStringLength } from '../../../error/error/IncorrectStringLength';
-import { Maybe } from '../../../error/Maybe';
+import { Maybe, MaybePromise } from '../../../error/Maybe';
 import { StringSchema } from '../../../route/schema/StringSchema';
 
 export function StringSchemaValidation(
   schema: StringSchema,
   value: any
-): Maybe<true> {
+): Maybe<true> | MaybePromise<true> {
 
   let stringfied = String(value);
 

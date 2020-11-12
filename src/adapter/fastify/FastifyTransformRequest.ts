@@ -1,12 +1,12 @@
 import { FastifyRequest } from 'fastify';
-import { IApiRouteRequest } from '../../request/IApiRouteRequest';
-import { ApiRouteRequest } from '../../request/ApiRouteRequest';
+import { IRouteRequest } from '../../request/IRouteRequest';
+import { RouteRequest } from '../../request/RouteRequest';
 import { FastifyAdapter } from './FastifyAdapter';
 import { FastifyBodyOrigin, FastifyCookieOrigin, FastifyFileOrigin, FastifyHeaderOrigin, FastifyQueryStringOrigin, FastifyUrlOrigin } from './FastifyParameterOrigins';
 
-export async function FastifyTransformRequest(request: FastifyRequest): Promise<IApiRouteRequest> {
+export async function FastifyTransformRequest(request: FastifyRequest): Promise<IRouteRequest> {
 
-  let req: IApiRouteRequest = new ApiRouteRequest(FastifyAdapter.ADAPTER_NAME, request.url);
+  let req: IRouteRequest = new RouteRequest(FastifyAdapter.ADAPTER_NAME, request.url);
 
   //  Request Identification in Express is List of IP's + User Agent
   let requestIdentification = (request.ips != null ? request.ips.join(' - ') : request.ip)

@@ -7,7 +7,11 @@ export interface IApiRouteResponse {
   commands?: IApiCommand | IApiCommand[];
 }
 
-export function implementsApiRouteResponse(resp: any): resp is IApiRouteResponse {
+export function implementsRouteResponse(resp: any): resp is IApiRouteResponse {
+  if (resp == null) {
+    return false;
+  }
+
   return (
     typeof resp.exitCode === "string" &&
     typeof resp.status === "number" &&

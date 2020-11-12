@@ -1,11 +1,11 @@
 import { EventEmitter } from 'events';
-import { IApiAdapter } from '../adapter/IApiAdapter';
-import { IApiController } from '../controller/IApiController';
-import { IApiRequestProxy } from '../proxy/IApiRequestProxy';
-import { IApiResponseProxy } from '../proxy/IApiResponseProxy';
-import { IProxiedApiRoute } from '../proxy/IProxiedApiRoute';
+import { IAdapter } from '../adapter/IAdapter';
+import { IController } from '../controller/IController';
+import { IProxyRequest } from '../proxy/IProxyRequest';
+import { IApiResponseProxy } from '../proxy/IProxyResponse';
+import { IProxiedRoute } from '../proxy/IProxiedRoute';
 
-export interface IApiContainer extends EventEmitter {
+export interface IContainer extends EventEmitter {
 
 	/**
 	 * Base URL
@@ -23,28 +23,28 @@ export interface IApiContainer extends EventEmitter {
 	 * 
 	 * @param controller 
 	 */
-	controllers(): IApiController[];
-	addController(controller: IApiController): IApiContainer;
-	removeController(controller: IApiController): IApiContainer;
+	controllers(): IController[];
+	addController(controller: IController): IContainer;
+	removeController(controller: IController): IContainer;
 
-	containers(): IApiContainer[];
-	addChildContainer(container: IApiContainer): IApiContainer;
-	removeChildContainer(container: IApiContainer): IApiContainer;
+	containers(): IContainer[];
+	addChildContainer(container: IContainer): IContainer;
+	removeChildContainer(container: IContainer): IContainer;
 
-	requestProxies(): IApiRequestProxy[];
-	addRequestProxy(proxy: IApiRequestProxy): IApiContainer;
-	removeRequestProxy(proxy: IApiRequestProxy): IApiContainer;
+	requestProxies(): IProxyRequest[];
+	addRequestProxy(proxy: IProxyRequest): IContainer;
+	removeRequestProxy(proxy: IProxyRequest): IContainer;
 
 	responseProxies(): IApiResponseProxy[];
-	addResponseProxy(proxy: IApiResponseProxy): IApiContainer;
-	removeResponseProxy(proxy: IApiResponseProxy): IApiContainer;
+	addResponseProxy(proxy: IApiResponseProxy): IContainer;
+	removeResponseProxy(proxy: IApiResponseProxy): IContainer;
 
 	/**
 	 * Set Targeted Adapters
 	 * ----------------------
 	 * Define which adapters this Container can handle
 	 */
-	setTargetedAdapters(adapters: ApiAdapterClass[]): void;
+	setTargetedAdapters(adapters: AdapterClass[]): void;
 	/**
 	 * Remove Targeted Adapters
 	 * -------------------------
@@ -66,9 +66,9 @@ export interface IApiContainer extends EventEmitter {
 	 * 
 	 * @param adapterInstance Object that implements IApiAdapter
 	 */
-	acceptsAdapter(adapterInstance: IApiAdapter): boolean;
+	acceptsAdapter(adapterInstance: IAdapter): boolean;
 
-	allRoutes(): IProxiedApiRoute[];
+	allRoutes(): IProxiedRoute[];
 
 }
 
@@ -78,4 +78,4 @@ export interface IApiContainer extends EventEmitter {
  * 
  * Class type that implements IApiAdapter
  */
-export type ApiAdapterClass = new (...args: any[]) => IApiAdapter & IApiAdapter;
+export type AdapterClass = new (...args: any[]) => IAdapter & IAdapter;

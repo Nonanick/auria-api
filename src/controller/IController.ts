@@ -1,10 +1,10 @@
-import { IApiRoute } from '../route/IApiRoute';
-import { IApiRequestProxy } from '../proxy/IApiRequestProxy';
-import { IApiResponseProxy } from '../proxy/IApiResponseProxy';
-import { ApiControllerDefaultRouteConfig } from './ApiControllerDefaultRouteConfig';
-import { IProxiedApiRoute } from '../proxy/IProxiedApiRoute';
+import { IRoute } from '../route/IRoute';
+import { IProxyRequest } from '../proxy/IProxyRequest';
+import { IApiResponseProxy } from '../proxy/IProxyResponse';
+import { ControllerDefaultRouteConfig } from './ControllerDefaultRouteConfig';
+import { IProxiedRoute } from '../proxy/IProxiedRoute';
 
-export interface IApiController {
+export interface IController {
   /**
    * Default Route Config
    * ---------------------
@@ -16,8 +16,8 @@ export interface IApiController {
    * a set of configurations you should override
    * *transformRoute* method
    */
-  readonly defaultRouteConfig : ApiControllerDefaultRouteConfig;
-  
+  readonly defaultRouteConfig: ControllerDefaultRouteConfig;
+
   /**
    * Base URL
    * --------
@@ -25,7 +25,7 @@ export interface IApiController {
    * to all ApiRoutes inside this controller
    * An empty base URL means that nothing shall be preppended!
    */
-  readonly baseURL : string;
+  readonly baseURL: string;
 
   /**
    * Transform Route
@@ -39,14 +39,14 @@ export interface IApiController {
    * for preppending baseURL of the ApiController
    * @param route 
    */
-  transformRoute(route : IApiRoute) : IApiRoute;
-  
+  transformRoute(route: IRoute): IRoute;
+
   /**
    * Request Proxies
    * ----------------
    * Return all Request Proxies of this ApiController
    */
-  requestProxies() : IApiRequestProxy[];
+  requestProxies(): IProxyRequest[];
   /**
    * Add Request Proxy
    * ------------------
@@ -59,25 +59,25 @@ export interface IApiController {
    * 
    * @param proxy 
    */
-  addRequestProxy(proxy : IApiRequestProxy) : IApiController;
-   /**
-   * Remove Request Proxy
-   * ---------------------
-   * Removes a previously added Request Proxy
-   * Trying to remove a proxy that is not included
-   * in this controller will silently fail
-   * @param proxy 
-   */
-  removeRequestProxy(proxy : IApiRequestProxy) : IApiController;
+  addRequestProxy(proxy: IProxyRequest): IController;
+  /**
+  * Remove Request Proxy
+  * ---------------------
+  * Removes a previously added Request Proxy
+  * Trying to remove a proxy that is not included
+  * in this controller will silently fail
+  * @param proxy 
+  */
+  removeRequestProxy(proxy: IProxyRequest): IController;
 
 
-   /**
-   * Response Proxies
-   * -----------------
-   * Return all Response Proxies that for this controller
-   * in the order they were added
-   */
-  responseProxies() : IApiResponseProxy[];
+  /**
+  * Response Proxies
+  * -----------------
+  * Return all Response Proxies that for this controller
+  * in the order they were added
+  */
+  responseProxies(): IApiResponseProxy[];
   /**
    * Add Response Proxy
    * -------------------
@@ -85,7 +85,7 @@ export interface IApiController {
    * which resides inside this controller
    * @param proxy 
    */
-  addResponseProxy(proxy : IApiResponseProxy) : IApiController;
+  addResponseProxy(proxy: IApiResponseProxy): IController;
   /**
    * Remove Response Proxy
    * ---------------------
@@ -94,8 +94,8 @@ export interface IApiController {
    * in this controller will silently fail
    * @param proxy 
    */
-  removeResponseProxy(proxy : IApiResponseProxy) : IApiController;
-  
+  removeResponseProxy(proxy: IApiResponseProxy): IController;
+
 
   /**
    * All Routes
@@ -103,6 +103,6 @@ export interface IApiController {
    * Return all APIRoutes with the Request and Response
    * proxys from this ApiController
    */
-  allRoutes() : IProxiedApiRoute[];
+  allRoutes(): IProxiedRoute[];
 
 }

@@ -1,6 +1,6 @@
-import { IApiRequestProxy } from '../proxy/IApiRequestProxy';
+import { IProxyRequest } from '../proxy/IProxyRequest';
 
-export interface IApiRouteRequest {
+export interface IRouteRequest {
 
   readonly adapter: string;
 
@@ -12,18 +12,21 @@ export interface IApiRouteRequest {
 
   url: string;
 
-  appliedProxies?: IApiRequestProxy[];
+  appliedProxies?: IProxyRequest[];
 
   get(name: string, from?: string): any | undefined;
   has(name: string, from?: string): boolean;
   add(name: string, value: any, from?: string): void;
   remove(name: string, from?: string): void;
 
+  setOrigin(name: string, value: any): void;
+  getOrigin<T = any>(name: string): T;
+
   readonly parameters?: {
     [name: string]: any;
   };
 
-  readonly getByOrigin?: {
+  readonly byOrigin?: {
     [originName: string]: {
       [name: string]: any;
     };

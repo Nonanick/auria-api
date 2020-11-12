@@ -1,10 +1,10 @@
 import { HTTPMethod } from "./HTTPMethod";
-import { ApiRouteResolver } from "./ApiRouteResolver";
-import { ApiParametersSchema } from './ApiParametersSchema';
+import { Resolver as RouteResolver } from "./Resolver";
+import { RouteSchema } from './RouteSchema';
 import { EnforceSchemaPolicy } from '../validation/policies/schema/EnforceSchemaPolicy';
 import { FailedPropertyValidationPolicy } from '../validation/policies/property/FailedPropertyValidationPolicy';
 
-export interface IApiRoute {
+export interface IRoute {
   url: string;
 
   methods: HTTPMethod | HTTPMethod[];
@@ -21,7 +21,7 @@ export interface IApiRoute {
    * called when needed as an index:
    * @example controller[route.resolver]
    */
-  resolver: ApiRouteResolver | string;
+  resolver: RouteResolver | string;
 
   /**
    * Parameter Schema Policy
@@ -62,6 +62,6 @@ export interface IApiRoute {
    * -------
    * Define this api parameter schema 
    */
-  schema?: ApiParametersSchema;
+  schema?: RouteSchema;
 
 }

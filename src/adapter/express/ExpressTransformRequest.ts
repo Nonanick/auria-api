@@ -1,12 +1,12 @@
 import { Request } from 'express';
-import { IApiRouteRequest } from '../../request/IApiRouteRequest';
-import { ApiRouteRequest } from '../../request/ApiRouteRequest';
+import { IRouteRequest } from '../../request/IRouteRequest';
+import { RouteRequest } from '../../request/RouteRequest';
 import { ExpressAdapter } from './ExpressAdapter';
 import { ExpressHeaderOrigin, ExpressCookieOrigin, ExpressBodyOrigin, ExpressQueryStringOrigin, ExpressUrlOrigin } from './ExpressParameterOrigins';
 
-export function ExpressTransformRequest(request: Request): IApiRouteRequest {
+export function ExpressTransformRequest(request: Request): IRouteRequest {
 
-  let req: IApiRouteRequest = new ApiRouteRequest(ExpressAdapter.ADAPTER_NAME, request.originalUrl);
+  let req: IRouteRequest = new RouteRequest(ExpressAdapter.ADAPTER_NAME, request.originalUrl);
 
   //  Request Identification in Express is List of IP's + User Agent
   let requestIdentification = request.ips.join(' - ')

@@ -1,26 +1,26 @@
-import { ApiController } from 'controller/ApiController';
-import { IApiAdapter } from '../adapter/IApiAdapter';
-import { ApiContainer } from '../container/ApiContainer';
+import { ApiController } from '../controller/Controller';
+import { IAdapter } from '../adapter/IAdapter';
+import { Container } from '../container/Container';
 import { ApiError } from '../error/ApiError';
 import { ApiException } from '../error/ApiException';
 import { RequestFlowNotDefined } from '../error/exceptions/RequestFlowNotDefined';
-import { IProxiedApiRoute } from '../proxy/IProxiedApiRoute';
-import { IApiRouteRequest } from '../request/IApiRouteRequest';
-import { ApiSendErrorFunction } from './ApiSendErrorFunction';
-import { ApiSendResponseFunction } from './ApiSendResponseFunction';
+import { IProxiedRoute } from '../proxy/IProxiedRoute';
+import { IRouteRequest } from '../request/IRouteRequest';
+import { SendErrorFunction } from './SendErrorFunction';
+import { SendResponseFunction } from './SendResponseFunction';
 import { RequestHandler } from './composition/RequestHandler';
 import { IRequestPipe } from './composition/RequestPipe';
 import * as Default from './default';
-import { IApiMaestro } from './IApiMaestro';
+import { IMaestro } from './IMaestro';
 
-export class ApiMaestro extends ApiContainer implements IApiMaestro {
+export class Maestro extends Container implements IMaestro {
 
 	get baseURL() {
 		return '';
 	}
 
 	public adapters: {
-		[name: string]: IApiAdapter;
+		[name: string]: IAdapter;
 	} = {};
 
 	protected requestPipes: IRequestPipe[] = [
@@ -59,13 +59,13 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 		this.requestHandler = resolver;
 	}
 
-	addAdapter(adapter: IApiAdapter) {
+	addAdapter(adapter: IAdapter) {
 		this.adapters[adapter.name] = adapter;
 	}
 
 	use(...addToLyra: UseInMaestro[]) {
 		addToLyra.forEach(use => {
-			if (use instanceof ApiContainer) {
+			if (use instanceof Container) {
 				this.addChildContainer(use);
 				return;
 			}
@@ -99,10 +99,10 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 	}
 
 	public handle = async (
-		route: IProxiedApiRoute,
-		request: IApiRouteRequest,
-		sendResponse: ApiSendResponseFunction,
-		sendError: ApiSendErrorFunction
+		route: IProxiedRoute,
+		request: IRouteRequest,
+		sendResponse: SendResponseFunction,
+		sendError: SendErrorFunction
 	) => {
 
 		for (let pipe of this.requestPipes) {
@@ -138,7 +138,7 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 		for (let adapterName in this.adapters) {
 			let adapter = this.adapters[adapterName];
 			adapter.setRequestHandler(this.handle);
-			adapter.addApiContainer(this);
+			adapter.addContainer(this);
 			adapter.start();
 		}
 
@@ -147,4 +147,4 @@ export class ApiMaestro extends ApiContainer implements IApiMaestro {
 }
 
 
-export type UseInMaestro = ApiContainer | ApiController;
+export type UseInMaestro = Container | ApiController;

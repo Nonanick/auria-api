@@ -1,9 +1,9 @@
-import { IApiRouteRequest } from '../../request/IApiRouteRequest';
-import { IProxiedApiRoute } from '../../proxy/IProxiedApiRoute';
-import { ApiSendResponseFunction } from '../ApiSendResponseFunction';
-import { ApiSendErrorFunction } from '../ApiSendErrorFunction';
+import { IRouteRequest } from '../../request/IRouteRequest';
+import { IProxiedRoute } from '../../proxy/IProxiedRoute';
+import { SendResponseFunction } from '../SendResponseFunction';
+import { SendErrorFunction } from '../SendErrorFunction';
 import { MaybePromise } from '../../error/Maybe';
-import { IApiRouteResponse } from '../../response/IApiRouteResponse';
+import { IApiRouteResponse } from '../../response/IRouteResponse';
 
 /**
  * ApiRequestHandler
@@ -20,8 +20,8 @@ import { IApiRouteResponse } from '../../response/IApiRouteResponse';
  * trough the 'sendError' function
  */
 export type RequestHandler = (
-  route: IProxiedApiRoute,
-  request: IApiRouteRequest,
-  sendResponse: ApiSendResponseFunction,
-  sendError: ApiSendErrorFunction
+  route: IProxiedRoute,
+  request: IRouteRequest,
+  sendResponse: SendResponseFunction,
+  sendError: SendErrorFunction
 ) => MaybePromise<IApiRouteResponse>;

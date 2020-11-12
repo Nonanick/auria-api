@@ -1,15 +1,15 @@
 import path from 'path';
-import { IApiController } from './IApiController';
-import { IApiRoute } from '../route/IApiRoute';
-import { IApiRequestProxy } from '../proxy/IApiRequestProxy';
-import { IApiResponseProxy } from '../proxy/IApiResponseProxy';
-import { apiRoutesSymbol } from './RegisterApiRoute';
-import { ApiControllerDefaultRouteConfig } from './ApiControllerDefaultRouteConfig';
-import { IProxiedApiRoute } from '../proxy/IProxiedApiRoute';
+import { IController } from './IController';
+import { IRoute } from '../route/IRoute';
+import { IProxyRequest } from '../proxy/IProxyRequest';
+import { IApiResponseProxy } from '../proxy/IProxyResponse';
+import { apiRoutesSymbol } from './RouteDecorator';
+import { ControllerDefaultRouteConfig } from './ControllerDefaultRouteConfig';
+import { IProxiedRoute } from '../proxy/IProxiedRoute';
 
-export abstract class ApiController implements IApiController {
+export abstract class ApiController implements IController {
 
-	protected _apiRoutes: IApiRoute[] = [];
+	protected _apiRoutes: IRoute[] = [];
 
 	/**
 	 * ## Default Route Configuration
@@ -23,7 +23,7 @@ export abstract class ApiController implements IApiController {
 	 * *transformRoute* method
 	 */
 	public get defaultRouteConfig():
-		ApiControllerDefaultRouteConfig {
+		ControllerDefaultRouteConfig {
 		return {};
 	}
 
@@ -33,7 +33,7 @@ export abstract class ApiController implements IApiController {
 	 * All Request proxies of this ApiController
 	 * 
 	 */
-	protected _requestProxies: IApiRequestProxy[] = [];
+	protected _requestProxies: IProxyRequest[] = [];
 
 	/**
 	 * Response Proxies
@@ -76,7 +76,7 @@ export abstract class ApiController implements IApiController {
 	 * 
 	 * @param route Route that will be transformed
 	 */
-	transformRoute(route: IApiRoute): IApiRoute {
+	transformRoute(route: IRoute): IRoute {
 		let transformedRoute = { ...route };
 		transformedRoute.url = path.posix.join(this.baseURL, route.url);
 		return transformedRoute;
@@ -91,7 +91,7 @@ export abstract class ApiController implements IApiController {
 	 * API Route to ALL instances of the same class
 	 * @param route 
 	 */
-	addApiRoute(route: IApiRoute) {
+	addApiRoute(route: IRoute) {
 		let routeWithDefaults = {
 			...this.defaultRouteConfig,
 			...route
@@ -99,18 +99,20 @@ export abstract class ApiController implements IApiController {
 		this._apiRoutes.push(routeWithDefaults);
 	}
 
-	requestProxies(): IApiRequestProxy[] {
+	requestProxies(): IProxyRequest[] {
 		return [...this._requestProxies];
 	}
 
-	addRequestProxy(proxy: IApiRequestProxy): IApiController {
-		if (!this._requestProxies.includes(proxy)) {
-			this._requestProxies.push(proxy);
+	addRequestProxy(...proxies: IProxyRequest[]): IController {
+		for (let proxy of proxies) {
+			if (!this._requestProxies.includes(proxy)) {
+				this._requestProxies.push(proxy);
+			}
 		}
 		return this;
 	}
 
-	removeRequestProxy(proxy: IApiRequestProxy): IApiController {
+	removeRequestProxy(proxy: IProxyRequest): IController {
 		let ioProxy = this._requestProxies.indexOf(proxy);
 		if (ioProxy >= 0) {
 			this._requestProxies.splice(ioProxy, 1);
@@ -122,14 +124,16 @@ export abstract class ApiController implements IApiController {
 		return [...this._responseProxies];
 	}
 
-	addResponseProxy(proxy: IApiResponseProxy): IApiController {
-		if (!this._responseProxies.includes(proxy)) {
-			this._responseProxies.push(proxy);
+	addResponseProxy(...proxies: IApiResponseProxy[]): IController {
+		for (let proxy of proxies) {
+			if (!this._responseProxies.includes(proxy)) {
+				this._responseProxies.push(proxy);
+			}
 		}
 		return this;
 	}
 
-	removeResponseProxy(proxy: IApiResponseProxy): IApiController {
+	removeResponseProxy(proxy: IApiResponseProxy): IController {
 		let ioProxy = this._responseProxies.indexOf(proxy);
 		if (ioProxy >= 0) {
 			this._responseProxies.splice(ioProxy, 1);
@@ -137,8 +141,8 @@ export abstract class ApiController implements IApiController {
 		return this;
 	}
 
-	allRoutes(): IProxiedApiRoute[] {
-		let transformedRoutes: IProxiedApiRoute[] = this._apiRoutes
+	allRoutes(): IProxiedRoute[] {
+		let transformedRoutes: IProxiedRoute[] = this._apiRoutes
 			.map(r => ({
 				...this.transformRoute(r),
 				requestProxies: this.requestProxies(),
@@ -147,10 +151,6 @@ export abstract class ApiController implements IApiController {
 			}));
 
 		return transformedRoutes;
-	}
-
-	runResolver() {
-
 	}
 
 }

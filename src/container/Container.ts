@@ -1,23 +1,23 @@
 import path from 'path';
-import { ApiAdapterClass, IApiContainer } from './IApiContainer';
-import { IApiController } from '../controller/IApiController';
-import { IApiRequestProxy } from '../proxy/IApiRequestProxy';
-import { IApiResponseProxy } from '../proxy/IApiResponseProxy';
+import { AdapterClass, IContainer } from './IContainer';
+import { IController } from '../controller/IController';
+import { IProxyRequest } from '../proxy/IProxyRequest';
+import { IApiResponseProxy } from '../proxy/IProxyResponse';
 import { EventEmitter } from 'events';
-import { IProxiedApiRoute } from '../proxy/IProxiedApiRoute';
-import { IApiAdapter } from '../adapter/IApiAdapter';
+import { IProxiedRoute } from '../proxy/IProxiedRoute';
+import { IAdapter } from '../adapter/IAdapter';
 
-export abstract class ApiContainer extends EventEmitter implements IApiContainer {
+export abstract class Container extends EventEmitter implements IContainer {
 
 	abstract get baseURL(): string;
 
-	protected _targetedAdapters?: ApiAdapterClass[];
+	protected _targetedAdapters?: AdapterClass[];
 
-	protected _cachedRoutes?: IProxiedApiRoute[];
+	protected _cachedRoutes?: IProxiedRoute[];
 
-	transformRoute(route: IProxiedApiRoute): IProxiedApiRoute {
+	transformRoute(route: IProxiedRoute): IProxiedRoute {
 
-		let nRoute: IProxiedApiRoute = {
+		let nRoute: IProxiedRoute = {
 			...route,
 			url: path.posix.join(this.baseURL, route.url),
 			requestProxies: [...this.requestProxies(), ...route.requestProxies],
@@ -31,13 +31,13 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 	 * Controllers
 	 * -----------
 	 */
-	protected _controllers: IApiController[] = [];
+	protected _controllers: IController[] = [];
 
-	controllers(): IApiController[] {
+	controllers(): IController[] {
 		return [...this._controllers];
 	}
 
-	addController(...controllers: IApiController[]): IApiContainer {
+	addController(...controllers: IController[]): IContainer {
 		for (let controller of controllers) {
 			if (!this._controllers.includes(controller)) {
 				this._controllers.push(controller);
@@ -46,7 +46,7 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 		return this;
 	}
 
-	removeController(controller: IApiController): IApiContainer {
+	removeController(controller: IController): IContainer {
 		let ioController = this._controllers.indexOf(controller);
 		if (ioController >= 0) {
 			this._controllers.splice(ioController, 1);
@@ -54,13 +54,13 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 		return this;
 	}
 
-	protected _containers: IApiContainer[] = [];
+	protected _containers: IContainer[] = [];
 
-	containers(): IApiContainer[] {
+	containers(): IContainer[] {
 		return [...this._containers];
 	}
 
-	addChildContainer(...containers: IApiContainer[]): IApiContainer {
+	addChildContainer(...containers: IContainer[]): IContainer {
 		for (let container of containers) {
 			if (!this._containers.includes(container)) {
 				this._containers.push(container);
@@ -69,7 +69,7 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 		return this;
 	}
 
-	removeChildContainer(container: IApiContainer): IApiContainer {
+	removeChildContainer(container: IContainer): IContainer {
 		let ioContainer = this._containers.indexOf(container);
 		if (ioContainer >= 0) {
 			this._containers.splice(ioContainer, 1);
@@ -77,13 +77,13 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 		return this;
 	}
 
-	protected _requestProxies: IApiRequestProxy[] = [];
+	protected _requestProxies: IProxyRequest[] = [];
 
-	requestProxies(): IApiRequestProxy[] {
+	requestProxies(): IProxyRequest[] {
 		return [...this._requestProxies];
 	}
 
-	addRequestProxy(...proxies: IApiRequestProxy[]): IApiContainer {
+	addRequestProxy(...proxies: IProxyRequest[]): IContainer {
 		for (let proxy of proxies) {
 			if (!this._requestProxies.includes(proxy)) {
 				this._requestProxies.push(proxy);
@@ -92,7 +92,7 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 		return this;
 	}
 
-	removeRequestProxy(...proxies: IApiRequestProxy[]): IApiContainer {
+	removeRequestProxy(...proxies: IProxyRequest[]): IContainer {
 		for (let proxy of proxies) {
 			let ioProxy = this._requestProxies.indexOf(proxy);
 			if (ioProxy >= 0) {
@@ -108,7 +108,7 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 		return [...this._responseProxies];
 	}
 
-	addResponseProxy(...proxies: IApiResponseProxy[]): IApiContainer {
+	addResponseProxy(...proxies: IApiResponseProxy[]): IContainer {
 		for (let proxy of proxies) {
 			if (!this._responseProxies.includes(proxy)) {
 				this._responseProxies.push(proxy);
@@ -117,7 +117,7 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 		return this;
 	}
 
-	removeResponseProxy(...proxies: IApiResponseProxy[]): IApiContainer {
+	removeResponseProxy(...proxies: IApiResponseProxy[]): IContainer {
 		for (let proxy of proxies) {
 			let ioProxy = this._responseProxies.indexOf(proxy);
 			if (ioProxy >= 0) {
@@ -127,7 +127,7 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 		return this;
 	}
 
-	allRoutes(): IProxiedApiRoute[] {
+	allRoutes(): IProxiedRoute[] {
 
 		if (this._cachedRoutes != null) {
 			return this._cachedRoutes;
@@ -136,7 +136,7 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 		let childContainerRoutes = this._containers.map(c => c.allRoutes());
 		let controllerRoutes = this._controllers.map(c => c.allRoutes());
 
-		let allRoutes: IProxiedApiRoute[] = [];
+		let allRoutes: IProxiedRoute[] = [];
 
 		allRoutes = allRoutes.concat(...controllerRoutes);
 		allRoutes = allRoutes.concat(...childContainerRoutes);
@@ -152,14 +152,14 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 	deleteCachedRoutes() {
 		this.containers().forEach(
 			(c) => {
-				if (c instanceof ApiContainer)
+				if (c instanceof Container)
 					c.deleteCachedRoutes();
 			}
 		);
 		delete this._cachedRoutes;
 	}
 
-	setTargetedAdapters(adapters: ApiAdapterClass[]) {
+	setTargetedAdapters(adapters: AdapterClass[]) {
 		this._targetedAdapters = adapters;
 	}
 
@@ -173,7 +173,7 @@ export abstract class ApiContainer extends EventEmitter implements IApiContainer
 			: false;
 	}
 
-	acceptsAdapter(adapterInstance: IApiAdapter): boolean {
+	acceptsAdapter(adapterInstance: IAdapter): boolean {
 		if (this.hasTargetedAdapters()) {
 			for (let c of this._targetedAdapters ?? []) {
 				if (adapterInstance instanceof c) {

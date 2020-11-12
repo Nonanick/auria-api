@@ -3,21 +3,23 @@ import cookieParser from 'cookie-parser';
 import { EventEmitter } from 'events';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import { Server } from 'http';
-import { ApiContainer } from '../../container/ApiContainer';
-import { IApiContainer } from '../../container/IApiContainer';
+import { Container } from '../../container/Container';
+import { IContainer } from '../../container/IContainer';
 import { RequestFlowNotDefined } from '../../error/exceptions/RequestFlowNotDefined';
-import { ApiMaestro } from '../../maestro/ApiMaestro';
-import { IProxiedApiRoute } from '../../proxy/IProxiedApiRoute';
+import { Maestro } from '../../maestro/Maestro';
+import { IProxiedRoute } from '../../proxy/IProxiedRoute';
 import { HTTPMethod } from '../../route/HTTPMethod';
-import { IApiAdapter } from '../IApiAdapter';
+import { IAdapter } from '../IAdapter';
 import { ExpressErrorHandler } from './ExpressErrorHandler';
 import { ExpressEvents } from './ExpressEvents';
 import { ExpressSendResponse } from './ExpressSendResponse';
 import { ExpressTransformRequest } from './ExpressTransformRequest';
 
-export class ExpressAdapter extends EventEmitter implements IApiAdapter {
+export class ExpressAdapter extends EventEmitter implements IAdapter {
 
 	public static ADAPTER_NAME = "Express";
+
+	public static DEFAULT_PORT = 3000;
 
 	get name(): string {
 		return ExpressAdapter.ADAPTER_NAME;
@@ -41,7 +43,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 	 * Hold all the API Containers that will be exposed to the 
 	 * Express Adapter
 	 */
-	protected containers: ApiContainer[] = [];
+	protected containers: Container[] = [];
 
 	/**
 	 * Port
@@ -77,7 +79,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 	 * All Routes that were already 'loaded'
 	 * and are therefore exposed 
 	 */
-	protected _loadedRoutes: IProxiedApiRoute[] = [];
+	protected _loadedRoutes: IProxiedRoute[] = [];
 
 	/**
 	 * Transform Request
@@ -112,7 +114,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 	 * @param next Express NextFunction, usually called when an error has ocurred
 	 */
 	protected _requestHandler = async (
-		route: IProxiedApiRoute,
+		route: IProxiedRoute,
 		method: HTTPMethod,
 		request: Request,
 		response: Response,
@@ -123,7 +125,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 			let error = new RequestFlowNotDefined(
 				'Express adatper does not have an associated api request handler'
 			);
-			this._errorHanlder(
+			this._errorHandler(
 				response,
 				next,
 				error
@@ -144,7 +146,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 				this.emit(ExpressEvents.REQUEST_RESPONSE, routeResp, route);
 			},
 			(error) => {
-				this._errorHanlder(response, next, error);
+				this._errorHandler(response, next, error);
 				this.emit(ExpressEvents.REQUEST_ERROR, error, route, request);
 			}
 		);
@@ -162,7 +164,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 	 * will manage all the processes of validating the request, calling the resolver
 	 * checking for possible errors and so on is no concern to the adapter!
 	 */
-	protected _apiHandler?: ApiMaestro['handle'];
+	protected _apiHandler?: Maestro['handle'];
 
 	/**
 	 * Error Handler
@@ -170,13 +172,13 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 	 * Function that allows the API Handler to output errors through the default
 	 * Express Error Handler or any other adapter error handler
 	 */
-	protected _errorHanlder: typeof ExpressErrorHandler = ExpressErrorHandler;
+	protected _errorHandler: typeof ExpressErrorHandler = ExpressErrorHandler;
 
 
-	constructor() {
+	constructor(port?: number) {
 		super();
 		this.express = express();
-
+		this.onPort(port ?? ExpressAdapter.DEFAULT_PORT);
 	}
 
 	/**
@@ -210,7 +212,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 	 * @param handler 
 	 */
 	setErrorHanlder(handler: typeof ExpressErrorHandler) {
-		this._errorHanlder = handler;
+		this._errorHandler = handler;
 	}
 
 	/**
@@ -224,7 +226,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 	 * 
 	 * @param handler 
 	 */
-	setRequestHandler(handler: ApiMaestro['handle']) {
+	setRequestHandler(handler: Maestro['handle']) {
 		this._apiHandler = handler;
 	}
 
@@ -237,7 +239,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 	 * 
 	 * @param container 
 	 */
-	addApiContainer(container: ApiContainer) {
+	addContainer(container: Container) {
 		// Prevent duplicates
 		if (!this.containers.includes(container)) {
 			this.containers.push(container);
@@ -273,7 +275,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 	 * 
 	 * @param containers All Containers that will have thei api routes exposed
 	 */
-	loadRoutesFromContainers(containers: IApiContainer[]) {
+	loadRoutesFromContainers(containers: IContainer[]) {
 
 		for (let container of containers) {
 
@@ -315,7 +317,7 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 	 * @param method HTTPMethod that will be listened
 	 * @param route Route corresponding to the URL + Method
 	 */
-	protected addRouteToHttpMethod(method: HTTPMethod, route: IProxiedApiRoute) {
+	protected addRouteToHttpMethod(method: HTTPMethod, route: IProxiedRoute) {
 		let url: string;
 
 		if (route.url.trim().charAt(0) !== '/') {
@@ -333,6 +335,12 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 				break;
 			case 'get':
 				this.express.get(url, (req, res, next) => {
+					this._requestHandler(route, method, req, res, next);
+				});
+				this.emit(ExpressEvents.GET_REQUEST, route);
+				break;
+			case 'search':
+				this.express.search(url, (req, res, next) => {
 					this._requestHandler(route, method, req, res, next);
 				});
 				this.emit(ExpressEvents.GET_REQUEST, route);
@@ -428,5 +436,5 @@ export class ExpressAdapter extends EventEmitter implements IApiAdapter {
 }
 
 type RoutesByURL = {
-	[routeURL: string]: IProxiedApiRoute;
+	[routeURL: string]: IProxiedRoute;
 };

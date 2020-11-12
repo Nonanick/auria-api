@@ -1,4 +1,4 @@
-import { IApiRoute } from '../route/IApiRoute';
+import { IRoute } from '../route/IRoute';
 
 /**
  * Default Route Configuration
@@ -8,7 +8,7 @@ import { IApiRoute } from '../route/IApiRoute';
  * inside a ApiController
  * 
  */
-export type ApiControllerDefaultRouteConfig = Pick<
-  Partial<IApiRoute>,
+export type ControllerDefaultRouteConfig = Pick<
+  Partial<IRoute>,
   "enforceSchemaPolicy" | "schemaValidationPolicy"
 >;

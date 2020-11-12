@@ -1,7 +1,9 @@
-import { IApiRouteRequest } from './IApiRouteRequest';
-import { IApiRequestProxy } from '../proxy/IApiRequestProxy';
+import { IRouteRequest } from './IRouteRequest';
+import { IProxyRequest } from '../proxy/IProxyRequest';
 
-export class ApiRouteRequest implements IApiRouteRequest {
+export class RouteRequest implements IRouteRequest {
+
+  public static WARN_ON_EMPTY_PARAMETER = true;
 
   private static EMPTY_ORIGIN_NAME = '_';
 
@@ -31,22 +33,22 @@ export class ApiRouteRequest implements IApiRouteRequest {
     this.url = url;
   }
 
-  protected _proxies: IApiRequestProxy[] = [];
+  protected _proxies: IProxyRequest[] = [];
 
-  get appliedProxies(): IApiRequestProxy[] {
+  get appliedProxies(): IProxyRequest[] {
     return [...this._proxies];
   }
 
-  set appliedProxies(proxies: IApiRequestProxy[]) {
+  set appliedProxies(proxies: IProxyRequest[]) {
     this._proxies = [
       ...this._proxies, // Currently applied proxies
       ...proxies.filter(p => !this._proxies.includes(p)) // Unique new proxies (?)
     ];
   }
 
-  get(name: string, origin = ApiRouteRequest.EMPTY_ORIGIN_NAME) {
+  get(name: string, origin = RouteRequest.EMPTY_ORIGIN_NAME) {
     // Asking for a specific origin?
-    if (origin != ApiRouteRequest.EMPTY_ORIGIN_NAME) {
+    if (origin != RouteRequest.EMPTY_ORIGIN_NAME) {
       if (this._parametersByOrigin[origin] != null) {
         return this._parametersByOrigin[origin][name] ?? undefined;
       }
@@ -54,13 +56,19 @@ export class ApiRouteRequest implements IApiRouteRequest {
         return undefined;
       }
     }
+    if (
+      this._allParameters[name] === undefined
+      && RouteRequest.WARN_ON_EMPTY_PARAMETER
+    ) {
+      console.warn(`Parameter ${name} is undefined! Make sure to handle it properly!`);
+    }
     // If not use 'all parameters'
     return this._allParameters[name];
   }
 
-  has(name: string, origin = ApiRouteRequest.EMPTY_ORIGIN_NAME): boolean {
+  has(name: string, origin = RouteRequest.EMPTY_ORIGIN_NAME): boolean {
     // Asking for a specific origin?
-    if (origin != ApiRouteRequest.EMPTY_ORIGIN_NAME) {
+    if (origin != RouteRequest.EMPTY_ORIGIN_NAME) {
       if (this._parametersByOrigin[origin] != null) {
         return this._parametersByOrigin[origin][name] != null;
       }
@@ -80,7 +88,15 @@ export class ApiRouteRequest implements IApiRouteRequest {
     return { ...this._allParameters };
   }
 
-  add(name: string, value: any, from = ApiRouteRequest.EMPTY_ORIGIN_NAME) {
+  setOrigin(name: string, value: any): void {
+    this._allParameters[name] = value;
+  }
+
+  getOrigin<T = any>(name: string): T {
+    return this._allParameters[name] as T;
+  }
+
+  add(name: string, value: any, from = RouteRequest.EMPTY_ORIGIN_NAME) {
 
     if (this._parametersByOrigin[from] == null) {
       this._parametersByOrigin[from] = {};
@@ -92,7 +108,7 @@ export class ApiRouteRequest implements IApiRouteRequest {
     this._allParameters[name] = value;
   }
 
-  remove(name: string, from = ApiRouteRequest.EMPTY_ORIGIN_NAME) {
+  remove(name: string, from = RouteRequest.EMPTY_ORIGIN_NAME) {
     if (this._parametersByOrigin[from] == null) {
       this._parametersByOrigin[from] = {};
     }
@@ -127,7 +143,7 @@ export class ApiRouteRequest implements IApiRouteRequest {
    * --------------------
    * Return all parameters that have an origin
    */
-  get getByOrigin(): ParametersByOrigin {
+  get byOrigin(): ParametersByOrigin {
     let all = { ...this._parametersByOrigin };
     return all;
   }

@@ -4,7 +4,7 @@ import { RouteSchemaEnforcer } from '../../validation/policies/schema/RouteSchem
 export const EnforceStrictSchema: RouteSchemaEnforcer =
   (route, request) => {
 
-    let allParameters = request.getByOrigin ?? {};
+    let allParameters = request.byOrigin ?? {};
 
     // Check if everything present in the request is described
     for (let origin in allParameters) {

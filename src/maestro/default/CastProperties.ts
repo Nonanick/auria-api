@@ -1,15 +1,15 @@
 import { MaybePromise } from 'error/Maybe';
-import { IProxiedApiRoute } from 'proxy/IProxiedApiRoute';
-import { IApiRouteRequest } from 'request/IApiRouteRequest';
+import { IProxiedRoute } from 'proxy/IProxiedRoute';
+import { IRouteRequest } from 'request/IRouteRequest';
 
 export async function CastProperties(
-  route: IProxiedApiRoute,
-  request: IApiRouteRequest
+  route: IProxiedRoute,
+  request: IRouteRequest
 ): MaybePromise<true> {
 
   // Iterate through each origin
-  for (let origin in request.getByOrigin) {
-    const allParams = request.getByOrigin[origin];
+  for (let origin in request.byOrigin) {
+    const allParams = request.byOrigin[origin];
 
     // And each parameter
     for (let name in allParams) {

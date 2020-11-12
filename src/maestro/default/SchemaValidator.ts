@@ -1,20 +1,20 @@
 import { MaybePromise } from 'error/Maybe';
 import { ApiError } from '../../error/ApiError';
 import { PropertyValidationPolicyVault } from '../../policies/PropertyValidationPolicyVault.ts';
-import { IProxiedApiRoute } from '../../proxy/IProxiedApiRoute';
-import { IApiRouteRequest } from '../../request/IApiRouteRequest';
+import { IProxiedRoute } from '../../proxy/IProxiedRoute';
+import { IRouteRequest } from '../../request/IRouteRequest';
 import { SchemaValidations } from '../../validation/property/SchemaValidations';
 
 export const DefaultPropertyValidationPolicy = 'prevent-execution';
 
 export async function SchemaValidator(
-	route: IProxiedApiRoute,
-	request: IApiRouteRequest
+	route: IProxiedRoute,
+	request: IRouteRequest
 ): MaybePromise<true> {
 
 	// Iterate through each origin
-	for (let origin in request.getByOrigin) {
-		const allParams = request.getByOrigin[origin];
+	for (let origin in request.byOrigin) {
+		const allParams = request.byOrigin[origin];
 
 		// And each parameter
 		for (let name in allParams) {
@@ -26,7 +26,7 @@ export async function SchemaValidator(
 				const propertySchema = route.schema?.[origin]?.properties[name]!;
 
 				const passedSchemaValidation = await SchemaValidations[propertySchema.type](propertySchema, value);
-				const passedDefinedValidation = await propertySchema.validate?.(value) ?? true;
+				const passedDefinedValidation = await propertySchema.validate?.(value, request) ?? true;
 
 				// If any property validation fails...
 				if (

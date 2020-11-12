@@ -1,8 +1,8 @@
 import { Maybe, MaybePromise } from '../../../error/Maybe';
-import { IProxiedApiRoute } from '../../../proxy/IProxiedApiRoute';
-import { IApiRouteRequest } from '../../../request/IApiRouteRequest';
+import { IProxiedRoute } from '../../../proxy/IProxiedRoute';
+import { IRouteRequest } from '../../../request/IRouteRequest';
 
 export type RouteSchemaEnforcer = (
-  route: IProxiedApiRoute,
-  request: IApiRouteRequest
+  route: IProxiedRoute,
+  request: IRouteRequest
 ) => Maybe<true> | MaybePromise<true>;
