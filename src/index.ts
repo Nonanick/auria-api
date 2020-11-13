@@ -1,12 +1,10 @@
 // Adapter
 export { IAdapter } from './adapter/IAdapter';
-// -- Express
-export * as Express from './adapter/express';
-// -- Fastify
-export * as Fastify from './adapter/fastify';
 
 // Command
-export { IApiCommand } from './command/IApiCommand';
+export { ICommand } from './command/ICommand';
+export { ICommandResolver } from './command/ICommandResolver';
+export { IncorrectAdapter } from './error/adapter/IncorrectAdapter';
 
 // Container
 export { Container } from './container/Container';

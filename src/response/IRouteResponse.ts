@@ -1,10 +1,10 @@
-import { IApiCommand } from "../command/IApiCommand";
+import { ICommand } from "../command/ICommand";
 
 export interface IApiRouteResponse {
   exitCode: string;
   status: number;
   payload: any;
-  commands?: IApiCommand | IApiCommand[];
+  commands?: ICommand | ICommand[];
 }
 
 export function implementsRouteResponse(resp: any): resp is IApiRouteResponse {

@@ -1,11 +1,11 @@
 import { IApiRouteResponse } from './IRouteResponse';
-import { IApiCommand } from '../command/IApiCommand';
+import { ICommand } from '../command/ICommand';
 
 export class RouteResponse implements IApiRouteResponse {
 
   exitCode: string = "OK";
   status: number = 201;
   payload: any;
-  commands?: IApiCommand | IApiCommand[];
+  commands?: ICommand | ICommand[];
 
 }
