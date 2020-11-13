@@ -90,6 +90,7 @@ export class RouteRequest implements IRouteRequest {
 
   setOrigin(name: string, value: any): void {
     this._allParameters[name] = value;
+    this._parametersByOrigin[name] = value;
   }
 
   getOrigin<T = any>(name: string): T {
