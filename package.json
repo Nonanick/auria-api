@@ -1,8 +1,8 @@
 {
-  "name": "auria-maestro",
+  "name": "maestro",
   "version": "0.0.2",
   "mode": "development",
-  "description": "Auria Maestro - Build RESTful API's",
+  "description": "Maestro - Build RESTful API's",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "Nicholas Frai",
