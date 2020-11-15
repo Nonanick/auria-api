@@ -27,10 +27,38 @@ export class RouteRequest implements IRouteRequest {
 
   method?: string;
 
-  constructor(adapter: string, url: string) {
+  protected _matchedPattern: string;
+
+  get matchedPattern() {
+    return this._matchedPattern;
+  }
+
+  constructor(
+    adapter: string,
+    url: string,
+    matchedPattern: string
+  ) {
     this._adapter = adapter;
-    this._originalURL = url;
-    this.url = url;
+    this._originalURL = this.normalizeURL(url);
+    this._matchedPattern = matchedPattern;
+    this.url = this._originalURL;
+  }
+
+  protected normalizeURL(url: string) {
+    // trim url
+    let normalized = url.trim();
+
+    // Remove ending slash
+    if (normalized.indexOf('/') === normalized.length - 1) {
+      normalized = normalized.substring(0, -1);
+    }
+
+    // Add intial slash
+    if (normalized[0] !== '/') {
+      normalized = '/' + normalized;
+    }
+
+    return normalized;
   }
 
   protected _proxies: IProxyRequest[] = [];

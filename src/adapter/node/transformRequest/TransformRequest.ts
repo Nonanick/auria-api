@@ -4,10 +4,15 @@ import { RouteRequest } from '../../../request/RouteRequest';
 import { NodeAdapter } from '../NodeAdapter';
 
 export function TransformRequest(
-  request: IncomingMessage
+  request: IncomingMessage,
+  matchedPattern: string
 ): IRouteRequest {
 
-  const req: IRouteRequest = new RouteRequest(NodeAdapter.name, request.url ?? '');
+  const req: IRouteRequest = new RouteRequest(
+    NodeAdapter.name,
+    request.url ?? '',
+    matchedPattern
+  );
 
 
   return req;

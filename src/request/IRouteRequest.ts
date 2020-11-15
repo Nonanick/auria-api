@@ -6,6 +6,8 @@ export interface IRouteRequest {
 
   readonly originalURL: string;
 
+  readonly matchedPattern: string;
+
   identification: string;
 
   method?: string;

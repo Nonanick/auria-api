@@ -49,7 +49,7 @@ export class NodeAdapter extends EventEmitter implements IAdapter {
   }
 
   protected serverRequestListener: RequestListener = (req, res) => {
-    const request = TransformRequest(req);
+    const request = TransformRequest(req, req.url!);
 
     res.write("Implement node adapter!");
     res.end();

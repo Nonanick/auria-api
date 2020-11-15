@@ -7,7 +7,6 @@ export async function CastProperties(
   request: IRouteRequest
 ): MaybePromise<true> {
 
-  console.log('Will now cast properties from request!');
   // Iterate through each origin
   for (let origin in request.byOrigin) {
     const allParams = request.byOrigin[origin];
@@ -21,9 +20,7 @@ export async function CastProperties(
         const propertySchema = route.schema?.[origin]?.properties[name]!;
 
         if (typeof propertySchema.cast === "function") {
-          console.log('Casting request property:', name, '!');
           let castedValue = await propertySchema.cast(value);
-          console.log('Casted "', value, '" into "', castedValue, '"!');
           request.add(name, castedValue, origin);
         }
       }
