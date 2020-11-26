@@ -1,6 +1,8 @@
 import { ICommand } from "../command/ICommand";
+import { IRouteRequest } from '../request/IRouteRequest';
 
 export interface IApiRouteResponse {
+  request: IRouteRequest;
   exitCode: string;
   status: number;
   payload: any;

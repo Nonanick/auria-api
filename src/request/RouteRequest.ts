@@ -3,6 +3,7 @@ import { IProxyRequest } from '../proxy/IProxyRequest';
 
 export class RouteRequest implements IRouteRequest {
 
+
   public static WARN_ON_EMPTY_PARAMETER = true;
 
   private static EMPTY_ORIGIN_NAME = '_';
@@ -15,7 +16,25 @@ export class RouteRequest implements IRouteRequest {
     return this._adapter;
   }
 
+  protected _timestamp = Date.now();
+
+  get timestamp() {
+    return this._timestamp;
+  }
+
   protected _originalURL: string;
+
+  protected _originalParameters?: {
+    [name: string]: any;
+  };
+
+  setAsRaw() {
+    this._originalParameters = { ...this.byOrigin };
+  }
+
+  get rawParameters(): any {
+    return this._originalParameters ?? {};
+  }
 
   get originalURL(): string {
     return this._originalURL;

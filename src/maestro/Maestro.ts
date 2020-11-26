@@ -116,7 +116,7 @@ export class Maestro extends Container implements IMaestro {
 
 		// Call API Endpoint
 		let apiResponse = await this.requestHandler(route, request, sendResponse, sendError);
-		if (apiResponse instanceof ApiError || apiResponse instanceof ApiException) {
+		if (apiResponse instanceof Error) {
 			sendError(apiResponse);
 			return;
 		}

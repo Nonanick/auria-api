@@ -77,6 +77,7 @@ export const MaestroRequestHandler: RequestHandler =
 			// Return a default ApiRouteResponse with the routine response as the payload
 			else {
 				response = {
+					request,
 					exitCode: "OK",
 					payload: routineResponse,
 					status: 201,
@@ -84,12 +85,7 @@ export const MaestroRequestHandler: RequestHandler =
 				};
 			}
 		} catch (err) {
-			// In any Api Error is generated pass through as a return (Maybe<>) else throw it
-			if (err instanceof ApiError || err instanceof ApiException) {
-				return err;
-			} else {
-				throw err;
-			}
+			return err;
 		}
 
 		let responseProxies: IApiResponseProxy[] = route.responseProxies;
@@ -114,11 +110,7 @@ async function applyRequestProxies(
 			}
 			request = proxiedRequest;
 		} catch (err) {
-			if (err instanceof ApiError || err instanceof ApiException) {
-				return err;
-			} else {
-				throw err;
-			}
+			return err;
 		}
 	}
 
@@ -144,11 +136,7 @@ async function applyResponseProxies(
 			}
 			response = proxiedResponse;
 		} catch (err) {
-			if (err instanceof ApiError || err instanceof ApiException) {
-				return err;
-			} else {
-				throw err;
-			}
+			return err;
 		}
 	}
 

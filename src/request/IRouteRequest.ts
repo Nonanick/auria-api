@@ -2,6 +2,8 @@ import { IProxyRequest } from '../proxy/IProxyRequest';
 
 export interface IRouteRequest {
 
+  readonly timestamp: number;
+
   readonly adapter: string;
 
   readonly originalURL: string;
@@ -15,6 +17,9 @@ export interface IRouteRequest {
   url: string;
 
   appliedProxies?: IProxyRequest[];
+
+  readonly rawParameters: any;
+  setAsRaw(): void;
 
   get(name: string, from?: string): any | undefined;
   has(name: string, from?: string): boolean;
