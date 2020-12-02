@@ -1,17 +1,15 @@
+import { ApiEndpointNotAFunction } from '../../error/exceptions/ApiEndpointNotAFunction';
+import { Maybe } from "../../error/Maybe";
 import { IProxiedRoute } from "../../proxy/IProxiedRoute";
-import { IRouteRequest } from "../../request/IRouteRequest";
 import { IProxyRequest } from "../../proxy/IProxyRequest";
-import { ApiError } from "../../error/ApiError";
-import { ApiException } from "../../error/ApiException";
-import { RouteResponse } from "../../response/RouteResponse";
+import { IApiResponseProxy } from "../../proxy/IProxyResponse";
+import { IRouteRequest } from "../../request/IRouteRequest";
 import {
 	IApiRouteResponse,
-	implementsRouteResponse,
+	implementsRouteResponse
 } from "../../response/IRouteResponse";
-import { IApiResponseProxy } from "../../proxy/IProxyResponse";
-import { Maybe } from "../../error/Maybe";
+import { RouteResponse } from "../../response/RouteResponse";
 import { Resolver } from '../../route/Resolver';
-import { ApiEndpointNotAFunction } from '../../error/exceptions/ApiEndpointNotAFunction';
 import { RequestHandler } from '../composition/RequestHandler';
 
 /**
@@ -62,8 +60,7 @@ export const MaestroRequestHandler: RequestHandler =
 
 			// Return generated errors
 			if (
-				routineResponse instanceof ApiError
-				|| routineResponse instanceof ApiException) {
+				routineResponse instanceof Error) {
 				return routineResponse;
 			}
 
@@ -103,8 +100,7 @@ async function applyRequestProxies(
 		try {
 			let proxiedRequest = await proxy.apply(request);
 			if (
-				proxiedRequest instanceof ApiError ||
-				proxiedRequest instanceof ApiException
+				proxiedRequest instanceof Error
 			) {
 				return proxiedRequest;
 			}
@@ -129,8 +125,7 @@ async function applyResponseProxies(
 		try {
 			let proxiedResponse = await proxy.apply(response);
 			if (
-				proxiedResponse instanceof ApiError ||
-				proxiedResponse instanceof ApiException
+				proxiedResponse instanceof Error
 			) {
 				return proxiedResponse;
 			}

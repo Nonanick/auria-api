@@ -1,17 +1,16 @@
-import { Controller } from '../controller/Controller';
+import ajv from 'ajv';
 import { IAdapter } from '../adapter/IAdapter';
 import { Container } from '../container/Container';
-import { ApiError } from '../error/ApiError';
-import { ApiException } from '../error/ApiException';
+import { Controller } from '../controller/Controller';
 import { RequestFlowNotDefined } from '../error/exceptions/RequestFlowNotDefined';
 import { IProxiedRoute } from '../proxy/IProxiedRoute';
 import { IRouteRequest } from '../request/IRouteRequest';
-import { SendErrorFunction } from './SendErrorFunction';
-import { SendResponseFunction } from './SendResponseFunction';
 import { RequestHandler } from './composition/RequestHandler';
 import { IRequestPipe } from './composition/RequestPipe';
 import * as Default from './default';
 import { IMaestro } from './IMaestro';
+import { SendErrorFunction } from './SendErrorFunction';
+import { SendResponseFunction } from './SendResponseFunction';
 
 export class Maestro extends Container implements IMaestro {
 
@@ -24,10 +23,6 @@ export class Maestro extends Container implements IMaestro {
 	} = {};
 
 	protected requestPipes: IRequestPipe[] = [
-		{
-			name: 'property-validator',
-			pipe: Default.SchemaValidator
-		},
 		{
 			name: 'schema-enforcer',
 			pipe: Default.SchemaEnforcer
@@ -108,7 +103,7 @@ export class Maestro extends Container implements IMaestro {
 		for (let pipe of this.requestPipes) {
 			let canProceed = await pipe.pipe(route, request);
 			if (canProceed !== true) {
-				console.error('Failed to fulfill request!\n', pipe.name, ' returned the error: ', canProceed.message);
+				console.error('Failed to fulfill request!', pipe.name, ' returned the error: ', canProceed.message);
 				sendError(canProceed);
 				return;
 			}
@@ -148,3 +143,8 @@ export class Maestro extends Container implements IMaestro {
 
 
 export type UseInMaestro = Container | Controller;
+
+export const SchemaValidator = new ajv({
+	async: true,
+	coerceTypes: true,
+});

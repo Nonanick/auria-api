@@ -3,6 +3,9 @@ import { Resolver as RouteResolver } from "./Resolver";
 import { RouteSchema } from './RouteSchema';
 import { EnforceSchemaPolicy } from '../validation/policies/schema/EnforceSchemaPolicy';
 import { FailedPropertyValidationPolicy } from '../validation/policies/property/FailedPropertyValidationPolicy';
+import { SchemaValidateFunction } from 'ajv';
+import { IRouteRequest } from '../request/IRouteRequest';
+import { MaybePromise } from '../error/Maybe';
 
 export interface IRoute {
   url: string;
@@ -63,5 +66,9 @@ export interface IRoute {
    * Define this api parameter schema 
    */
   schema?: RouteSchema;
+
+  compiledSchema?: (request: IRouteRequest) => MaybePromise<true>;
+
+  cast?: (request: IRouteRequest) => Promise<IRouteRequest>;
 
 }

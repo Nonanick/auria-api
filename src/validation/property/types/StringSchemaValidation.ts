@@ -9,12 +9,13 @@ export function StringSchemaValidation(
 
   let stringfied = String(value);
 
+
   if (schema.minLength != null && schema.minLength > stringfied.length) {
     return new IncorrectStringLength('Property expects a minimum length of ' + schema.minLength);
   }
 
   if (schema.maxLength != null && schema.maxLength < stringfied.length) {
-    return new IncorrectStringLength('Property expects a maxmun length of ' + schema.maxLength);
+    return new IncorrectStringLength('Property expects a maximun length of ' + schema.maxLength);
   }
 
   return true;

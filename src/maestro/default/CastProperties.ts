@@ -7,38 +7,8 @@ export async function CastProperties(
   request: IRouteRequest
 ): MaybePromise<true> {
 
-  // Iterate through each origin
-  for (let origin in request.byOrigin) {
-    const allParams = request.byOrigin[origin];
-    const originSchema = route.schema?.[origin];
-
-    // set cast
-    for (let name in allParams) {
-      const value = allParams[name];
-      // Is there an schema definition for it?
-      if (route.schema?.[origin]?.properties[name] != null) {
-        const propertySchema = route.schema?.[origin]?.properties[name]!;
-
-        if (typeof propertySchema.cast === "function") {
-          let castedValue = await propertySchema.cast(value);
-          request.add(name, castedValue, origin);
-        }
-      }
-    }
-
-    // setOrigin cast
-    if (originSchema?.cast != null) {
-      let castedOrigin = await originSchema.cast(allParams);
-      if (
-        !(castedOrigin instanceof Error)
-        && castedOrigin != null
-      ) {
-        request.setOrigin(origin, castedOrigin);
-      } else {
-        console.warn('Origin casting failed!', castedOrigin);
-      }
-    }
-
+  if (route.cast != null) {
+    request = await route.cast(request);
   }
 
   return true;

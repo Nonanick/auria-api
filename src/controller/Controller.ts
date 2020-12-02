@@ -6,6 +6,9 @@ import { IApiResponseProxy } from '../proxy/IProxyResponse';
 import { apiRoutesSymbol } from './RouteDecorator';
 import { ControllerDefaultRouteConfig } from './ControllerDefaultRouteConfig';
 import { IProxiedRoute } from '../proxy/IProxiedRoute';
+import ajv, { SchemaValidateFunction, ValidateFunction } from 'ajv';
+import { SchemaValidator } from '../maestro/Maestro';
+import { error } from 'console';
 
 export abstract class Controller implements IController {
 
@@ -79,6 +82,40 @@ export abstract class Controller implements IController {
 	transformRoute(route: IRoute): IRoute {
 		let transformedRoute = { ...route };
 		transformedRoute.url = path.posix.join(this.baseURL, route.url);
+
+		if (transformedRoute.schema != null) {
+			let validateSchema: {
+				[origin: string]: ValidateFunction;
+			} = {};
+
+			for (let originName in transformedRoute.schema!) {
+				let sch = transformedRoute.schema![originName]!;
+				validateSchema[originName] = SchemaValidator.compile(sch);
+			}
+
+			transformedRoute.compiledSchema = async (request) => {
+				let errors: string[] = [];
+
+				for (let orName in validateSchema) {
+					let data = request.byOrigin![orName];
+					if (data != null) {
+						let isValid = await validateSchema[orName](data);
+						if (isValid !== true) {
+							errors.push(SchemaValidator.errorsText());
+						}
+					}
+				}
+
+				if (errors.length > 0) {
+					return new Error('Failed to validate schema!\n ' + errors.join('\n'));
+				} else {
+					return true;
+				}
+			};
+
+
+
+		}
 		return transformedRoute;
 	}
 

@@ -1,3 +1,5 @@
+import { JSONSchema7 } from 'json-schema';
+
 // Adapter
 export { IAdapter } from './adapter/IAdapter';
 
@@ -58,9 +60,3 @@ export { IRoute } from './route/IRoute';
 export { IRouteParameterSpecification } from './route/IRouteParameterSpecification';
 export { RouteParameter } from './route/RouteParameter';
 export { RouteSchema } from './route/RouteSchema';
-export { ArraySchema } from './route/schema/ArraySchema';
-export { BaseSchema } from './route/schema/BaseSchema';
-export { BooleanSchema } from './route/schema/BooleanSchema';
-export { NullSchema } from './route/schema/NullSchema';
-export { ObjectSchema } from './route/schema/ObjectSchema';
-export { StringSchema } from './route/schema/StringSchema';
