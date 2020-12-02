@@ -1,5 +1,6 @@
 import { IRoute } from '../route/IRoute';
 import { HTTPMethod } from '../route/HTTPMethod';
+import { IProxiedRoute } from '../proxy/IProxiedRoute';
 
 export const apiRoutesSymbol = Symbol('ApiControllerRoutes');
 
@@ -8,7 +9,7 @@ export const apiRoutesSymbol = Symbol('ApiControllerRoutes');
  * -------------------------
  * 
  */
-export type RegisterApiRouteParams = Omit<Partial<IRoute>, 'resolver'> & { url: string; };
+export type RegisterApiRouteParams = Omit<Partial<IProxiedRoute>, 'resolver'> & { url: string; };
 
 /**
  * Register Api Route
@@ -35,6 +36,8 @@ export function Route(params: RegisterApiRouteParams) {
 
 		let defaultConfig = proto['defaultRouteConfig'] ?? {};
 		let pushNewResolver = {
+			requestProxies: [],
+			responseProxies: [],
 			...defaultConfig,
 			...params,
 			resolver: proto[propertyKey]

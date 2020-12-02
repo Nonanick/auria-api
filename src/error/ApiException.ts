@@ -8,7 +8,13 @@ export abstract class ApiException extends Error {
     super(
       error
         .map((e) =>
-          typeof e === "string" ? e : e instanceof Error ? e.message : ApiError.stringfyApiErrorDescription(e)
+          typeof e === "string"
+            ? e
+            : e instanceof Error
+              ? e.message
+              : Array.isArray(e)
+                ? e.join(',')
+                : ApiError.stringfyApiErrorDescription(e)
         )
         .join("\n")
     );

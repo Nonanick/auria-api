@@ -18,7 +18,13 @@ ${desc.reason}${desc.hint != null ? "\nHint:\n" + desc.hint : ""
     super(
       error
         .map((e) =>
-          typeof e === "string" ? e : e instanceof Error ? e.message : ApiError.stringfyApiErrorDescription(e)
+          typeof e === "string"
+            ? e
+            : e instanceof Error
+              ? e.message
+              : Array.isArray(e)
+                ? e.join(',')
+                : ApiError.stringfyApiErrorDescription(e)
         )
         .join("\n")
     );
@@ -27,4 +33,4 @@ ${desc.reason}${desc.hint != null ? "\nHint:\n" + desc.hint : ""
   }
 }
 
-export type ErrorDisplay = string | ApiErrorDescription | ApiError | ApiException;
+export type ErrorDisplay = string | string[] | ApiErrorDescription | ApiError | ApiException;

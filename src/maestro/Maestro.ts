@@ -108,7 +108,7 @@ export class Maestro extends Container implements IMaestro {
 		for (let pipe of this.requestPipes) {
 			let canProceed = await pipe.pipe(route, request);
 			if (canProceed !== true) {
-				console.error('Failed to fulfill request!', pipe.name, ' returned the error: ', canProceed.message);
+				console.error('Failed to fulfill request! "' + pipe.name + '" returned the error: ', canProceed.message);
 				sendError(canProceed);
 				return;
 			}

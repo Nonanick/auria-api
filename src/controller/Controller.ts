@@ -8,7 +8,7 @@ import { apiRoutesSymbol } from './RouteDecorator';
 
 export abstract class Controller implements IController {
 
-	protected _apiRoutes: IRoute[] = [];
+	protected _apiRoutes: IProxiedRoute[] = [];
 
 	/**
 	 * Request Proxies
@@ -60,7 +60,7 @@ export abstract class Controller implements IController {
 	 * 
 	 * @param route Route that will be transformed
 	 */
-	transformRoute(route: IRoute): IRoute {
+	transformRoute(route: IProxiedRoute): IProxiedRoute {
 		let transformedRoute = { ...route };
 		transformedRoute.url = path.posix.join(this.baseURL, route.url);
 		return transformedRoute;
@@ -127,12 +127,18 @@ export abstract class Controller implements IController {
 
 	allRoutes(): IProxiedRoute[] {
 		let transformedRoutes: IProxiedRoute[] = this._apiRoutes
-			.map(r => ({
-				...this.transformRoute(r),
-				requestProxies: this.requestProxies(),
-				responseProxies: this.responseProxies(),
-				controller: this,
-			}));
+			.map(r => {
+
+				let transf = this.transformRoute(r);
+
+				return {
+					...transf,
+					controller: this,
+					requestProxies: [...this.requestProxies(), ...transf.requestProxies],
+					responseProxies: [...this.responseProxies(), ...transf.responseProxies
+					]
+				};
+			});
 
 		return transformedRoutes;
 	}
