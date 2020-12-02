@@ -1,34 +1,14 @@
 import path from 'path';
-import { IController } from './IController';
-import { IRoute } from '../route/IRoute';
-import { IProxyRequest } from '../proxy/IProxyRequest';
-import { IApiResponseProxy } from '../proxy/IProxyResponse';
+import type { IProxiedRoute } from '../proxy/IProxiedRoute';
+import type { IProxyRequest } from '../proxy/IProxyRequest';
+import type { IApiResponseProxy } from '../proxy/IProxyResponse';
+import type { IRoute } from '../route/IRoute';
+import type { IController } from './IController';
 import { apiRoutesSymbol } from './RouteDecorator';
-import { ControllerDefaultRouteConfig } from './ControllerDefaultRouteConfig';
-import { IProxiedRoute } from '../proxy/IProxiedRoute';
-import ajv, { SchemaValidateFunction, ValidateFunction } from 'ajv';
-import { SchemaValidator } from '../maestro/Maestro';
-import { error } from 'console';
 
 export abstract class Controller implements IController {
 
 	protected _apiRoutes: IRoute[] = [];
-
-	/**
-	 * ## Default Route Configuration
-	 * ---------------------------
-	 * Changes the default configuration for all API routes
-	 * inside this controller
-	 * 
-	 * #### !! The configuration can be overriden by the APIRoute!!  
-	 * 
-	 * If you need to enforce a property inside all ApiRoutes override
-	 * *transformRoute* method
-	 */
-	public get defaultRouteConfig():
-		ControllerDefaultRouteConfig {
-		return {};
-	}
 
 	/**
 	 * Request Proxies
@@ -59,6 +39,7 @@ export abstract class Controller implements IController {
 		this._apiRoutes = [...proto[apiRoutesSymbol]];
 
 	}
+	defaultRouteConfig: any;
 
 	/**
 	 * ## Transform Route
@@ -82,40 +63,6 @@ export abstract class Controller implements IController {
 	transformRoute(route: IRoute): IRoute {
 		let transformedRoute = { ...route };
 		transformedRoute.url = path.posix.join(this.baseURL, route.url);
-
-		if (transformedRoute.schema != null) {
-			let validateSchema: {
-				[origin: string]: ValidateFunction;
-			} = {};
-
-			for (let originName in transformedRoute.schema!) {
-				let sch = transformedRoute.schema![originName]!;
-				validateSchema[originName] = SchemaValidator.compile(sch);
-			}
-
-			transformedRoute.compiledSchema = async (request) => {
-				let errors: string[] = [];
-
-				for (let orName in validateSchema) {
-					let data = request.byOrigin![orName];
-					if (data != null) {
-						let isValid = await validateSchema[orName](data);
-						if (isValid !== true) {
-							errors.push(SchemaValidator.errorsText());
-						}
-					}
-				}
-
-				if (errors.length > 0) {
-					return new Error('Failed to validate schema!\n ' + errors.join('\n'));
-				} else {
-					return true;
-				}
-			};
-
-
-
-		}
 		return transformedRoute;
 	}
 

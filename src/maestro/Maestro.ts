@@ -1,13 +1,14 @@
-import ajv from 'ajv';
 import { IAdapter } from '../adapter/IAdapter';
 import { Container } from '../container/Container';
 import { Controller } from '../controller/Controller';
 import { RequestFlowNotDefined } from '../error/exceptions/RequestFlowNotDefined';
 import { IProxiedRoute } from '../proxy/IProxiedRoute';
 import { IRouteRequest } from '../request/IRouteRequest';
+import { SchemaEnforcer } from '../route/schema/SchemaEnforcer';
 import { RequestHandler } from './composition/RequestHandler';
 import { IRequestPipe } from './composition/RequestPipe';
 import * as Default from './default';
+import { ValidateRequest } from './default/ValidateRequest';
 import { IMaestro } from './IMaestro';
 import { SendErrorFunction } from './SendErrorFunction';
 import { SendResponseFunction } from './SendResponseFunction';
@@ -25,7 +26,11 @@ export class Maestro extends Container implements IMaestro {
 	protected requestPipes: IRequestPipe[] = [
 		{
 			name: 'schema-enforcer',
-			pipe: Default.SchemaEnforcer
+			pipe: SchemaEnforcer
+		},
+		{
+			name: 'request-validator',
+			pipe: ValidateRequest
 		},
 		{
 			name: 'request-caster',
@@ -143,8 +148,3 @@ export class Maestro extends Container implements IMaestro {
 
 
 export type UseInMaestro = Container | Controller;
-
-export const SchemaValidator = new ajv({
-	async: true,
-	coerceTypes: true,
-});

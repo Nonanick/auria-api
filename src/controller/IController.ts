@@ -1,22 +1,10 @@
 import { IRoute } from '../route/IRoute';
 import { IProxyRequest } from '../proxy/IProxyRequest';
 import { IApiResponseProxy } from '../proxy/IProxyResponse';
-import { ControllerDefaultRouteConfig } from './ControllerDefaultRouteConfig';
 import { IProxiedRoute } from '../proxy/IProxiedRoute';
 
 export interface IController {
-  /**
-   * Default Route Config
-   * ---------------------
-   * Set of default configurations that shall be used in all ApiRoutes
-   * that resided inside this IApiController;
-   * 
-   * Notice that this are default configurations and can be overriden 
-   * by an ApiRoute definition, to make sure all ApiRoutes follow
-   * a set of configurations you should override
-   * *transformRoute* method
-   */
-  readonly defaultRouteConfig: ControllerDefaultRouteConfig;
+
 
   /**
    * Base URL

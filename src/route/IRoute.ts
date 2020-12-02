@@ -1,15 +1,15 @@
+import { IRouteRequest } from '../request/IRouteRequest';
 import { HTTPMethod } from "./HTTPMethod";
 import { Resolver as RouteResolver } from "./Resolver";
 import { RouteSchema } from './RouteSchema';
-import { EnforceSchemaPolicy } from '../validation/policies/schema/EnforceSchemaPolicy';
-import { FailedPropertyValidationPolicy } from '../validation/policies/property/FailedPropertyValidationPolicy';
-import { SchemaValidateFunction } from 'ajv';
-import { IRouteRequest } from '../request/IRouteRequest';
-import { MaybePromise } from '../error/Maybe';
 
 export interface IRoute {
   url: string;
 
+  /**
+   * HTTP Methods
+   * ------------
+   */
   methods: HTTPMethod | HTTPMethod[];
 
   /**
@@ -27,48 +27,25 @@ export interface IRoute {
   resolver: RouteResolver | string;
 
   /**
-   * Parameter Schema Policy
-   * -----------------------
-   * Indicate what behaviour should be applied
-   * when dealing with received parameters:
-   *
-   * 1) Enforce Required, enforces required parameters to be present
-   * otherwise route will be prevented from being accessed [DEFAULT]
-   *
-   * 2) Only in schema, make the route fail when a parameter is not present
-   * in either 'required' or 'optional' parameters description [SAFEST]
-   *
-   * 3) None, does not enforce parameters to be present, does not
-   * fail when an unkown parameter is passed [DISCOURAGED]
-   *
-   */
-  enforceSchemaPolicy?: EnforceSchemaPolicy;
-
-  /**
-   * Optional Parameters Validation Policy
-   * -------------------------------------
-   * Indicates what behaviour should be adopted when validating
-   * optional parameters:
-   *
-   * 1) Prevent Execution, will prevent the route from being accesses when an optional
-   * parameter validation fails [DEFAULT]
-   *
-   * 2) Ignore Parameter, will delete parameter from request when validation fails
-   *
-   * 3) Don't validate, will not apply validate function on parameter, sanitizers will
-   * apply regardless!
-   */
-  schemaValidationPolicy?: FailedPropertyValidationPolicy;
-
-  /**
    * Schema
    * -------
    * Define this api parameter schema 
    */
   schema?: RouteSchema;
 
-  compiledSchema?: (request: IRouteRequest) => MaybePromise<true>;
-
+  /**
+   * Cast
+   * -------
+   * Apply casting to the request
+   *
+   */
   cast?: (request: IRouteRequest) => Promise<IRouteRequest>;
+
+  /**
+   * Validate
+   * ---------
+   * Apply a custom validation to the request
+   */
+  validate?: (request: IRouteRequest) => Promise<true | Error | Error[]>;
 
 }
