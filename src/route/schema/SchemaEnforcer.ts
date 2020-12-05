@@ -3,6 +3,7 @@ import { MaybePromise } from '../../error/Maybe';
 import { SchemaViolation } from '../../error/schema/SchemaViolation';
 import { IProxiedRoute } from '../../proxy/IProxiedRoute';
 import { IRouteRequest } from '../../request/IRouteRequest';
+import { RouteSchema } from '../RouteSchema';
 import { SchemaValidator } from './SchemaValidator';
 
 export async function SchemaEnforcer(
@@ -16,7 +17,7 @@ export async function SchemaEnforcer(
 
     for (let origin in route.schema) {
 
-      let originSchema = route.schema[origin]!;
+      let originSchema = route.schema[origin as keyof RouteSchema]!;
       let originParams = request.byOrigin?.[origin];
 
       if (originSchema != null && originParams != null) {

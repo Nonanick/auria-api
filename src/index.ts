@@ -51,9 +51,4 @@ export { IRouteResponse, implementsRouteResponse } from './response/IRouteRespon
 export { RouteResponse } from './response/RouteResponse';
 
 // Route
-export { Resolver } from './route/Resolver';
-export { HTTPMethod } from './route/HTTPMethod';
-export { IRoute } from './route/IRoute';
-export { IRouteParameterSpecification } from './route/IRouteParameterSpecification';
-export { RouteParameter } from './route/RouteParameter';
-export { RouteSchema } from './route/RouteSchema';
+export * from './route';

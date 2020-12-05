@@ -1,8 +1,15 @@
+import type { JSONSchema7 } from 'json-schema';
 import { ObjectSchema } from './schema/CustomSchemas';
 
-export interface RouteSchema {
+export type RouteSchema = RequestSchema & ResponseSchema;
+
+export interface RequestSchema {
   body?: ObjectSchema;
   query?: ObjectSchema;
   params?: ObjectSchema;
-  [name: string]: ObjectSchema | undefined;
+}
+export interface ResponseSchema {
+  response?: {
+    [status: string]: JSONSchema7;
+  };
 }
