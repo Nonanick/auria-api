@@ -1,6 +1,6 @@
 import { IRoute } from '../route/IRoute';
 import { IProxyRequest } from '../proxy/IProxyRequest';
-import { IApiResponseProxy } from '../proxy/IProxyResponse';
+import { IProxyResponse } from '../proxy/IProxyResponse';
 import { IProxiedRoute } from '../proxy/IProxiedRoute';
 
 export interface IController {
@@ -65,7 +65,7 @@ export interface IController {
   * Return all Response Proxies that for this controller
   * in the order they were added
   */
-  responseProxies(): IApiResponseProxy[];
+  responseProxies(): IProxyResponse[];
   /**
    * Add Response Proxy
    * -------------------
@@ -73,7 +73,7 @@ export interface IController {
    * which resides inside this controller
    * @param proxy 
    */
-  addResponseProxy(proxy: IApiResponseProxy): IController;
+  addResponseProxy(proxy: IProxyResponse): IController;
   /**
    * Remove Response Proxy
    * ---------------------
@@ -82,7 +82,7 @@ export interface IController {
    * in this controller will silently fail
    * @param proxy 
    */
-  removeResponseProxy(proxy: IApiResponseProxy): IController;
+  removeResponseProxy(proxy: IProxyResponse): IController;
 
 
   /**

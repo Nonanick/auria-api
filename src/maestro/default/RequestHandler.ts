@@ -2,10 +2,10 @@ import { ApiEndpointNotAFunction } from '../../error/exceptions/ApiEndpointNotAF
 import { Maybe } from "../../error/Maybe";
 import { IProxiedRoute } from "../../proxy/IProxiedRoute";
 import { IProxyRequest } from "../../proxy/IProxyRequest";
-import { IApiResponseProxy } from "../../proxy/IProxyResponse";
+import { IProxyResponse } from "../../proxy/IProxyResponse";
 import { IRouteRequest } from "../../request/IRouteRequest";
 import {
-	IApiRouteResponse,
+	IRouteResponse,
 	implementsRouteResponse
 } from "../../response/IRouteResponse";
 import { RouteResponse } from "../../response/RouteResponse";
@@ -36,7 +36,7 @@ export const MaestroRequestHandler: RequestHandler =
 		}
 		request = maybeProxiedRequest;
 
-		let response: IApiRouteResponse;
+		let response: IRouteResponse;
 
 		// Execute Function
 		try {
@@ -85,7 +85,7 @@ export const MaestroRequestHandler: RequestHandler =
 			return err;
 		}
 
-		let responseProxies: IApiResponseProxy[] = route.responseProxies;
+		let responseProxies: IProxyResponse[] = route.responseProxies;
 
 		// Return proxied response
 		return await applyResponseProxies(response, responseProxies);
@@ -114,9 +114,9 @@ async function applyRequestProxies(
 }
 
 async function applyResponseProxies(
-	response: IApiRouteResponse,
-	proxies: IApiResponseProxy[]
-): Promise<Maybe<IApiRouteResponse>> {
+	response: IRouteResponse,
+	proxies: IProxyResponse[]
+): Promise<Maybe<IRouteResponse>> {
 
 	// Response proxies go from last to first added ???
 	let reversedProxies = [...proxies].reverse();

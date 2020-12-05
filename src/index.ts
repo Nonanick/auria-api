@@ -22,7 +22,7 @@ export { ApiException } from './error/ApiException';
 export { Maybe, MaybePromise } from './error/Maybe';
 
 // Error - Errors
-export { SchemaViolation } from './error/error/SchemaViolation';
+export { SchemaViolation } from './error/schema/SchemaViolation';
 export { PropertyValidationFailed } from './error/error/ParameterValidationFailed';
 // Error - Exceptions
 export { RequestFlowNotDefined } from './error/exceptions/RequestFlowNotDefined';
@@ -39,7 +39,7 @@ export { MaestroRequestHandler } from './maestro/default/RequestHandler';
 
 // Proxy
 export { IProxyRequest } from './proxy/IProxyRequest';
-export { IApiResponseProxy } from './proxy/IProxyResponse';
+export { IProxyResponse } from './proxy/IProxyResponse';
 export { IProxiedRoute } from './proxy/IProxiedRoute';
 
 // Request
@@ -47,7 +47,7 @@ export { RouteRequest } from './request/RouteRequest';
 export { IRouteRequest } from './request/IRouteRequest';
 
 // Response
-export { IApiRouteResponse, implementsRouteResponse } from './response/IRouteResponse';
+export { IRouteResponse, implementsRouteResponse } from './response/IRouteResponse';
 export { RouteResponse } from './response/RouteResponse';
 
 // Route

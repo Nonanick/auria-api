@@ -1,7 +1,7 @@
-import { IApiRouteResponse } from '../response/IRouteResponse';
+import { IRouteResponse } from '../response/IRouteResponse';
 import { Maybe, MaybePromise } from '../error/Maybe';
 
-export interface IApiResponseProxy {
+export interface IProxyResponse {
   name: string;
-  apply(response: IApiRouteResponse): Maybe<IApiRouteResponse> | MaybePromise<IApiRouteResponse>;
+  apply(response: IRouteResponse): Maybe<IRouteResponse> | MaybePromise<IRouteResponse>;
 }

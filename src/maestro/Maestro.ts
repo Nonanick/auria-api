@@ -1,6 +1,8 @@
 import { IAdapter } from '../adapter/IAdapter';
 import { Container } from '../container/Container';
 import { Controller } from '../controller/Controller';
+import { Discover } from '../discover/Discover';
+import { DiscoverOptions } from '../discover/DiscoverOptions';
 import { RequestFlowNotDefined } from '../error/exceptions/RequestFlowNotDefined';
 import { IProxiedRoute } from '../proxy/IProxiedRoute';
 import { IRouteRequest } from '../request/IRouteRequest';
@@ -142,6 +144,12 @@ export class Maestro extends Container implements IMaestro {
 			adapter.start();
 		}
 
+	}
+
+	discoverable(options?: Partial<DiscoverOptions>) {
+
+		if (this._containers.filter(c => c instanceof Discover).length === 0)
+			this.addChildContainer(new Discover(options));
 	}
 
 }

@@ -1,8 +1,9 @@
 import path from 'path';
 import type { IProxiedRoute } from '../proxy/IProxiedRoute';
 import type { IProxyRequest } from '../proxy/IProxyRequest';
-import type { IApiResponseProxy } from '../proxy/IProxyResponse';
+import type { IProxyResponse } from '../proxy/IProxyResponse';
 import type { IRoute } from '../route/IRoute';
+import { Resolver } from '../route/Resolver';
 import type { IController } from './IController';
 import { apiRoutesSymbol } from './RouteDecorator';
 
@@ -23,7 +24,7 @@ export abstract class Controller implements IController {
 	 * ----------------
 	 * All Response proxies of this ApiController
 	 */
-	protected _responseProxies: IApiResponseProxy[] = [];
+	protected _responseProxies: IProxyResponse[] = [];
 
 	abstract get baseURL(): string;
 
@@ -75,8 +76,9 @@ export abstract class Controller implements IController {
 	 * API Route to ALL instances of the same class
 	 * @param route 
 	 */
-	addApiRoute(route: IRoute) {
-		let routeWithDefaults = {
+	addApiRoute(route: Omit<IProxiedRoute, "controller">) {
+		let routeWithDefaults: IProxiedRoute = {
+			controller: this,
 			...this.defaultRouteConfig,
 			...route
 		};
@@ -104,11 +106,11 @@ export abstract class Controller implements IController {
 		return this;
 	}
 
-	responseProxies(): IApiResponseProxy[] {
+	responseProxies(): IProxyResponse[] {
 		return [...this._responseProxies];
 	}
 
-	addResponseProxy(...proxies: IApiResponseProxy[]): IController {
+	addResponseProxy(...proxies: IProxyResponse[]): IController {
 		for (let proxy of proxies) {
 			if (!this._responseProxies.includes(proxy)) {
 				this._responseProxies.push(proxy);
@@ -117,7 +119,7 @@ export abstract class Controller implements IController {
 		return this;
 	}
 
-	removeResponseProxy(proxy: IApiResponseProxy): IController {
+	removeResponseProxy(proxy: IProxyResponse): IController {
 		let ioProxy = this._responseProxies.indexOf(proxy);
 		if (ioProxy >= 0) {
 			this._responseProxies.splice(ioProxy, 1);

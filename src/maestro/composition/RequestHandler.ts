@@ -3,7 +3,7 @@ import { IProxiedRoute } from '../../proxy/IProxiedRoute';
 import { SendResponseFunction } from '../SendResponseFunction';
 import { SendErrorFunction } from '../SendErrorFunction';
 import { MaybePromise } from '../../error/Maybe';
-import { IApiRouteResponse } from '../../response/IRouteResponse';
+import { IRouteResponse } from '../../response/IRouteResponse';
 
 /**
  * ApiRequestHandler
@@ -24,4 +24,4 @@ export type RequestHandler = (
   request: IRouteRequest,
   sendResponse: SendResponseFunction,
   sendError: SendErrorFunction
-) => MaybePromise<IApiRouteResponse>;
+) => MaybePromise<IRouteResponse>;

@@ -1,8 +1,8 @@
-import { JSONSchema7Object } from 'json-schema';
+import { ObjectSchema } from './schema/CustomSchemas';
 
 export interface RouteSchema {
-  body?: JSONSchema7Object;
-  query?: JSONSchema7Object;
-  params?: JSONSchema7Object;
-  [name: string]: JSONSchema7Object | undefined;
+  body?: ObjectSchema;
+  query?: ObjectSchema;
+  params?: ObjectSchema;
+  [name: string]: ObjectSchema | undefined;
 }

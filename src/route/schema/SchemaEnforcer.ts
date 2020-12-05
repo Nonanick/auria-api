@@ -1,4 +1,6 @@
+import { ApiError } from '../../error/ApiError';
 import { MaybePromise } from '../../error/Maybe';
+import { SchemaViolation } from '../../error/schema/SchemaViolation';
 import { IProxiedRoute } from '../../proxy/IProxiedRoute';
 import { IRouteRequest } from '../../request/IRouteRequest';
 import { SchemaValidator } from './SchemaValidator';
@@ -23,12 +25,16 @@ export async function SchemaEnforcer(
 
     }
 
-    let isValid = (await Promise.all(allValid))
-      .filter(v => v !== true).length === 0
-      ? true
-      : new Error(SchemaValidator.errorsText());
+    return Promise.all(allValid)
+      .then(ok => {
+        if (ok.includes(false)) {
+          return new SchemaViolation(SchemaValidator.errors ?? []);
+        }
+        return true as true;
+      }).catch(err => {
+        return Error(SchemaValidator.errorsText());
+      });
 
-    return isValid;
   }
 
   return true;

@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { IAdapter } from '../adapter/IAdapter';
 import { IController } from '../controller/IController';
 import { IProxyRequest } from '../proxy/IProxyRequest';
-import { IApiResponseProxy } from '../proxy/IProxyResponse';
+import { IProxyResponse } from '../proxy/IProxyResponse';
 import { IProxiedRoute } from '../proxy/IProxiedRoute';
 
 export interface IContainer extends EventEmitter {
@@ -35,9 +35,9 @@ export interface IContainer extends EventEmitter {
 	addRequestProxy(proxy: IProxyRequest): IContainer;
 	removeRequestProxy(proxy: IProxyRequest): IContainer;
 
-	responseProxies(): IApiResponseProxy[];
-	addResponseProxy(proxy: IApiResponseProxy): IContainer;
-	removeResponseProxy(proxy: IApiResponseProxy): IContainer;
+	responseProxies(): IProxyResponse[];
+	addResponseProxy(proxy: IProxyResponse): IContainer;
+	removeResponseProxy(proxy: IProxyResponse): IContainer;
 
 	/**
 	 * Set Targeted Adapters

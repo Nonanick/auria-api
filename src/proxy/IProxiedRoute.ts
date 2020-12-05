@@ -1,6 +1,6 @@
 import { IRoute } from '../route/IRoute';
 import { IProxyRequest } from './IProxyRequest';
-import { IApiResponseProxy } from './IProxyResponse';
+import { IProxyResponse } from './IProxyResponse';
 import { IController } from '../controller/IController';
 
 /**
@@ -15,7 +15,7 @@ export interface IProxiedRoute extends IRoute {
 
 	readonly requestProxies: IProxyRequest[];
 
-	readonly responseProxies: IApiResponseProxy[];
+	readonly responseProxies: IProxyResponse[];
 
 	readonly controller: IController;
 

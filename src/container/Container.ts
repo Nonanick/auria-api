@@ -2,7 +2,7 @@ import path from 'path';
 import { AdapterClass, IContainer } from './IContainer';
 import { IController } from '../controller/IController';
 import { IProxyRequest } from '../proxy/IProxyRequest';
-import { IApiResponseProxy } from '../proxy/IProxyResponse';
+import { IProxyResponse } from '../proxy/IProxyResponse';
 import { EventEmitter } from 'events';
 import { IProxiedRoute } from '../proxy/IProxiedRoute';
 import { IAdapter } from '../adapter/IAdapter';
@@ -102,13 +102,13 @@ export abstract class Container extends EventEmitter implements IContainer {
 		return this;
 	}
 
-	protected _responseProxies: IApiResponseProxy[] = [];
+	protected _responseProxies: IProxyResponse[] = [];
 
-	responseProxies(): IApiResponseProxy[] {
+	responseProxies(): IProxyResponse[] {
 		return [...this._responseProxies];
 	}
 
-	addResponseProxy(...proxies: IApiResponseProxy[]): IContainer {
+	addResponseProxy(...proxies: IProxyResponse[]): IContainer {
 		for (let proxy of proxies) {
 			if (!this._responseProxies.includes(proxy)) {
 				this._responseProxies.push(proxy);
@@ -117,7 +117,7 @@ export abstract class Container extends EventEmitter implements IContainer {
 		return this;
 	}
 
-	removeResponseProxy(...proxies: IApiResponseProxy[]): IContainer {
+	removeResponseProxy(...proxies: IProxyResponse[]): IContainer {
 		for (let proxy of proxies) {
 			let ioProxy = this._responseProxies.indexOf(proxy);
 			if (ioProxy >= 0) {

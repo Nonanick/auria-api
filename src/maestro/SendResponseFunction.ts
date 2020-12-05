@@ -1,3 +1,3 @@
-import { IApiRouteResponse } from '../response/IRouteResponse';
+import { IRouteResponse } from '../response/IRouteResponse';
 
-export type SendResponseFunction = (response: IApiRouteResponse) => void;
+export type SendResponseFunction = (response: IRouteResponse) => void;

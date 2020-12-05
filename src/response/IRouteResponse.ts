@@ -1,7 +1,7 @@
 import { ICommand } from "../command/ICommand";
 import { IRouteRequest } from '../request/IRouteRequest';
 
-export interface IApiRouteResponse {
+export interface IRouteResponse {
   request: IRouteRequest;
   exitCode: string;
   status: number;
@@ -9,7 +9,7 @@ export interface IApiRouteResponse {
   commands?: ICommand | ICommand[];
 }
 
-export function implementsRouteResponse(resp: any): resp is IApiRouteResponse {
+export function implementsRouteResponse(resp: any): resp is IRouteResponse {
   if (resp == null) {
     return false;
   }
