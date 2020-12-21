@@ -129,6 +129,12 @@ export class Maestro extends Container implements IMaestro {
 		sendResponse(apiResponse);
 	};
 
+	protected _started = false;
+
+	hasStarted(): boolean {
+		return this._started;
+	}
+
 	start() {
 
 		if (typeof this.requestHandler !== "function") {
@@ -143,13 +149,11 @@ export class Maestro extends Container implements IMaestro {
 			adapter.addContainer(this);
 			adapter.start();
 		}
-
+		this._started = true;
 	}
 
-	discoverable(options?: Partial<DiscoverOptions>) {
-
-		if (this._containers.filter(c => c instanceof Discover).length === 0)
-			this.addChildContainer(new Discover(options));
+	makeDiscoverable(options?: Partial<DiscoverOptions>) {
+		this.addChildContainer(new Discover(this, options));
 	}
 
 }

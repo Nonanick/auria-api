@@ -10,6 +10,7 @@ export interface IProxyRequest {
 
   readonly name: string;
   apply(request: IRouteRequest): Maybe<IRouteRequest> | MaybePromise<IRouteRequest>;
+  discoverable?: boolean;
 
 }
 

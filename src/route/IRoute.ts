@@ -2,6 +2,7 @@ import { IRouteRequest } from '../request/IRouteRequest';
 import { HTTPMethod } from "./HTTPMethod";
 import { Resolver as RouteResolver } from "./Resolver";
 import { RouteSchema } from './RouteSchema';
+import { IValidateRoute } from './validation/IValidateRoute';
 
 export interface IRoute {
   url: string;
@@ -46,6 +47,10 @@ export interface IRoute {
    * ---------
    * Apply a custom validation to the request
    */
-  validate?: (request: IRouteRequest) => Promise<true | Error | Error[]>;
+  validate?: ((request: {
+    [byOrigin: string]: {
+      [name: string]: any;
+    };
+  }) => Promise<true | Error | Error[]>) | IValidateRoute | IValidateRoute[];
 
 }
