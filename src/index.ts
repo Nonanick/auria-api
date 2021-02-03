@@ -30,7 +30,7 @@ export { UnknownParameterSchemaPolicy } from './error/exceptions/UnknowmParamete
 export { UnknownParameterValidationPolicy } from './error/exceptions/UnknowmParameterValidationPolicy';
 
 // Maestro
-export { Maestro } from './maestro/Maestro';
+export { Maestro, MaestroRequestHandler as RequestHandlerFunction } from './maestro/Maestro';
 export { RequestHandler } from './maestro/composition/RequestHandler';
 export { SendErrorFunction } from './maestro/SendErrorFunction';
 export { SendResponseFunction } from './maestro/SendResponseFunction';

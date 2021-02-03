@@ -1,6 +1,6 @@
-import { Maybe, MaybePromise } from 'error/Maybe';
-import { IProxiedRoute } from 'proxy/IProxiedRoute';
-import { IRouteRequest } from 'request/IRouteRequest';
+import { Maybe, MaybePromise } from '../../error/Maybe';
+import { IProxiedRoute } from '../../proxy/IProxiedRoute';
+import { IRouteRequest } from '../../request/IRouteRequest';
 
 export interface IRequestPipe {
   name: string;

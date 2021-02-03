@@ -100,7 +100,7 @@ export class Maestro extends Container implements IMaestro {
 		return [...this.requestPipes];
 	}
 
-	public handle = async (
+	public handle: MaestroRequestHandler = async (
 		route: IProxiedRoute,
 		request: IRouteRequest,
 		sendResponse: SendResponseFunction,
@@ -160,3 +160,10 @@ export class Maestro extends Container implements IMaestro {
 
 
 export type UseInMaestro = Container | Controller;
+
+export type MaestroRequestHandler = (
+	route: IProxiedRoute,
+	request: IRouteRequest,
+	sendResponse: SendResponseFunction,
+	sendError: SendErrorFunction
+) => Promise<void>;
