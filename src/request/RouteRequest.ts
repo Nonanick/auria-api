@@ -105,11 +105,15 @@ export class RouteRequest implements IRouteRequest {
     } = {};
 
     for (let vName of returnValues) {
-      // Asking for a specific origin?
+      
       if (this._parametersByOrigin[origin] != null) {
         returnObj[vName] = this._parametersByOrigin[origin][vName] ?? undefined;
       } else {
         returnObj[vName] = undefined;
+      }
+
+      if(returnObj[vName] === undefined && origin === RouteRequest.EMPTY_ORIGIN_NAME) {
+        returnObj[vName] = this._allParameters[vName];
       }
     }
 
@@ -147,7 +151,7 @@ export class RouteRequest implements IRouteRequest {
     this._parametersByOrigin[name] = value;
   }
 
-  getOrigin<T = any>(name: string): T {
+  getOrigin<T = unknown>(name: string): T {
     return this._allParameters[name] as T;
   }
 
@@ -164,8 +168,8 @@ export class RouteRequest implements IRouteRequest {
         ...this._parametersByOrigin[valueOrFrom],
         ...nameOrObj,
       };
-      this._allParameters[valueOrFrom] = {
-        ...this._allParameters[valueOrFrom],
+      this._allParameters = {
+        ...this._allParameters,
         ...nameOrObj
       };
       return;

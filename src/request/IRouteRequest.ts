@@ -31,7 +31,7 @@ export interface IRouteRequest {
   remove(name: string, from?: string): void;
 
   setOrigin(name: string, value: any): void;
-  getOrigin<T = any>(name: string): T;
+  getOrigin<T = unknown>(name: string): T;
 
   readonly parameters?: {
     [name: string]: any;
