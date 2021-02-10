@@ -1,14 +1,13 @@
-import { IRouteRequest } from './IRouteRequest';
-import { IProxyRequest } from '../proxy/IProxyRequest';
+import { IRouteRequest } from "./IRouteRequest";
+import { IProxyRequest } from "../proxy/IProxyRequest";
 
 export class RouteRequest implements IRouteRequest {
-
-
   public static WARN_ON_EMPTY_PARAMETER = true;
 
-  private static EMPTY_ORIGIN_NAME = '_';
+  private static EMPTY_ORIGIN_NAME = "_";
 
-  private static DEBUG_REQUEST_LIFECYCLE = process.env.NODE_ENV === "development";
+  private static DEBUG_REQUEST_LIFECYCLE =
+    process.env.NODE_ENV === "development";
 
   protected _adapter: string;
 
@@ -38,7 +37,7 @@ export class RouteRequest implements IRouteRequest {
 
   get originalURL(): string {
     return this._originalURL;
-  };
+  }
 
   identification: string = "";
 
@@ -55,7 +54,7 @@ export class RouteRequest implements IRouteRequest {
   constructor(
     adapter: string,
     url: string,
-    matchedPattern: string
+    matchedPattern: string,
   ) {
     this._adapter = adapter;
     this._originalURL = this.normalizeURL(url);
@@ -68,13 +67,13 @@ export class RouteRequest implements IRouteRequest {
     let normalized = url.trim();
 
     // Remove ending slash
-    if (normalized.indexOf('/') === normalized.length - 1) {
+    if (normalized.indexOf("/") === normalized.length - 1) {
       normalized = normalized.substring(0, -1);
     }
 
     // Add intial slash
-    if (normalized[0] !== '/') {
-      normalized = '/' + normalized;
+    if (normalized[0] !== "/") {
+      normalized = "/" + normalized;
     }
 
     return normalized;
@@ -89,28 +88,37 @@ export class RouteRequest implements IRouteRequest {
   set appliedProxies(proxies: IProxyRequest[]) {
     this._proxies = [
       ...this._proxies, // Currently applied proxies
-      ...proxies.filter(p => !this._proxies.includes(p)) // Unique new proxies (?)
+      ...proxies.filter((p) => !this._proxies.includes(p)), // Unique new proxies (?)
     ];
   }
 
-  get(name: string, origin = RouteRequest.EMPTY_ORIGIN_NAME) {
-    // Asking for a specific origin?
-    if (origin != RouteRequest.EMPTY_ORIGIN_NAME) {
+  get(name: string | string[], origin = RouteRequest.EMPTY_ORIGIN_NAME) {
+    let returnValues: string[] = [];
+    if (typeof name === "string") {
+      returnValues = [name];
+    } else {
+      returnValues = name;
+    }
+
+    let returnObj: {
+      [key in typeof name[number]]: any;
+    } = {};
+
+    for (let vName of returnValues) {
+      // Asking for a specific origin?
       if (this._parametersByOrigin[origin] != null) {
-        return this._parametersByOrigin[origin][name] ?? undefined;
-      }
-      else {
-        return undefined;
+        returnObj[vName] = this._parametersByOrigin[origin][vName] ?? undefined;
+      } else {
+        returnObj[vName] = undefined;
       }
     }
-    if (
-      this._allParameters[name] === undefined
-      && RouteRequest.WARN_ON_EMPTY_PARAMETER
-    ) {
-      console.warn(`Parameter ${name} is undefined! Make sure to handle it properly!`);
+
+    if (typeof name === "string") {
+      return returnObj[name];
+    } else {
+      return returnObj;
     }
-    // If not use 'all parameters'
-    return this._allParameters[name];
+
   }
 
   has(name: string, origin = RouteRequest.EMPTY_ORIGIN_NAME): boolean {
@@ -118,8 +126,7 @@ export class RouteRequest implements IRouteRequest {
     if (origin != RouteRequest.EMPTY_ORIGIN_NAME) {
       if (this._parametersByOrigin[origin] != null) {
         return this._parametersByOrigin[origin][name] != null;
-      }
-      else {
+      } else {
         return false;
       }
     }
@@ -144,16 +151,35 @@ export class RouteRequest implements IRouteRequest {
     return this._allParameters[name] as T;
   }
 
-  add(name: string, value: any, from = RouteRequest.EMPTY_ORIGIN_NAME) {
+  add(name: string, value: any, from  : string) : void; 
+  add(obj: {[name : string] : any}, from : string) : void; 
+  add(nameOrObj: string | {[name : string] : any}, valueOrFrom: any, from = RouteRequest.EMPTY_ORIGIN_NAME) : void {
+    
+    if(typeof nameOrObj === "object") {
 
+      if (this._parametersByOrigin[valueOrFrom] == null) {
+        this._parametersByOrigin[valueOrFrom] = {};
+      }
+      this._parametersByOrigin[valueOrFrom] = {
+        ...this._parametersByOrigin[valueOrFrom],
+        ...nameOrObj,
+      };
+      this._allParameters[valueOrFrom] = {
+        ...this._allParameters[valueOrFrom],
+        ...nameOrObj
+      };
+      return;
+    }
+    
     if (this._parametersByOrigin[from] == null) {
       this._parametersByOrigin[from] = {};
     }
     this._parametersByOrigin[from] = {
       ...this._parametersByOrigin[from],
-      [name]: value
+      [nameOrObj]: valueOrFrom,
     };
-    this._allParameters[name] = value;
+
+    this._allParameters[nameOrObj] = valueOrFrom;
   }
 
   remove(name: string, from = RouteRequest.EMPTY_ORIGIN_NAME) {
