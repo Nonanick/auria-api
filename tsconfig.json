@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
 		"incremental": true,
-		"target": "es6",
-		"module": "commonjs",
+		"target": "ES6",
+		"module": "ESNext",
 		"lib": [
 			"ESNext"
 		],
