@@ -21,7 +21,7 @@ export async function SchemaEnforcer(
       let originParams = request.byOrigin?.[origin];
 
       if (originSchema != null && originParams != null) {
-        allValid.push(SchemaValidator.validate(originSchema, originParams) as Promise<boolean>);
+        allValid.push(SchemaValidator.validate<boolean>({$async : true, ...originSchema}, originParams) as Promise<boolean>);
       }
 
     }
