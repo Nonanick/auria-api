@@ -33,6 +33,7 @@ export async function SchemaEnforcer(
         }
         return true as true;
       }).catch(err => {
+        console.error("[Maestro - Schema Enforcer] Failed to validate request -> Promise exception!\n",err);
         return Error(SchemaValidator.errorsText());
       });
 
