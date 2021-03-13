@@ -1,4 +1,4 @@
-import ajv from "ajv";
+import { ErrorObject } from "ajv";
 import { ApiError } from "../ApiError";
 
 export class SchemaViolation extends ApiError {
@@ -6,13 +6,13 @@ export class SchemaViolation extends ApiError {
     return 400;
   }
 
-  constructor(errors?: ajv.ErrorObject[]) {
+  constructor(errors?: ErrorObject[]) {
     super(stringfyError(errors));
   }
 
 }
 
-function stringfyError(errors?: ajv.ErrorObject[]) {
+function stringfyError(errors?: ErrorObject[]) {
   if (errors == null || errors?.length === 0) {
     return 'Schema violation! Request failed';
   }

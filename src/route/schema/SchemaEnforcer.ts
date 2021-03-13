@@ -21,7 +21,7 @@ export async function SchemaEnforcer(
       let originParams = request.byOrigin?.[origin];
 
       if (originSchema != null && originParams != null) {
-        allValid.push(SchemaValidator.validate(originSchema, originParams) as Promise<boolean>);
+        allValid.push(SchemaValidator.validate<boolean>({$async : true, ...originSchema}, originParams) as Promise<boolean>);
       }
 
     }
@@ -33,6 +33,7 @@ export async function SchemaEnforcer(
         }
         return true as true;
       }).catch(err => {
+        console.error("[Maestro - Schema Enforcer] Failed to validate request -> Promise exception!\n",err);
         return Error(SchemaValidator.errorsText());
       });
 
