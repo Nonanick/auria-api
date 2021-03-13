@@ -19,10 +19,13 @@ export abstract class Container extends EventEmitter implements IContainer {
 
 		let nRoute: IProxiedRoute = {
 			...route,
-			url: path.posix.join(this.baseURL, route.url),
 			requestProxies: [...this.requestProxies(), ...route.requestProxies],
 			responseProxies: [...this.responseProxies(), ...route.responseProxies]
 		};
+
+		if(this.baseURL !== '') nRoute.url = path.posix.join(this.baseURL, route.url);
+
+		console.log('Maestro\n', route.url, '\n', nRoute.url)
 
 		return nRoute;
 	}

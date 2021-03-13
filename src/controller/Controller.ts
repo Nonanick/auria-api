@@ -63,7 +63,9 @@ export abstract class Controller implements IController {
 	 */
 	transformRoute(route: IProxiedRoute): IProxiedRoute {
 		let transformedRoute = { ...route };
-		transformedRoute.url = path.posix.join(this.baseURL, route.url);
+
+		if(this.baseURL !== '') transformedRoute.url = path.posix.join(this.baseURL, route.url);
+		
 		return transformedRoute;
 	}
 
