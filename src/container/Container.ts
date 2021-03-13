@@ -25,8 +25,6 @@ export abstract class Container extends EventEmitter implements IContainer {
 
 		if(this.baseURL !== '') nRoute.url = path.posix.join(this.baseURL, route.url);
 
-		console.log('Maestro\n', route.url, '\n', nRoute.url)
-
 		return nRoute;
 	}
 
