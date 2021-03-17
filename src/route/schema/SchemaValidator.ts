@@ -4,5 +4,6 @@ export const SchemaValidator = new ajv({
   coerceTypes: true,
   useDefaults: true,
   removeAdditional: true,
-  allErrors: true
+  allErrors: true,
+  validateFormats : false
 });
