@@ -65,8 +65,8 @@ export class Maestro extends Container implements IMaestro {
 		this.adapters[adapter.name] = adapter;
 	}
 
-	use(...addToLyra: UseInMaestro[]) {
-		addToLyra.forEach(use => {
+	use(...addToMaestro: UseInMaestro[]) {
+		addToMaestro.forEach(use => {
 			if (use instanceof Container) {
 				this.addChildContainer(use);
 				return;
@@ -79,6 +79,10 @@ export class Maestro extends Container implements IMaestro {
 
 		});
 	}
+
+  add(...addToMaestro : UseInMaestro[]) {
+    this.use(...addToMaestro);
+  }
 
 	pipe(...pipes: IRequestPipe[]) {
 		this.requestPipes = [...this.requestPipes, ...pipes];
