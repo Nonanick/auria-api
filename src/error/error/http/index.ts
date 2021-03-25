@@ -1,0 +1,15 @@
+export { BadRequest } from './BadRequest';
+export { ClientUpgradeRequired } from './ClientUpgradeRequired';
+export { ExpectationFailed } from './ExpectationFailed';
+export { ForbiddenAccess } from './ForbiddenAccess';
+export { isHTTPError } from './HTTPError';
+export type { HTTPError } from './HTTPError';
+export { InternalServerError } from './InternalServerError';
+export { MethodNotAllowed } from './MethodNotAllowed';
+export { PayloadTooLarge } from './PayloadTooLarge';
+export { PaymentRequired } from './PaymentRequired';
+export { RequestNotAcceptable } from './RequestNotAcceptable';
+export { RequestTimeout } from './RequestTimeout';
+export { RouteNotFound } from './RouteNotFound';
+export { TooManyRequests } from './TooManyRequests';
+export { UnauthorizedAccess } from './UnauthorizedAccess';

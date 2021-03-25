@@ -52,3 +52,5 @@ export { RouteResponse } from './response/RouteResponse';
 
 // Route
 export * from './route';
+
+export * as HTTPError from './error/error/http';
