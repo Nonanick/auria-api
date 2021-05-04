@@ -25,6 +25,13 @@ export class Maestro extends Container implements IMaestro {
 		[name: string]: IAdapter;
 	} = {};
 
+	private resolveStartPromise: (() => void) | undefined;
+
+	private _started: Promise<void>;
+
+	get started() {
+		return this._started;
+	}
 	protected requestPipes: IRequestPipe[] = [
 		{
 			name: 'schema-enforcer',
@@ -55,6 +62,10 @@ export class Maestro extends Container implements IMaestro {
 	 */
 	constructor() {
 		super();
+
+		this._started = new Promise<void>((resolve) => {
+			this.resolveStartPromise = resolve;
+		});
 	}
 
 	setRequestHandler(resolver: RequestHandler): void {
@@ -80,9 +91,9 @@ export class Maestro extends Container implements IMaestro {
 		});
 	}
 
-  add(...addToMaestro : UseInMaestro[]) {
-    this.use(...addToMaestro);
-  }
+	add(...addToMaestro: UseInMaestro[]) {
+		this.use(...addToMaestro);
+	}
 
 	pipe(...pipes: IRequestPipe[]) {
 		this.requestPipes = [...this.requestPipes, ...pipes];
@@ -133,13 +144,14 @@ export class Maestro extends Container implements IMaestro {
 		sendResponse(apiResponse);
 	};
 
-	protected _started = false;
 
 	hasStarted(): boolean {
-		return this._started;
+		return this.resolveStartPromise == null;
 	}
 
 	start() {
+
+		if (this.resolveStartPromise == null) return;
 
 		if (typeof this.requestHandler !== "function") {
 			throw new RequestFlowNotDefined(
@@ -153,7 +165,9 @@ export class Maestro extends Container implements IMaestro {
 			adapter.addContainer(this);
 			adapter.start();
 		}
-		this._started = true;
+
+		this.resolveStartPromise!();
+		this.resolveStartPromise = undefined;
 	}
 
 	makeDiscoverable(options?: Partial<DiscoverOptions>) {

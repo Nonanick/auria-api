@@ -7,6 +7,11 @@ export class RouteResponse implements IRouteResponse {
   exitCode: string = "OK";
   status: number = 201;
   payload: any;
+  
+  headers : {
+    [name : string] : string
+  } = {};
+
   commands?: ICommand | ICommand[];
 
   constructor(public request: IRouteRequest) { }
