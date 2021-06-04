@@ -1,6 +1,6 @@
 import { IRouteRequest } from '../request/IRouteRequest';
 import { HTTPMethod } from "./HTTPMethod";
-import { Resolver as RouteResolver } from "./Resolver";
+import { Handler as RouteResolver } from "./Handler";
 import { RouteSchema } from './RouteSchema';
 import { IValidateRoute } from './validation/IValidateRoute';
 
