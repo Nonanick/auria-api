@@ -10,3 +10,12 @@ export interface IAdapter extends EventEmitter {
 	start(): void;
 
 }
+
+export function isAdapter(obj : any) : obj is IAdapter {
+	return (
+		typeof obj.name === "string"
+		&& typeof obj.addContainer === "function"
+		&& typeof obj.setRequestHandler === "function"
+		&& typeof obj.start === "function"
+	);
+}

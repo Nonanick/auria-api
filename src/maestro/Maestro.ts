@@ -1,4 +1,4 @@
-import type { IAdapter } from '../adapter/IAdapter';
+import { IAdapter, isAdapter } from '../adapter/IAdapter';
 import type { IProxiedRoute } from '../proxy/IProxiedRoute';
 import type { IRouteRequest } from '../request/IRouteRequest';
 import type { IRequestPipe } from './composition/RequestPipe';
@@ -109,6 +109,10 @@ export class Maestro extends Container implements IMaestro {
 				return;
 			}
 
+			if(isAdapter(use)) {
+				this.addAdapter(use);
+			}
+
 		});
 	}
 
@@ -198,7 +202,7 @@ export class Maestro extends Container implements IMaestro {
 }
 
 
-export type UseInMaestro = Container | Controller;
+export type UseInMaestro = Container | Controller | IAdapter;
 
 export type MaestroRequestHandler = (
 	route: IProxiedRoute,
