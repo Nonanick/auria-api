@@ -1,6 +1,6 @@
-import { IRoute } from '../route/IRoute';
-import { HTTPMethod } from '../route/HTTPMethod';
-import { IProxiedRoute } from '../proxy/IProxiedRoute';
+import type { HTTPMethod } from '../route/HTTPMethod';
+import type { IProxiedRoute } from '../proxy/IProxiedRoute';
+import type { Except } from 'type-fest';
 
 export const apiRoutesSymbol = Symbol('ApiControllerRoutes');
 
@@ -49,4 +49,58 @@ export function Route(params: RegisterApiRouteParams) {
 		}
 		proto[apiRoutesSymbol].push(pushNewResolver);
 	};
+}
+
+export function GET(params : Except<RegisterApiRouteParams, "methods">) {
+
+	return Route({
+		...params,
+		methods : 'get'
+	})
+
+}
+
+export function POST(params : Except<RegisterApiRouteParams, "methods">) {
+
+	return Route({
+		...params,
+		methods : 'post'
+	})
+
+}
+
+export function PUT(params : Except<RegisterApiRouteParams, "methods">) {
+
+	return Route({
+		...params,
+		methods : 'put'
+	})
+
+}
+
+export function DELETE(params : Except<RegisterApiRouteParams, "methods">) {
+
+	return Route({
+		...params,
+		methods : 'delete'
+	})
+
+}
+
+export function PATCH(params : Except<RegisterApiRouteParams, "methods">) {
+
+	return Route({
+		...params,
+		methods : 'patch'
+	})
+
+}
+
+export function SEARCH(params : Except<RegisterApiRouteParams, "methods">) {
+
+	return Route({
+		...params,
+		methods : 'search'
+	})
+
 }

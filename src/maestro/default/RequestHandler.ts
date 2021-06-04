@@ -1,16 +1,16 @@
+import type { Maybe } from "../../error/Maybe";
+import type { IProxiedRoute } from "../../proxy/IProxiedRoute";
+import type { IProxyRequest } from "../../proxy/IProxyRequest";
+import type { IProxyResponse } from "../../proxy/IProxyResponse";
+import type { IRouteRequest } from "../../request/IRouteRequest";
+import type { IRouteResponse } from "../../response/IRouteResponse";
+import type { InjectableHandler } from '../../route/InjectableHandler';
+import type { Handler } from '../../route/Handler';
+import type { RequestHandler } from '../composition/RequestHandler';
 import { ApiEndpointNotAFunction } from '../../error/exceptions/ApiEndpointNotAFunction';
-import { Maybe } from "../../error/Maybe";
-import { IProxiedRoute } from "../../proxy/IProxiedRoute";
-import { IProxyRequest } from "../../proxy/IProxyRequest";
-import { IProxyResponse } from "../../proxy/IProxyResponse";
-import { IRouteRequest } from "../../request/IRouteRequest";
-import {
-	IRouteResponse,
-	implementsRouteResponse
-} from "../../response/IRouteResponse";
 import { RouteResponse } from "../../response/RouteResponse";
-import { Resolver } from '../../route/Resolver';
-import { RequestHandler } from '../composition/RequestHandler';
+import { isInjectableHandler, HandlerInjectorSymbol } from '../../route/InjectableHandler';
+import { implementsRouteResponse } from "../../response/IRouteResponse";
 
 /**
  * RouteResolver
@@ -40,19 +40,36 @@ export const MaestroRequestHandler: RequestHandler =
 
 		// Execute Function
 		try {
-			let resolver: Resolver;
+			let handler: Handler;
 
 			if (typeof route.resolver === 'function') {
-				resolver = route.resolver;
+				handler = route.resolver;
 			} else if (typeof route.resolver === 'string') {
-				resolver = (route.controller as any)[route.resolver];
+				handler = (route.controller as any)[route.resolver];
 			}
 
-			if (typeof resolver! !== "function") {
+			if (typeof handler! !== "function") {
 				throw new ApiEndpointNotAFunction("Route controller method " + route.resolver + " is not a function!");
 			}
 
-			let routineResponse = await resolver(request);
+			let routineResponse: any;
+
+			// Has argument injections?
+			if (isInjectableHandler(handler)) {
+				let handlerWithInjectedArgs: InjectableHandler = handler;
+				let injectedArgs: any[] = await Promise.all(
+					handler[HandlerInjectorSymbol].map(
+						async inject => {
+							return await inject(route, request);
+						}
+					)
+				);
+				routineResponse = await handlerWithInjectedArgs(...injectedArgs);
+			}
+			// If not resolve it passing the request
+			else {
+				routineResponse = await handler(request);
+			}
 			// Resolve promised value, while return is a promise
 			while (routineResponse instanceof Promise) {
 				routineResponse = await routineResponse;

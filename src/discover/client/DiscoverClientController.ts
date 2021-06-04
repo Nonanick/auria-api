@@ -2,7 +2,7 @@ import { Controller } from "../../controller/Controller";
 import { Route } from "../../controller/RouteDecorator";
 import { Maestro } from "../../maestro/Maestro";
 import { RouteResponse } from "../../response/RouteResponse";
-import { Resolver } from "../../route";
+import { Handler } from "../../route";
 
 export class DiscoverClientController extends Controller {
 
@@ -26,7 +26,7 @@ export class DiscoverClientController extends Controller {
     url: '',
     methods: 'get'
   })
-  public latest: Resolver = (req) => {
+  public latest: Handler = (req) => {
 
     const response = new RouteResponse(req);
 

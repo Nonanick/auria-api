@@ -1,4 +1,4 @@
-import { Resolver } from "../../route/Resolver";
+import { Handler } from "../../route/Handler";
 import { Controller } from "../../controller/Controller";
 import { Route } from "../../controller/RouteDecorator";
 
@@ -12,7 +12,7 @@ export class DiscoverApiController extends Controller {
     url: '',
     methods: 'get'
   })
-  loadClient: Resolver = (req) => {
+  loadClient: Handler = (req) => {
     req.get('maestro', 'discover').deleteCachedRoutes();
     return req.get('maestro', 'discover').allRoutes()
       .map(r => {

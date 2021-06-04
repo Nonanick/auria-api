@@ -2,8 +2,6 @@ import path from 'path';
 import type { IProxiedRoute } from '../proxy/IProxiedRoute';
 import type { IProxyRequest } from '../proxy/IProxyRequest';
 import type { IProxyResponse } from '../proxy/IProxyResponse';
-import type { IRoute } from '../route/IRoute';
-import { Resolver } from '../route/Resolver';
 import type { IController } from './IController';
 import { apiRoutesSymbol } from './RouteDecorator';
 

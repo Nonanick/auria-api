@@ -1,19 +1,20 @@
-import { IAdapter } from '../adapter/IAdapter';
+import type { IAdapter } from '../adapter/IAdapter';
+import type { IProxiedRoute } from '../proxy/IProxiedRoute';
+import type { IRouteRequest } from '../request/IRouteRequest';
+import type { IRequestPipe } from './composition/RequestPipe';
+import type { RequestHandler } from './composition/RequestHandler';
+import type { IMaestro } from './IMaestro';
+import type { MaestroOptions } from './MaestroOptions';
+import type { SendErrorFunction } from './SendErrorFunction';
+import type { SendResponseFunction } from './SendResponseFunction';
+import * as Default from './default';
 import { Container } from '../container/Container';
 import { Controller } from '../controller/Controller';
 import { Discover } from '../discover/Discover';
 import { DiscoverOptions } from '../discover/DiscoverOptions';
 import { RequestFlowNotDefined } from '../error/exceptions/RequestFlowNotDefined';
-import { IProxiedRoute } from '../proxy/IProxiedRoute';
-import { IRouteRequest } from '../request/IRouteRequest';
-import { SchemaEnforcer } from '../route/schema/SchemaEnforcer';
-import { RequestHandler } from './composition/RequestHandler';
-import { IRequestPipe } from './composition/RequestPipe';
-import * as Default from './default';
 import { ValidateRequest } from './default/ValidateRequest';
-import { IMaestro } from './IMaestro';
-import { SendErrorFunction } from './SendErrorFunction';
-import { SendResponseFunction } from './SendResponseFunction';
+import { SchemaEnforcer } from '../route/schema/SchemaEnforcer';
 
 export class Maestro extends Container implements IMaestro {
 
@@ -47,7 +48,13 @@ export class Maestro extends Container implements IMaestro {
 		}
 	];
 
-
+	/**
+	 * Request Handler
+	 * ---------------
+	 * 
+	 * Function responsible to proccess the incoming request
+	 * 
+	 */
 	public requestHandler: RequestHandler =
 		Default.RequestHandler;
 
@@ -60,16 +67,30 @@ export class Maestro extends Container implements IMaestro {
 	 * enforcing policies and request/response flow inside the app
 	 * 
 	 */
-	constructor() {
+	constructor(options?: Partial<MaestroOptions>) {
 		super();
 
 		this._started = new Promise<void>((resolve) => {
 			this.resolveStartPromise = resolve;
 		});
+
+		if (options?.adapters != null) {
+			options.adapters.forEach(adapter => {
+				this.addAdapter(adapter);
+			});
+		}
+
+		if (options?.useRoutesFrom != null) {
+			this.use(...options.useRoutesFrom);
+		}
+
+		if (options?.requestPipes != null) {
+			this.pipe(...options.requestPipes);
+		}
 	}
 
-	setRequestHandler(resolver: RequestHandler): void {
-		this.requestHandler = resolver;
+	setRequestHandler(handler: RequestHandler): void {
+		this.requestHandler = handler;
 	}
 
 	addAdapter(adapter: IAdapter) {
