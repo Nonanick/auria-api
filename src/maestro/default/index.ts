@@ -1,2 +1,2 @@
-export { CastProperties } from './CastProperties';
-export { MaestroRequestHandler as RequestHandler } from './RequestHandler';
+export { CastProperties } from './cast_properties.fn';
+export { MaestroRequestHandler as RequestHandler } from './request_handler.fn';

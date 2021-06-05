@@ -1,5 +1,5 @@
-import { Maestro } from "../maestro/Maestro";
-import { Container } from "../container/Container";
+import { Maestro } from "../maestro/maestro.class";
+import { Container } from "../container/container.class";
 import { DiscoverApiController } from "./api/DiscoverApiController";
 import { DiscoverClientController } from "./client/DiscoverClientController";
 import { DiscoverOptions } from "./DiscoverOptions";
@@ -28,7 +28,7 @@ export class Discover extends Container {
 
     this.addController(
       new DiscoverApiController,
-      new DiscoverClientController
+      new DiscoverClientController(this._maestro)
     );
   }
 

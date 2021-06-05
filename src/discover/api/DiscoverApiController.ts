@@ -1,6 +1,6 @@
-import { Handler } from "../../route/Handler";
-import { Controller } from "../../controller/Controller";
-import { Route } from "../../controller/RouteDecorator";
+import { Handler } from "../../route/handler.type";
+import { Controller } from "../../controller/controller.class";
+import { Route } from "../../controller/route.decorator";
 
 export class DiscoverApiController extends Controller {
 

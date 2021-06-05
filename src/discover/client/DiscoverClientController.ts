@@ -1,7 +1,7 @@
-import { Controller } from "../../controller/Controller";
-import { Route } from "../../controller/RouteDecorator";
-import { Maestro } from "../../maestro/Maestro";
-import { RouteResponse } from "../../response/RouteResponse";
+import { Controller } from "../../controller/controller.class";
+import { Route } from "../../controller/route.decorator";
+import { Maestro } from "../../maestro/maestro.class";
+import { RouteResponse } from "../../response/route_response.class";
 import { Handler } from "../../route";
 
 export class DiscoverClientController extends Controller {

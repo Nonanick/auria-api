@@ -40,6 +40,6 @@ module.exports = {
   ui: 'bdd',
   'v8-stack-trace-limit': 100, // V8 flags are prepended with "v8-"
   watch: true,
-  'watch-files': ['test/**/*.test.js', 'test/**/*.spec.js'],
+  'watch-files': ['test/**/*.test.js', 'test/**/*.spec.js', 'dist/**/*.js'],
   'watch-ignore': ['lib/vendor']
 };
