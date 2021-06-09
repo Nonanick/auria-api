@@ -2,7 +2,7 @@ import type { HTTPMethod } from '../route/http_method.type';
 import type { IProxiedRoute } from '../proxy/proxied_route.type';
 import type { Except } from 'type-fest';
 
-export const apiRoutesSymbol = Symbol('ApiControllerRoutes');
+export const ControllerRoutesSymbol = Symbol('ControllerRoutes');
 
 /**
  * Register Api Route Params
@@ -21,10 +21,10 @@ export type RegisterApiRouteParams = Omit<Partial<IProxiedRoute>, 'resolver'> & 
 export function Route(params: RegisterApiRouteParams) {
 
 	return (target: any, propertyKey: string | symbol) => {
-		let proto = target.constructor.prototype;
+		let proto = target;
 
-		if (proto[apiRoutesSymbol] == null) {
-			proto[apiRoutesSymbol] = [];
+		if (proto[ControllerRoutesSymbol] == null) {
+			proto[ControllerRoutesSymbol] = {};
 		}
 
 		// Prevent duplicated HTTP Methods
@@ -35,19 +35,25 @@ export function Route(params: RegisterApiRouteParams) {
 		}
 
 		let defaultConfig = proto['defaultRouteConfig'] ?? {};
+
+		// If another route definition was set beforehand preserve its values
+		let oldRouteParams = proto[ControllerRoutesSymbol][propertyKey] ?? {};
+
 		let pushNewResolver = {
 			requestProxies: [],
 			responseProxies: [],
 			...defaultConfig,
+			...oldRouteParams,
 			...params,
 			resolver: proto[propertyKey]
 		};
+
 		if (typeof pushNewResolver.resolver !== "function") {
 			// Default resolver might
 			pushNewResolver.resolver = propertyKey;
-
 		}
-		proto[apiRoutesSymbol].push(pushNewResolver);
+
+		proto[ControllerRoutesSymbol][propertyKey] = pushNewResolver;
 	};
 }
 

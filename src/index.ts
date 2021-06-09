@@ -13,7 +13,7 @@ export { IContainer } from './container/container.type';
 // Controller
 export { Controller } from './controller/controller.class';
 export { IController } from './controller/controller.type';
-export { Route, apiRoutesSymbol, RegisterApiRouteParams } from './controller/route.decorator';
+export { Route, ControllerRoutesSymbol, RegisterApiRouteParams } from './controller/route.decorator';
 
 // Error
 export { ApiError } from './error/api_error.error';

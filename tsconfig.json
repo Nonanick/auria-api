@@ -1,10 +1,11 @@
 {
 	"compilerOptions": {
 		"incremental": true,
-		"target": "ES6",
+		"target": "es2019",
 		"module": "ESNext",
 		"lib": [
-			"ESNext"
+			"ESNext",
+			"ES2020"
 		],
 		"declaration": true,
 		"sourceMap": true,

@@ -60,7 +60,11 @@ export const MaestroRequestHandler: RequestHandler =
 				let injectedArgs: any[] = await Promise.all(
 					handler[HandlerInjectorSymbol].map(
 						async inject => {
-							return await inject(route, request);
+							let value = await inject(route, request);
+							if(value instanceof Error) {
+
+							}
+							return value;
 						}
 					)
 				);

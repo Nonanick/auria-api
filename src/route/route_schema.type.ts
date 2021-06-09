@@ -7,6 +7,7 @@ export interface RequestSchema {
   body?: ObjectSchema;
   query?: ObjectSchema;
   params?: ObjectSchema;
+  header? : ObjectSchema;
 }
 export interface ResponseSchema {
   response?: {

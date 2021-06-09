@@ -41,10 +41,6 @@ export class Maestro extends Container implements IMaestro {
 		{
 			name: 'request-validator',
 			pipe: ValidateRequest
-		},
-		{
-			name: 'request-caster',
-			pipe: Default.CastProperties
 		}
 	];
 

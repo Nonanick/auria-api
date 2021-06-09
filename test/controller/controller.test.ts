@@ -1,6 +1,6 @@
-import { Controller } from '../../dist/controller/Controller';
+import { Controller } from '../../dist/controller/controller.class';
 import { expect } from 'chai';
-import { IProxiedRoute } from '../../dist/proxy/IProxiedRoute';
+import type { IProxiedRoute } from '../../dist/proxy/proxied_route.type';
 
 describe('Controller', () => {
 

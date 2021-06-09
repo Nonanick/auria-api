@@ -1,7 +1,7 @@
-import type { IAdapter } from '../../../dist/adapter/IAdapter';
 import { EventEmitter } from 'events';
-import type { IContainer } from '../../../dist/container/IContainer';
-import type { MaestroRequestHandler } from '../../../dist/maestro/Maestro';
+import { IAdapter } from '../../../dist/adapter/adapter.type';
+import { IContainer } from '../../../dist/container/container.type';
+import { MaestroRequestHandler } from '../../../dist/maestro/maestro.class';
 
 export class MockedAdapter extends EventEmitter implements IAdapter {
 

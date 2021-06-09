@@ -1,10 +1,10 @@
-import { Maestro } from '../../dist/maestro/Maestro';
+import { Maestro } from '../../dist/maestro/maestro.class';
 import { expect } from 'chai';
-import { Container } from '../../dist/container/Container';
-import { Controller } from '../../dist/controller/Controller';
-import { IAdapter } from '../../dist/adapter/IAdapter';
+import { Container } from '../../dist/container/container.class';
+import { Controller } from '../../dist/controller/controller.class';
+import type { IAdapter } from '../../dist/adapter/adapter.type';
 import { MockedAdapter } from '../mock/adapter/MockedAdapter';
-import { IProxiedRoute } from '../../dist/proxy/IProxiedRoute';
+import type { IProxiedRoute } from '../../dist/proxy/proxied_route.type';
 
 describe('Maestro', () => {
 

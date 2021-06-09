@@ -1,6 +1,6 @@
 import { JSONSchema7 } from "json-schema";
 
-export type JSONSchema = ObjectSchema | StringSchema | NumberSchema | ArraySchema;
+export type JSONSchema = ObjectSchema | StringSchema | NumberSchema | ArraySchema | BooleanSchema;
 
 export type BaseSchema = Pick<JSONSchema7,
   | "title"
@@ -73,7 +73,11 @@ export type ArraySchema = Pick<
   type: "array" | ["array"];
 };
 
-export type BooleanSchema = BaseSchema & {
-  type: "boolean" | ["boolean"];
-  default?: boolean;
-};
+export type BooleanSchema = Pick<
+  JSONSchema7, "default"
+>
+  & BaseSchema 
+  & {
+    type: "boolean" | ["boolean"];
+    default?: boolean;
+  };

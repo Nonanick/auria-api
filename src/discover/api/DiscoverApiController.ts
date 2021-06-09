@@ -1,6 +1,7 @@
 import { Handler } from "../../route/handler.type";
 import { Controller } from "../../controller/controller.class";
 import { Route } from "../../controller/route.decorator";
+import { IProxiedRoute } from '../../proxy/proxied_route.type';
 
 export class DiscoverApiController extends Controller {
 
@@ -15,7 +16,7 @@ export class DiscoverApiController extends Controller {
   loadClient: Handler = (req) => {
     req.get('maestro', 'discover').deleteCachedRoutes();
     return req.get('maestro', 'discover').allRoutes()
-      .map(r => {
+      .map((r : IProxiedRoute) => {
         return {
           ...r,
           requestProxies: r.requestProxies.filter(p => p.discoverable === true),

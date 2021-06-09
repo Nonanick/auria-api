@@ -34,7 +34,7 @@ export class Discover extends Container {
 
 }
 
-declare module '../request/IRouteRequest' {
+declare module '../request/route_request.type' {
   interface IRouteRequest {
     get(name: 'maestro', from?: 'discover'): Maestro;
   }

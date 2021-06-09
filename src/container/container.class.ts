@@ -6,6 +6,9 @@ import { IProxyResponse } from '../proxy/proxy_response.type';
 import { EventEmitter } from 'events';
 import { IProxiedRoute } from '../proxy/proxied_route.type';
 import { IAdapter } from '../adapter/adapter.type';
+import { ContainerOptions } from './container_options.type';
+import { IService } from '../service/service.type';
+import { Class } from 'type-fest';
 
 export abstract class Container extends EventEmitter implements IContainer {
 
@@ -15,6 +18,27 @@ export abstract class Container extends EventEmitter implements IContainer {
 
 	protected _cachedRoutes?: IProxiedRoute[];
 
+
+	/**
+	 * Controllers
+	 * -----------
+	 */
+	protected _controllers: IController[] = [];
+
+	#services : {
+		[name in string | symbol] : Class<IService>;
+	} = {};
+
+	protected _dependencies : {
+		[name in string | symbol] : any;
+	} = {};
+
+	constructor(options? : Partial<ContainerOptions>) {
+		super();
+
+
+	}
+	
 	transformRoute(route: IProxiedRoute): IProxiedRoute {
 
 		let nRoute: IProxiedRoute = {
@@ -27,12 +51,6 @@ export abstract class Container extends EventEmitter implements IContainer {
 
 		return nRoute;
 	}
-
-	/**
-	 * Controllers
-	 * -----------
-	 */
-	protected _controllers: IController[] = [];
 
 	controllers(): IController[] {
 		return [...this._controllers];
@@ -160,6 +178,9 @@ export abstract class Container extends EventEmitter implements IContainer {
 		delete this._cachedRoutes;
 	}
 
+	allServices() {
+		return {...this.#services};
+	}
 	setTargetedAdapters(adapters: AdapterClass[]) {
 		this._targetedAdapters = adapters;
 	}

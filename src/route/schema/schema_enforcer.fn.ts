@@ -1,9 +1,8 @@
-import { ApiError } from '../../error/api_error.error';
-import { MaybePromise } from '../../error/maybe.type';
+import type { IProxiedRoute } from '../../proxy/proxied_route.type';
+import type { IRouteRequest } from '../../request/route_request.type';
+import type { MaybePromise } from '../../error/maybe.type';
+import type { RouteSchema } from '../route_schema.type';
 import { SchemaViolation } from '../../error/schema/schema_violation.error';
-import { IProxiedRoute } from '../../proxy/proxied_route.type';
-import { IRouteRequest } from '../../request/route_request.type';
-import { RouteSchema } from '../route_schema.type';
 import { SchemaValidator } from './schema_validator.const';
 
 export async function SchemaEnforcer(
@@ -34,7 +33,7 @@ export async function SchemaEnforcer(
         return true as true;
       }).catch(err => {
         console.error("[Maestro - Schema Enforcer] Failed to validate request -> Promise exception!\n",err);
-        return Error(SchemaValidator.errorsText());
+        return new Error(SchemaValidator.errorsText());
       });
 
   }

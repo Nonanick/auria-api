@@ -3,7 +3,7 @@ import type { IProxiedRoute } from '../proxy/proxied_route.type';
 import type { IProxyRequest } from '../proxy/proxy_request.type';
 import type { IProxyResponse } from '../proxy/proxy_response.type';
 import type { IController } from './controller.type';
-import { apiRoutesSymbol } from './route.decorator';
+import { ControllerRoutesSymbol } from './route.decorator';
 
 export abstract class Controller implements IController {
 
@@ -31,11 +31,11 @@ export abstract class Controller implements IController {
 		// Fetch from class prototype
 		let proto = Object.getPrototypeOf(this);
 
-		if (proto[apiRoutesSymbol] == null) {
-			proto[apiRoutesSymbol] = [];
+		if (proto[ControllerRoutesSymbol] == null) {
+			proto[ControllerRoutesSymbol] = {};
 		}
 
-		this._apiRoutes = [...proto[apiRoutesSymbol]];
+		this._apiRoutes = [...Object.values<IProxiedRoute>(proto[ControllerRoutesSymbol])];
 
 	}
 	defaultRouteConfig: any;
