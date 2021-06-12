@@ -32,12 +32,12 @@ import { JSONSchema, ObjectSchema } from '../route';
  * @param rootSchema 
  * @returns 
  */
- export function AddJsonPathToSchema(
-  rootSchema : ObjectSchema, 
-  jsonPath: string, 
-  propertySchema: JSONSchema, 
+export function AddJsonPathToSchema(
+  rootSchema: ObjectSchema,
+  jsonPath: string,
+  propertySchema: JSONSchema,
   isRequired: boolean
-):  JSONSchema {
+): JSONSchema {
 
   // If defining the root object, just reassign the schema
   if (jsonPath === '') {
@@ -56,8 +56,8 @@ import { JSONSchema, ObjectSchema } from '../route';
     let isArray = pieceName.length !== pathPiece.length;
     let isLastOfPath = i === pieces.length - 1;
 
-    if (isRequired) { 
-      if(!Array.isArray(currentSchema.required)) { 
+    if (isRequired) {
+      if (!Array.isArray(currentSchema.required)) {
         currentSchema.required = [];
       }
       currentSchema.required!.push(pieceName);
@@ -66,21 +66,25 @@ import { JSONSchema, ObjectSchema } from '../route';
     if (isArray) {
       currentSchema.properties![pieceName] = {
         type: 'array',
-        items: isLastOfPath ? propertySchema : {
+        items: isLastOfPath
+          ? DeleteKeysFromObject(propertySchema, ['property'])
+          : {
+            type: 'object',
+            properties: {},
+            required: [],
+            additionalProperties: false,
+          }
+      }
+      currentSchema = (currentSchema.properties![pieceName] as any).items;
+    } else {
+      currentSchema.properties![pieceName] = isLastOfPath
+        ? DeleteKeysFromObject(propertySchema, ['property'])
+        : {
           type: 'object',
           properties: {},
           required: [],
           additionalProperties: false,
-        }
-      }
-      currentSchema = (currentSchema.properties![pieceName] as any).items;
-    } else {
-      currentSchema.properties![pieceName] = isLastOfPath ? propertySchema : {
-        type: 'object',
-        properties: {},
-        required: [],
-        additionalProperties: false,
-      };
+        };
       currentSchema = (currentSchema.properties![pieceName] as any);
     }
 
@@ -88,4 +92,16 @@ import { JSONSchema, ObjectSchema } from '../route';
 
   return rootSchema;
 
+}
+
+export function DeleteKeysFromObject(obj: any, keys: string[]) {
+  let objCopy = { ...obj };
+  let objKeys = Object.keys(obj);
+  keys.forEach(k => {
+    if (objKeys.includes(k)) {
+      delete objCopy[k];
+    }
+  });
+
+  return objCopy;
 }

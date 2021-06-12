@@ -1,14 +1,14 @@
 import path from 'path';
-import { AdapterClass, IContainer } from './container.type';
-import { IController } from '../controller/controller.type';
-import { IProxyRequest } from '../proxy/proxy_request.type';
-import { IProxyResponse } from '../proxy/proxy_response.type';
+import type { AdapterClass, IContainer } from './container.type';
+import type { IController } from '../controller/controller.type';
+import type { IProxyRequest } from '../proxy/proxy_request.type';
+import type { IProxyResponse } from '../proxy/proxy_response.type';
 import { EventEmitter } from 'events';
-import { IProxiedRoute } from '../proxy/proxied_route.type';
-import { IAdapter } from '../adapter/adapter.type';
-import { ContainerOptions } from './container_options.type';
-import { IService } from '../service/service.type';
-import { Class } from 'type-fest';
+import type { IProxiedRoute } from '../proxy/proxied_route.type';
+import type { IAdapter } from '../adapter/adapter.type';
+import type { ContainerOptions } from './container_options.type';
+import type { InjectionToken } from 'tsyringe';
+import type { ServiceProviderAndOptions } from '../maestro/maestro_options.type';
 
 export abstract class Container extends EventEmitter implements IContainer {
 
@@ -18,27 +18,34 @@ export abstract class Container extends EventEmitter implements IContainer {
 
 	protected _cachedRoutes?: IProxiedRoute[];
 
-
 	/**
 	 * Controllers
 	 * -----------
 	 */
 	protected _controllers: IController[] = [];
 
-	#services : {
-		[name in string | symbol] : Class<IService>;
+	#services: {
+		[token in string | symbol]: ServiceProviderAndOptions;
 	} = {};
 
-	protected _dependencies : {
-		[name in string | symbol] : any;
+	protected _dependencies: {
+		[name in string | symbol]: any;
 	} = {};
 
-	constructor(options? : Partial<ContainerOptions>) {
+	constructor(options?: Partial<ContainerOptions>) {
 		super();
-
-
+		this.#services = options?.services ?? {};
+		this._controllers = options?.controllers ?? [];
+		this._containers = options?.containers ?? [];
 	}
-	
+
+	services(): ([InjectionToken, ServiceProviderAndOptions])[] {
+		return Object.entries(this.#services)
+			.map(([token, service]) => {
+				return [token, service];
+			});
+	}
+
 	transformRoute(route: IProxiedRoute): IProxiedRoute {
 
 		let nRoute: IProxiedRoute = {
@@ -47,7 +54,7 @@ export abstract class Container extends EventEmitter implements IContainer {
 			responseProxies: [...this.responseProxies(), ...route.responseProxies]
 		};
 
-		if(this.baseURL !== '') nRoute.url = path.posix.join(this.baseURL, route.url);
+		if (this.baseURL !== '') nRoute.url = path.posix.join(this.baseURL, route.url);
 
 		return nRoute;
 	}
@@ -179,7 +186,7 @@ export abstract class Container extends EventEmitter implements IContainer {
 	}
 
 	allServices() {
-		return {...this.#services};
+		return { ...this.#services };
 	}
 	setTargetedAdapters(adapters: AdapterClass[]) {
 		this._targetedAdapters = adapters;

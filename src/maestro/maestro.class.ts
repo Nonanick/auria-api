@@ -1,10 +1,11 @@
+import 'reflect-metadata';
 import { IAdapter, isAdapter } from '../adapter/adapter.type';
 import type { IProxiedRoute } from '../proxy/proxied_route.type';
 import type { IRouteRequest } from '../request/route_request.type';
 import type { IRequestPipe } from './composition/request_pipe.type';
 import type { RequestHandler } from './composition/request_handler.type';
 import type { IMaestro } from './maestro.type';
-import type { MaestroOptions } from './maestro_options.type';
+import type { MaestroOptions, ServiceProviderAndOptions } from './maestro_options.type';
 import type { SendErrorFunction } from './send_error.type';
 import type { SendResponseFunction } from './send_response.type';
 import * as Default from './default';
@@ -15,12 +16,16 @@ import { DiscoverOptions } from '../discover/DiscoverOptions';
 import { RequestFlowNotDefined } from '../error/exceptions/request_flow_not_defined';
 import { ValidateRequest } from './default/validate_request.fn';
 import { SchemaEnforcer } from '../route/schema/schema_enforcer.fn';
+import { container, DependencyContainer, InjectionToken, Lifecycle } from 'tsyringe';
+import { IServiceProvider, isServiceProvider } from '../service/service_provider.type';
 
 export class Maestro extends Container implements IMaestro {
 
 	get baseURL() {
 		return '';
 	}
+
+	#container: DependencyContainer = container;
 
 	public adapters: {
 		[name: string]: IAdapter;
@@ -29,6 +34,8 @@ export class Maestro extends Container implements IMaestro {
 	private resolveStartPromise: (() => void) | undefined;
 
 	private _started: Promise<void>;
+
+	private _services: Map<InjectionToken, ServiceProviderAndOptions> = new Map();
 
 	get started() {
 		return this._started;
@@ -52,7 +59,7 @@ export class Maestro extends Container implements IMaestro {
 	 * 
 	 */
 	public requestHandler: RequestHandler =
-		Default.RequestHandler;
+		Default.MaestroRequestHandler;
 
 	/**
 	 * Api Maestro
@@ -83,6 +90,12 @@ export class Maestro extends Container implements IMaestro {
 		if (options?.requestPipes != null) {
 			this.pipe(...options.requestPipes);
 		}
+
+		if (options?.services != null) {
+			Object.entries(options.services).forEach(([token, provider]) => {
+				this.addService(token, provider);
+			});
+		}
 	}
 
 	setRequestHandler(handler: RequestHandler): void {
@@ -105,12 +118,44 @@ export class Maestro extends Container implements IMaestro {
 				return;
 			}
 
-			if(isAdapter(use)) {
+			if (isAdapter(use)) {
 				this.addAdapter(use);
+			}
+
+			if (isServiceProvider(use)) {
+				use.services().forEach(([token, service]) => {
+					this.addService(token, service);
+				});
 			}
 
 		});
 	}
+
+	setService(token: InjectionToken, service: ServiceProviderAndOptions) {
+		this.#container.register(token, service as any, {
+			lifecycle: Lifecycle.Singleton,
+			...service
+		});
+		this._services.set(token, service);
+	}
+
+	hasService(token: InjectionToken) {
+		return this._services.has(token);
+	}
+
+	addService(token: InjectionToken, service: ServiceProviderAndOptions): void {
+		this.setService(token, service);
+	}
+
+	removeService(token: InjectionToken) {
+		this._services.delete(token);
+		this.#container.reset();
+
+		for (let [token, service] of this._services.entries()) {
+			this.setService(token, service);
+		}
+	}
+
 
 	add(...addToMaestro: UseInMaestro[]) {
 		this.use(...addToMaestro);
@@ -136,7 +181,7 @@ export class Maestro extends Container implements IMaestro {
 		return [...this.requestPipes];
 	}
 
-	public handle: MaestroRequestHandler = async (
+	public handle: IMaestroRequestHandler = async (
 		route: IProxiedRoute,
 		request: IRouteRequest,
 		sendResponse: SendResponseFunction,
@@ -180,6 +225,12 @@ export class Maestro extends Container implements IMaestro {
 			);
 		}
 
+		// Boot services
+		for (let [token, provider] of this._services.entries()) {
+			this.setService(token, provider);
+		}
+
+		// Boot adapters
 		for (let adapterName in this.adapters) {
 			let adapter = this.adapters[adapterName];
 			adapter.setRequestHandler(this.handle);
@@ -198,9 +249,9 @@ export class Maestro extends Container implements IMaestro {
 }
 
 
-export type UseInMaestro = Container | Controller | IAdapter;
+export type UseInMaestro = Container | Controller | IAdapter | IServiceProvider;
 
-export type MaestroRequestHandler = (
+export type IMaestroRequestHandler = (
 	route: IProxiedRoute,
 	request: IRouteRequest,
 	sendResponse: SendResponseFunction,

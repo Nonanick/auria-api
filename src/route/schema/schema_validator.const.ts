@@ -5,5 +5,6 @@ export const SchemaValidator = new ajv({
   useDefaults: true,
   removeAdditional: true,
   allErrors: true,
-  validateFormats : false
+  validateFormats : false,
+  validateSchema : 'log',
 });

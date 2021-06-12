@@ -19,7 +19,7 @@ function stringfyError(errors?: ErrorObject[]) {
   let accumulate: string[] = [];
   errors.forEach(err => {
     accumulate.push(
-      `Invalid request schema! Given value "${err.data}" on "${err.dataPath}" ${err.message} ${JSON.stringify(err.params)}`
+      `Invalid request schema! ${err.message} @ body${err.instancePath != '' ? ' -> ' + err.instancePath : ''} `
     );
   });
   return accumulate.join(', ');

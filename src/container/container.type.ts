@@ -4,10 +4,9 @@ import type { IController } from '../controller/controller.type';
 import type { IProxyRequest } from '../proxy/proxy_request.type';
 import type { IProxyResponse } from '../proxy/proxy_response.type';
 import type { IProxiedRoute } from '../proxy/proxied_route.type';
-import { IService } from '../service/service.type';
-import { Class } from 'type-fest';
+import { IServiceProvider } from '../service/service_provider.type';
 
-export interface IContainer extends EventEmitter {
+export interface IContainer extends EventEmitter, IServiceProvider {
 
 	/**
 	 * Base URL
@@ -71,10 +70,6 @@ export interface IContainer extends EventEmitter {
 	acceptsAdapter(adapterInstance: IAdapter): boolean;
 
 	allRoutes(): IProxiedRoute[];
-
-	allServices() : {
-		[name in string | symbol] : Class<IService>;
-	};
 
 }
 

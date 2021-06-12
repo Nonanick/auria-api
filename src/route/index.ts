@@ -6,3 +6,4 @@ export { RouteParameter } from './route_parameter.type';
 export { RequestSchema, ResponseSchema, RouteSchema } from './route_schema.type';
 export * from './injectable_handler.type';
 export * from './schema';
+export * from './argument_injectors';

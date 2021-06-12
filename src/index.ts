@@ -11,9 +11,7 @@ export { Container } from './container/container.class';
 export { IContainer } from './container/container.type';
 
 // Controller
-export { Controller } from './controller/controller.class';
-export { IController } from './controller/controller.type';
-export { Route, ControllerRoutesSymbol, RegisterApiRouteParams } from './controller/route.decorator';
+export * from './controller';
 
 // Error
 export { ApiError } from './error/api_error.error';
@@ -30,12 +28,7 @@ export { UnknownParameterSchemaPolicy } from './error/exceptions/unknown_paramet
 export { UnknownParameterValidationPolicy } from './error/exceptions/unknown_parameter_validation_policy.error';
 
 // Maestro
-export { Maestro, MaestroRequestHandler as RequestHandlerFunction } from './maestro/maestro.class';
-export { RequestHandler } from './maestro/composition/request_handler.type';
-export { SendErrorFunction } from './maestro/send_error.type';
-export { SendResponseFunction } from './maestro/send_response.type';
-export { IMaestro } from './maestro/maestro.type';
-export { MaestroRequestHandler } from './maestro/default/request_handler.fn';
+export * from './maestro';
 
 // Proxy
 export { IProxyRequest } from './proxy/proxy_request.type';

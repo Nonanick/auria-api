@@ -42,7 +42,7 @@ export function FromBody(options: FromBodyOptions) {
           }
         }
       }
-
+      console.log('Injecting into method called values', value, options.property, request.byOrigin!.body)
       return value;
     }
 
@@ -55,6 +55,7 @@ function InjectArgumentFromBody( request : IRouteRequest, propertyPath : string)
     autostart : true,
     json : request.byOrigin!.body,
     preventEval : true,
+    wrap : false
   });
 
   return values;

@@ -2,6 +2,7 @@ import path from 'path';
 import type { IProxiedRoute } from '../proxy/proxied_route.type';
 import type { IProxyRequest } from '../proxy/proxy_request.type';
 import type { IProxyResponse } from '../proxy/proxy_response.type';
+import { ArgumentInjector, HandlerInjectorSymbol } from '../route';
 import type { IController } from './controller.type';
 import { ControllerRoutesSymbol } from './route.decorator';
 
@@ -36,6 +37,12 @@ export abstract class Controller implements IController {
 		}
 
 		this._apiRoutes = [...Object.values<IProxiedRoute>(proto[ControllerRoutesSymbol])];
+
+		if(proto[HandlerInjectorSymbol] != null) {
+			Object.entries(proto[HandlerInjectorSymbol]).forEach(([method, injectors ]) => {
+					(this as any)[method][HandlerInjectorSymbol] = injectors;
+			})
+		}
 
 	}
 	defaultRouteConfig: any;

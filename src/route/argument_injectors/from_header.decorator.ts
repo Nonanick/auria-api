@@ -115,6 +115,7 @@ function InjectArgumentFromHeader( request : IRouteRequest, propertyPath : strin
     autostart : true,
     json : request.byOrigin!.header,
     preventEval : true,
+    wrap : false
   });
 
   return values;
