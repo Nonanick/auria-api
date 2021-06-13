@@ -27,16 +27,15 @@ export async function SchemaEnforcer(
 
     return Promise.all(allValid)
       .then(ok => {
-        console.log('Is Schem OK?',ok, route.schema);
         if (ok.includes(false)) {
           return new SchemaViolation(SchemaValidator.errors ?? []);
         }
         return true as true;
-      }).catch(err => {
+      })
+      .catch(err => {
         console.error("[Maestro - Schema Enforcer] Failed to validate request -> Promise exception!\n",err);
         return new SchemaViolation(err.errors);
       });
-
   }
 
   return true;

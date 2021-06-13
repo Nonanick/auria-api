@@ -1,9 +1,10 @@
-import { IController } from '../controller/controller.type';
-import { ServiceProviderAndOptions } from '../maestro/maestro_options.type';
-import { IContainer } from './container.type';
+import type { IController } from '../controller/controller.type';
+import type { ServiceProviderAndOptions } from '../maestro/maestro_options.type';
+import type { IContainer } from './container.type';
+import type { Class } from 'type-fest';
 
 export interface ContainerOptions {
-  controllers : IController[];
+  controllers : ( Class<IController> | IController)[];
   containers : IContainer[];
   services : {
     [token in string | symbol] : ServiceProviderAndOptions;

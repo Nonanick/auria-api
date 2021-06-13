@@ -18,14 +18,22 @@ import { ValidateRequest } from './default/validate_request.fn';
 import { SchemaEnforcer } from '../route/schema/schema_enforcer.fn';
 import { container, DependencyContainer, InjectionToken, Lifecycle } from 'tsyringe';
 import { IServiceProvider, isServiceProvider } from '../service/service_provider.type';
+import type { Class } from 'type-fest';
+import { isConstructor } from '../util/is_constructor.fn';
 
 export class Maestro extends Container implements IMaestro {
+
+	static RegisteredServices : {
+		[name in string | symbol] : ServiceProviderAndOptions;
+	} = {};
 
 	get baseURL() {
 		return '';
 	}
 
 	#container: DependencyContainer = container;
+
+	#resolveAtBoot: (Class<Container> | Class<Controller> | Class<IAdapter> | Class<IServiceProvider>)[] = [];
 
 	public adapters: {
 		[name: string]: IAdapter;
@@ -77,6 +85,10 @@ export class Maestro extends Container implements IMaestro {
 			this.resolveStartPromise = resolve;
 		});
 
+		if(options?.container != null) {
+			this.#container = options.container;
+		}
+
 		if (options?.adapters != null) {
 			options.adapters.forEach(adapter => {
 				this.addAdapter(adapter);
@@ -92,9 +104,11 @@ export class Maestro extends Container implements IMaestro {
 		}
 
 		if (options?.services != null) {
-			Object.entries(options.services).forEach(([token, provider]) => {
-				this.addService(token, provider);
-			});
+			Object.entries(options.services).forEach(
+				([token, provider]) => {
+					this.addService(token, provider);
+				}
+			);
 		}
 	}
 
@@ -108,6 +122,7 @@ export class Maestro extends Container implements IMaestro {
 
 	use(...addToMaestro: UseInMaestro[]) {
 		addToMaestro.forEach(use => {
+
 			if (use instanceof Container) {
 				this.addChildContainer(use);
 				return;
@@ -128,14 +143,15 @@ export class Maestro extends Container implements IMaestro {
 				});
 			}
 
+			if (isConstructor(use)) {
+				this.#resolveAtBoot.push(use);
+			}
+
 		});
 	}
 
 	setService(token: InjectionToken, service: ServiceProviderAndOptions) {
-		this.#container.register(token, service as any, {
-			lifecycle: Lifecycle.Singleton,
-			...service
-		});
+		this.#container.register(token, service as any);
 		this._services.set(token, service);
 	}
 
@@ -230,6 +246,13 @@ export class Maestro extends Container implements IMaestro {
 			this.setService(token, provider);
 		}
 
+		// Boot pending resolutions
+		for (let pendingConstructor of this.#resolveAtBoot) {
+			this.#container.register(pendingConstructor.name as any, pendingConstructor as any);
+			let instance = this.#container.resolve(pendingConstructor.name);
+			this.use(instance as UseInMaestro);
+		}
+
 		// Boot adapters
 		for (let adapterName in this.adapters) {
 			let adapter = this.adapters[adapterName];
@@ -242,6 +265,10 @@ export class Maestro extends Container implements IMaestro {
 		this.resolveStartPromise = undefined;
 	}
 
+	getDependencyManager() {
+		return this.#container;
+	}
+
 	makeDiscoverable(options?: Partial<DiscoverOptions>) {
 		this.addChildContainer(new Discover(this, options));
 	}
@@ -249,7 +276,9 @@ export class Maestro extends Container implements IMaestro {
 }
 
 
-export type UseInMaestro = Container | Controller | IAdapter | IServiceProvider;
+export type UseInMaestro =
+	| Container | Controller | IAdapter | IServiceProvider
+	| Class<Container> | Class<Controller> | Class<IAdapter> | Class<IServiceProvider>;
 
 export type IMaestroRequestHandler = (
 	route: IProxiedRoute,

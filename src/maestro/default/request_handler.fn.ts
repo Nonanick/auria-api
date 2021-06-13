@@ -68,6 +68,7 @@ export const MaestroRequestHandler: RequestHandler =
 						}
 					)
 				);
+				handlerWithInjectedArgs = handlerWithInjectedArgs.bind(route.controller);
 				routineResponse = await handlerWithInjectedArgs(...injectedArgs);
 			}
 			// If not resolve it passing the request

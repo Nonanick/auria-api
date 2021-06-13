@@ -46,4 +46,7 @@ export { RouteResponse } from './response/route_response.class';
 // Route
 export * from './route';
 
+// Service
+export * from './service';
+
 export * as HTTPError from './error/error/http';

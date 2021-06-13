@@ -42,7 +42,6 @@ export function FromBody(options: FromBodyOptions) {
           }
         }
       }
-      console.log('Injecting into method called values', value, options.property, request.byOrigin!.body)
       return value;
     }
 

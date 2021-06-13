@@ -9,6 +9,8 @@ import type { IAdapter } from '../adapter/adapter.type';
 import type { ContainerOptions } from './container_options.type';
 import type { InjectionToken } from 'tsyringe';
 import type { ServiceProviderAndOptions } from '../maestro/maestro_options.type';
+import { Controller } from '../controller';
+import type { Class } from 'type-fest';
 
 export abstract class Container extends EventEmitter implements IContainer {
 
@@ -35,7 +37,10 @@ export abstract class Container extends EventEmitter implements IContainer {
 	constructor(options?: Partial<ContainerOptions>) {
 		super();
 		this.#services = options?.services ?? {};
-		this._controllers = options?.controllers ?? [];
+		this._controllers = (options?.controllers ?? [] ).map(ctrl => {
+			if(ctrl instanceof Controller) return ctrl;
+			else return new (ctrl as any)();
+		});
 		this._containers = options?.containers ?? [];
 	}
 
