@@ -11,8 +11,11 @@ export function Request() {
         [property]: []
       };
     }
+    if(proto[HandlerInjectorSymbol][property] == null) {
+      proto[HandlerInjectorSymbol][property] = [];
+    }
 
-    proto[HandlerInjectorSymbol][property][index] = (route : IRoute, req : IRouteRequest) => {
+    proto[HandlerInjectorSymbol][property][index] = (_route : IRoute, req : IRouteRequest) => {
       return req;
     }
   }

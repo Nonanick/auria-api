@@ -9,7 +9,7 @@ import { ArraySchema, BooleanSchema, NumberSchema, StringSchema } from '../schem
 import { ParameterTransformation } from './parameter_transformation.type';
 import { ParameterValidation } from './parameter_validation.type';
 
-export function FromQuery(options: FromQueryOptions) {
+export function Query(options: FromQueryOptions) {
 
   return function (proto: any, property: string, index: number) {
 

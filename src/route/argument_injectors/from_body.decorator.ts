@@ -9,7 +9,7 @@ import { JSONSchema } from '../schema';
 import { ParameterTransformation } from './parameter_transformation.type';
 import { ParameterValidation } from './parameter_validation.type';
 
-export function FromBody(options: FromBodyOptions) {
+export function Body(options: FromBodyOptions) {
 
   return function (proto: any, property: string, index: number) {
 

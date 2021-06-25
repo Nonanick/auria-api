@@ -9,7 +9,7 @@ import { StringSchema } from '../schema';
 import { ParameterTransformation } from './parameter_transformation.type';
 import { ParameterValidation } from './parameter_validation.type';
 
-export function FromHeader(options: string | FromHeaderOptions) {
+export function Header(options: string | FromHeaderOptions) {
 
   return function (proto: any, property: string, index: number) {
 
