@@ -27,6 +27,9 @@ export { RequestFlowNotDefined } from './error/exceptions/request_flow_not_defin
 export { UnknownParameterSchemaPolicy } from './error/exceptions/unknown_parameter_schema_policy.error';
 export { UnknownParameterValidationPolicy } from './error/exceptions/unknown_parameter_validation_policy.error';
 
+// Logger
+export { Log } from './logger/logger.class';
+
 // Maestro
 export * from './maestro';
 
@@ -36,8 +39,7 @@ export { IProxyResponse } from './proxy/proxy_response.type';
 export { IProxiedRoute } from './proxy/proxied_route.type';
 
 // Request
-export { RouteRequest } from './request/route_request.class';
-export { IRouteRequest } from './request/route_request.type';
+export * from './request';
 
 // Response
 export { IRouteResponse, implementsRouteResponse } from './response/route_response.type';

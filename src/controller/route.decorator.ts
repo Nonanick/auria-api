@@ -57,56 +57,114 @@ export function Route(params: RegisterApiRouteParams) {
 	};
 }
 
-export function GET(params : Except<RegisterApiRouteParams, "methods">) {
+export function GET(params: Except<RegisterApiRouteParams, "methods"> | string) {
+	let useParams: Except<RegisterApiRouteParams, "methods">;
+
+	if (typeof params === "string") {
+		useParams = {
+			url: params
+		}
+	} else {
+		useParams = params;
+	}
 
 	return Route({
-		...params,
-		methods : 'get'
-	})
+		...useParams,
+		methods: 'get'
+	});
 
 }
 
-export function POST(params : Except<RegisterApiRouteParams, "methods">) {
+export function POST(params: Except<RegisterApiRouteParams, "methods"> | string) {
+
+	let useParams: Except<RegisterApiRouteParams, "methods">;
+
+	if (typeof params === "string") {
+		useParams = {
+			url: params
+		}
+	} else {
+		useParams = params;
+	}
 
 	return Route({
-		...params,
-		methods : 'post'
-	})
+		...useParams,
+		methods: 'post'
+	});
 
 }
 
-export function PUT(params : Except<RegisterApiRouteParams, "methods">) {
+export function PUT(params: Except<RegisterApiRouteParams, "methods"> | string) {
+	let useParams: Except<RegisterApiRouteParams, "methods">;
+
+	if (typeof params === "string") {
+		useParams = {
+			url: params
+		}
+	} else {
+		useParams = params;
+	}
 
 	return Route({
-		...params,
-		methods : 'put'
-	})
+		...useParams,
+		methods: 'put'
+	});
 
 }
 
-export function DELETE(params : Except<RegisterApiRouteParams, "methods">) {
+export function DELETE(params: Except<RegisterApiRouteParams, "methods"> | string) {
+
+	let useParams: Except<RegisterApiRouteParams, "methods">;
+
+	if (typeof params === "string") {
+		useParams = {
+			url: params
+		}
+	} else {
+		useParams = params;
+	}
 
 	return Route({
-		...params,
-		methods : 'delete'
-	})
+		...useParams,
+		methods: 'delete'
+	});
 
 }
 
-export function PATCH(params : Except<RegisterApiRouteParams, "methods">) {
+export function PATCH(params: Except<RegisterApiRouteParams, "methods"> | string) {
+
+	let useParams: Except<RegisterApiRouteParams, "methods">;
+
+	if (typeof params === "string") {
+		useParams = {
+			url: params
+		}
+	} else {
+		useParams = params;
+	}
 
 	return Route({
-		...params,
-		methods : 'patch'
-	})
+		...useParams,
+		methods: 'patch'
+	});
 
 }
 
-export function SEARCH(params : Except<RegisterApiRouteParams, "methods">) {
+export function SEARCH(params: Except<RegisterApiRouteParams, "methods"> | string) {
+
+	let useParams: Except<RegisterApiRouteParams, "methods">;
+
+	if (typeof params === "string") {
+		useParams = {
+			url: params
+		}
+	} else {
+		useParams = params;
+	}
 
 	return Route({
-		...params,
-		methods : 'search'
-	})
+		...useParams,
+		methods: 'search'
+	});
 
 }

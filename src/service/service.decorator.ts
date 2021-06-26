@@ -12,19 +12,21 @@ export function Service(
 
 export function Inject<Return = any>(
   token: string | symbol | Class<any>
-): Return {
-  return container.resolve(ResolveToken(token)) as Return;
+) {
+  return (_proto : any, _prop : string, _index: number) => {
+    return container.resolve(ResolveToken(token)) as Return;
+  };
 }
 
-function ResolveToken(token: string | symbol | Class<any>) : symbol {
-  
-  if(typeof token === "symbol") return token;
+function ResolveToken(token: string | symbol | Class<any>): symbol {
 
-  if(typeof token === "string") return Symbol.for(token);
+  if (typeof token === "symbol") return token;
 
-  if((token as any).Token !== null) return ResolveToken((token as any).Token);
+  if (typeof token === "string") return Symbol.for(token);
 
-  if((token as any).Symbol !== null) return ResolveToken((token as any).Symbol);
+  if ((token as any).Token !== null) return ResolveToken((token as any).Token);
+
+  if ((token as any).Symbol !== null) return ResolveToken((token as any).Symbol);
 
   return Symbol.for(token.constructor.name);
 

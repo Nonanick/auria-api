@@ -4,6 +4,7 @@ import type { MaybePromise } from '../../error/maybe.type';
 import type { RouteSchema } from '../route_schema.type';
 import { SchemaViolation } from '../../error/schema/schema_violation.error';
 import { SchemaValidator } from './schema_validator.const';
+import { Log } from '../../logger/logger.class';
 
 export async function SchemaEnforcer(
   route: IProxiedRoute,
@@ -33,7 +34,7 @@ export async function SchemaEnforcer(
         return true as true;
       })
       .catch(err => {
-        console.error("[Maestro - Schema Enforcer] Failed to validate request -> Promise exception!\n",err);
+        Log.error(err, "[Maestro - Schema Enforcer] Failed to validate request -> Promise exception!\n");
         return new SchemaViolation(err.errors);
       });
   }

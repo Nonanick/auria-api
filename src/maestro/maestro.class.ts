@@ -20,11 +20,12 @@ import { container, DependencyContainer, InjectionToken, Lifecycle } from 'tsyri
 import { IServiceProvider, isServiceProvider } from '../service/service_provider.type';
 import type { Class } from 'type-fest';
 import { isConstructor } from '../util/is_constructor.fn';
+import { Log } from '../logger/logger.class';
 
 export class Maestro extends Container implements IMaestro {
 
-	static RegisteredServices : {
-		[name in string | symbol] : ServiceProviderAndOptions;
+	static RegisteredServices: {
+		[name in string | symbol]: ServiceProviderAndOptions;
 	} = {};
 
 	get baseURL() {
@@ -85,7 +86,7 @@ export class Maestro extends Container implements IMaestro {
 			this.resolveStartPromise = resolve;
 		});
 
-		if(options?.container != null) {
+		if (options?.container != null) {
 			this.#container = options.container;
 		}
 
@@ -207,7 +208,7 @@ export class Maestro extends Container implements IMaestro {
 		for (let pipe of this.requestPipes) {
 			let canProceed = await pipe.pipe(route, request);
 			if (canProceed !== true) {
-				console.error('Failed to fulfill request! "' + pipe.name + '" returned the error: ', canProceed.message);
+				Log.error(canProceed, 'Failed to fulfill request! "' + pipe.name + '" returned the error: ', canProceed.message);
 				sendError(canProceed);
 				return;
 			}
@@ -248,8 +249,9 @@ export class Maestro extends Container implements IMaestro {
 
 		// Boot pending resolutions
 		for (let pendingConstructor of this.#resolveAtBoot) {
-			this.#container.register(pendingConstructor.name as any, pendingConstructor as any);
-			let instance = this.#container.resolve(pendingConstructor.name);
+
+			let instance = new pendingConstructor;
+			this.#container.register(pendingConstructor.name as any, { useValue : instance as any} );
 			this.use(instance as UseInMaestro);
 		}
 

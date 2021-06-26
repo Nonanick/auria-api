@@ -1,3 +1,4 @@
+import { BadRequest } from '../../error/error/http';
 import { IProxiedRoute } from "../../proxy/proxied_route.type";
 import { IRouteRequest } from "../../request/route_request.type";
 
@@ -31,7 +32,7 @@ export async function ValidateRequest(
     }
 
     if (Array.isArray(isValid)) {
-      isValid = new Error(isValid.map(e => e.message).join('; '));
+      isValid = new BadRequest(isValid.map(e => e.message).join('; '));
     }
 
     return isValid;

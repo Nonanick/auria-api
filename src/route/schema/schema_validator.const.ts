@@ -1,7 +1,7 @@
 import ajv from 'ajv';
 
 export const SchemaValidator = new ajv({
-  coerceTypes: true,
+  coerceTypes: false,
   useDefaults: true,
   removeAdditional: true,
   allErrors: true,
